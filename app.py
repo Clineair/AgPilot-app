@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 # ────────────────────────────────────────────────
 # Aircraft Database
-# Order matters: AT-502B is first so it appears at the top / default
+# AT-502B is first (default), AT-802 added third
 # ────────────────────────────────────────────────
 
 AIRCRAFT_DATA = {
@@ -25,7 +25,7 @@ AIRCRAFT_DATA = {
         "max_takeoff_weight_lbs": 9400,
         "max_landing_weight_lbs": 8000,
         "glide_ratio": 8.0,
-        "description": "Widely used single-engine ag aircraft"
+        "description": "Single-engine piston ag aircraft"
     },
     "Thrush 510P": {
         "name": "Thrush 510P",
@@ -44,15 +44,32 @@ AIRCRAFT_DATA = {
         "max_takeoff_weight_lbs": 12000,
         "max_landing_weight_lbs": 10500,
         "glide_ratio": 7.5,
-        "description": "High-capacity turbine ag aircraft"
+        "description": "Turbine-powered high-capacity ag aircraft"
     },
-    # You can easily add more aircraft here, e.g.:
-    # "Air Tractor AT-602": { ... },
-    # "Air Tractor AT-802": { ... },
+    "Air Tractor AT-802": {
+        "name": "Air Tractor AT-802",
+        "base_takeoff_ground_roll_ft": 1800,      # approximate – higher due to larger size/weight
+        "base_takeoff_to_50ft_ft": 3400,
+        "base_landing_ground_roll_ft": 1100,
+        "base_landing_to_50ft_ft": 2200,
+        "base_climb_rate_fpm": 1050,
+        "base_stall_flaps_down_mph": 78,
+        "best_climb_speed_mph": 120,
+        "base_empty_weight_lbs": 6750,
+        "base_fuel_capacity_gal": 380,
+        "fuel_weight_per_gal": 6.7,               # Jet-A / turbine fuel is slightly heavier
+        "hopper_capacity_gal": 800,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 16000,
+        "max_landing_weight_lbs": 14000,
+        "glide_ratio": 7.0,
+        "description": "Large turbine ag aircraft – high payload & range"
+    },
+    # Add more aircraft here as needed
 }
 
 # ────────────────────────────────────────────────
-# Helper Functions
+# Helper Functions (unchanged – they pull from selected aircraft)
 # ────────────────────────────────────────────────
 
 def calculate_density_altitude(pressure_alt_ft, oat_c):
@@ -137,19 +154,19 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Aircraft selection – AT-502B is first in the dictionary, so it's the default
+# Aircraft selection – AT-502B is first (default)
 selected_aircraft = st.selectbox(
     "Select Aircraft",
     options=list(AIRCRAFT_DATA.keys()),
-    index=0,  # 0 = first item (AT-502B)
+    index=0,  # 0 = first item = AT-502B
     format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
 )
 
-# Display selected aircraft info
+# Show selected aircraft info
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 
-# Inputs – max values adjusted based on selected aircraft
+# Inputs – limits adjusted to selected aircraft
 col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
@@ -169,7 +186,7 @@ with col2:
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
     glide_height_ft  = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
 
-# Calculate button
+# Calculate
 if st.button("Calculate Performance", type="primary"):
     ground_roll_to, to_50ft     = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
@@ -215,7 +232,7 @@ rating = st.feedback("stars")
 comment = st.text_area(
     "Comments, suggestions, or issues",
     height=120,
-    placeholder="Ideas? Bugs? Missing aircraft?..."
+    placeholder="Ideas? Comments? Suggestions?..."
 )
 
 if st.button("Submit Rating & Comment"):
