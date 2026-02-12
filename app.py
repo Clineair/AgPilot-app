@@ -160,25 +160,25 @@ def show_risk_assessment():
     total_risk += pilot_fatigue
 
     st.markdown("### Aircraft Factors")
-    ac_maintenance = st.slider("Aircraft maintenance status / known squawks", 0, 10, 3, step=1)
+    ac_maintenance = st.slider("Aircraft maintenance status / Known squawks", 0, 10, 3, step=1)
     total_risk += ac_maintenance
     ac_fuel = st.slider("Fuel planning / Landing with 20 min reserve?", 0, 10, 2, step=1)
     total_risk += ac_fuel
 
     st.markdown("### Environment / Weather")
-    weather_ceiling = st.slider("Ceiling / visibility (Check Forcast?)", 0, 10, 4, step=1)
+    weather_ceiling = st.slider("Ceiling / visibility (Check Forcast/Notams/TFR's?)", 0, 10, 4, step=1)
     total_risk += weather_ceiling
     weather_turb = st.slider("Turbulence / rain or wind?", 0, 10, 3, step=1)
     total_risk += weather_turb
 
     st.markdown("### Operations")
-    flight_type = st.slider("Flight type complexity (Obstructions)", 0, 10, 4, step=1)
+    flight_type = st.slider("Flight type complexity (Obstructions, Towers, Wires)", 0, 10, 4, step=1)
     total_risk += flight_type
-    alternate = st.slider("Comm time established / emergency options", 0, 10, 2, step=1)
+    alternate = st.slider("Comm time established / Emergency Plan", 0, 10, 2, step=1)
     total_risk += alternate
 
     st.markdown("### External Pressures")
-    pressure = st.slider("Get-there-itis / customer pressure", 0, 10, 2, step=1)
+    pressure = st.slider("Family / Customer pressure", 0, 10, 2, step=1)
     total_risk += pressure
 
     # Final score and color
