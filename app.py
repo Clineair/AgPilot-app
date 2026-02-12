@@ -1,12 +1,12 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from streamlit_gsheets import GSheetsConnection
-import datetime
 
 # ────────────────────────────────────────────────
 # Aircraft Database
+# AT-502B first (default), AT-802 added
 # ────────────────────────────────────────────────
+
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
         "name": "Air Tractor AT-502B",
@@ -144,12 +144,13 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Risk Assessment Section
+# Risk Assessment Section (FRAT)
 # ────────────────────────────────────────────────
 
 def show_risk_assessment():
     st.subheader("Flight Risk Assessment")
     st.caption("Simple risk scoring tool (inspired by FAA FRAT & Baron Performance style). Score each item 0–10. Higher = more risk.")
+
     total_risk = 0
 
     st.markdown("### Pilot Factors")
@@ -165,7 +166,7 @@ def show_risk_assessment():
     total_risk += ac_fuel
 
     st.markdown("### Environment / Weather")
-    weather_ceiling = st.slider("Ceiling / visibility (Check Forecast/Notams/TFR's?)", 0, 10, 4, step=1)
+    weather_ceiling = st.slider("Ceiling / visibility (Check Forcast/Notams/TFR's?)", 0, 10, 4, step=1)
     total_risk += weather_ceiling
     weather_turb = st.slider("Turbulence / rain or wind?", 0, 10, 3, step=1)
     total_risk += weather_turb
@@ -180,6 +181,7 @@ def show_risk_assessment():
     pressure = st.slider("Family / Customer pressure", 0, 10, 2, step=1)
     total_risk += pressure
 
+    # Final score and color
     st.markdown("---")
     if total_risk <= 20:
         risk_level = "Low Risk"
@@ -193,6 +195,7 @@ def show_risk_assessment():
 
     st.markdown(f"**Total Risk Score: {total_risk} / 70**")
     st.markdown(f"<span style='color:{color}; font-weight:bold; font-size:1.3em;'>{risk_level}</span>", unsafe_allow_html=True)
+
     st.caption("Mitigate high-risk items before departure. This is a simple guide, not a substitute for full preflight briefing.")
 
 # ────────────────────────────────────────────────
@@ -205,7 +208,7 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Aircraft selection row with Risk Assessment button
+# Aircraft selection row with Risk Assessment button to the right
 col_select, col_button = st.columns([4, 1])
 
 with col_select:
@@ -217,7 +220,7 @@ with col_select:
     )
 
 with col_button:
-    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)  # vertical alignment
     if st.button("Risk Assessment", type="secondary"):
         st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
@@ -229,34 +232,35 @@ st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
 
+# ── Rest of the inputs, calculations, chart, feedback (unchanged) ──
 # Inputs
 col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
-    oat_c = st.number_input("OAT (°C)", -30, 50, 15, step=1)
-    weight_lbs = st.number_input(
+    oat_c           = st.number_input("OAT (°C)", -30, 50, 15, step=1)
+    weight_lbs      = st.number_input(
         "Gross Weight (lbs)",
         4000,
         aircraft_data["max_takeoff_weight_lbs"],
         aircraft_data["max_takeoff_weight_lbs"],
         step=50
     )
-    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
+    wind_kts        = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
 
 with col2:
-    fuel_gal = st.number_input("Fuel (gal)", 0, aircraft_data["base_fuel_capacity_gal"], aircraft_data["base_fuel_capacity_gal"], step=10)
-    hopper_gal = st.number_input("Hopper / Load (gal)", 0, aircraft_data["hopper_capacity_gal"], 0, step=50)
+    fuel_gal         = st.number_input("Fuel (gal)", 0, aircraft_data["base_fuel_capacity_gal"], aircraft_data["base_fuel_capacity_gal"], step=10)
+    hopper_gal       = st.number_input("Hopper / Load (gal)", 0, aircraft_data["hopper_capacity_gal"], 0, step=50)
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
-    glide_height_ft = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
+    glide_height_ft  = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
 
 # Calculate button
 if st.button("Calculate Performance", type="primary"):
-    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
+    ground_roll_to, to_50ft     = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
-    climb_rate = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
-    stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
-    glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
-    total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
+    climb_rate                  = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
+    stall_speed                 = compute_stall_speed(weight_lbs, selected_aircraft)
+    glide_dist                  = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
+    total_weight, cg_status     = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
 
     st.subheader("Results")
     col_a, col_b = st.columns(2)
@@ -271,7 +275,7 @@ if st.button("Calculate Performance", type="primary"):
         st.metric("Stall Speed (flaps down)", f"{stall_speed:.1f} mph")
         st.metric("Glide Distance", f"{glide_dist:.1f} nm")
 
-    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
+    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs  –  **{cg_status}**")
 
     # Climb chart
     st.subheader("Rate of Climb vs Pressure Altitude")
@@ -286,41 +290,23 @@ if st.button("Calculate Performance", type="primary"):
     ax.grid(True, linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
-# ────────────────────────────────────────────────
-# Google Sheets Feedback Section
-# ────────────────────────────────────────────────
-
+# Feedback section
 st.markdown("---")
 st.subheader("Your Feedback – Help Improve AgPilot")
-
-conn = st.connection("gsheets", type=GSheetsConnection)
 
 rating = st.feedback("stars")
 
 comment = st.text_area(
     "Comments, suggestions, or issues",
     height=120,
-    placeholder="Ideas? Bugs? New features you'd like?..."
+    placeholder="Ideas? Suggestions? Comments?..."
 )
 
-if st.button("Submit Rating & Comment", type="primary"):
+if st.button("Submit Rating & Comment"):
     if rating is not None:
         stars = rating + 1
-
-        new_row = {
-            "Timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Rating": stars,
-            "Comment": comment.strip() if comment.strip() else "[No comment provided]"
-        }
-
-        try:
-            conn.update(worksheet=0, data=[new_row], mode="append")
-            st.success(f"Thank you! Rated **{stars} stars** — feedback saved to Google Sheets.")
-            if comment.strip():
-                st.caption("Your comment was recorded.")
-        except Exception as e:
-            st.error("Could not save feedback.")
-            st.caption(f"Error: {str(e)}")
-            st.caption("Please try again or contact support.")
+        st.success(f"Thank you! You rated **{stars} stars**.")
+        if comment.strip():
+            st.caption(f"Comment: {comment}")
     else:
-        st.warning("Please select a star rating before submitting.")
+        st.warning("Please select a star rating.")
