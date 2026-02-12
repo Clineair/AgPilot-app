@@ -162,23 +162,23 @@ def show_risk_assessment():
     st.markdown("### Aircraft Factors")
     ac_maintenance = st.slider("Aircraft maintenance status / known squawks", 0, 10, 3, step=1)
     total_risk += ac_maintenance
-    ac_fuel = st.slider("Fuel planning / reserves", 0, 10, 2, step=1)
+    ac_fuel = st.slider("Fuel planning / Landing with 20 min reserve?", 0, 10, 2, step=1)
     total_risk += ac_fuel
 
     st.markdown("### Environment / Weather")
-    weather_ceiling = st.slider("Ceiling / visibility (VFR or IFR conditions)", 0, 10, 4, step=1)
+    weather_ceiling = st.slider("Ceiling / visibility (Check Forcast?)", 0, 10, 4, step=1)
     total_risk += weather_ceiling
-    weather_turb = st.slider("Turbulence / icing forecast", 0, 10, 3, step=1)
+    weather_turb = st.slider("Turbulence / rain or wind?", 0, 10, 3, step=1)
     total_risk += weather_turb
 
-    st.markdown("### Operation / Flight Plan")
-    flight_type = st.slider("Flight type complexity (local vs long IFR cross-country)", 0, 10, 4, step=1)
+    st.markdown("### Operations")
+    flight_type = st.slider("Flight type complexity (Obstructions)", 0, 10, 4, step=1)
     total_risk += flight_type
-    alternate = st.slider("Alternate airport / emergency options", 0, 10, 2, step=1)
+    alternate = st.slider("Comm time established / emergency options", 0, 10, 2, step=1)
     total_risk += alternate
 
     st.markdown("### External Pressures")
-    pressure = st.slider("Get-there-itis / schedule pressure", 0, 10, 2, step=1)
+    pressure = st.slider("Get-there-itis / customer pressure", 0, 10, 2, step=1)
     total_risk += pressure
 
     # Final score and color
@@ -299,7 +299,7 @@ rating = st.feedback("stars")
 comment = st.text_area(
     "Comments, suggestions, or issues",
     height=120,
-    placeholder="Ideas? Bugs? Missing aircraft?..."
+    placeholder="Ideas? Suggestions? Comments?..."
 )
 
 if st.button("Submit Rating & Comment"):
