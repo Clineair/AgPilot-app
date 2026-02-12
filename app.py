@@ -287,7 +287,7 @@ if st.button("Calculate Performance", type="primary"):
     st.pyplot(fig)
 
 # ────────────────────────────────────────────────
-# Google Sheets Feedback Section (NEW)
+# Google Sheets Feedback Section
 # ────────────────────────────────────────────────
 
 st.markdown("---")
