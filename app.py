@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 # ────────────────────────────────────────────────
 # Aircraft Database
-# AT-502B is first (default), AT-802 added third
+# AT-502B first (default), AT-802 added
 # ────────────────────────────────────────────────
 
 AIRCRAFT_DATA = {
@@ -48,7 +48,7 @@ AIRCRAFT_DATA = {
     },
     "Air Tractor AT-802": {
         "name": "Air Tractor AT-802",
-        "base_takeoff_ground_roll_ft": 1800,      # approximate – higher due to larger size/weight
+        "base_takeoff_ground_roll_ft": 1800,
         "base_takeoff_to_50ft_ft": 3400,
         "base_landing_ground_roll_ft": 1100,
         "base_landing_to_50ft_ft": 2200,
@@ -57,7 +57,7 @@ AIRCRAFT_DATA = {
         "best_climb_speed_mph": 120,
         "base_empty_weight_lbs": 6750,
         "base_fuel_capacity_gal": 380,
-        "fuel_weight_per_gal": 6.7,               # Jet-A / turbine fuel is slightly heavier
+        "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 800,
         "hopper_weight_per_gal": 8.0,
         "max_takeoff_weight_lbs": 16000,
@@ -65,11 +65,10 @@ AIRCRAFT_DATA = {
         "glide_ratio": 7.0,
         "description": "Large turbine ag aircraft – high payload & range"
     },
-    # Add more aircraft here as needed
 }
 
 # ────────────────────────────────────────────────
-# Helper Functions (unchanged – they pull from selected aircraft)
+# Helper Functions (unchanged)
 # ────────────────────────────────────────────────
 
 def calculate_density_altitude(pressure_alt_ft, oat_c):
@@ -145,7 +144,62 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Main App – AgPilot
+# Risk Assessment Section (FRAT)
+# ────────────────────────────────────────────────
+
+def show_risk_assessment():
+    st.subheader("Flight Risk Assessment")
+    st.caption("Simple risk scoring tool (inspired by FAA FRAT & Baron Performance style). Score each item 0–10. Higher = more risk.")
+
+    total_risk = 0
+
+    st.markdown("### Pilot Factors")
+    pilot_exp = st.slider("Pilot recent experience / currency (hours in last 30 days)", 0, 10, 5, step=1)
+    total_risk += pilot_exp
+    pilot_fatigue = st.slider("Fatigue / rest (hours sleep last 24h)", 0, 10, 5, step=1)
+    total_risk += pilot_fatigue
+
+    st.markdown("### Aircraft Factors")
+    ac_maintenance = st.slider("Aircraft maintenance status / known squawks", 0, 10, 3, step=1)
+    total_risk += ac_maintenance
+    ac_fuel = st.slider("Fuel planning / reserves", 0, 10, 2, step=1)
+    total_risk += ac_fuel
+
+    st.markdown("### Environment / Weather")
+    weather_ceiling = st.slider("Ceiling / visibility (VFR or IFR conditions)", 0, 10, 4, step=1)
+    total_risk += weather_ceiling
+    weather_turb = st.slider("Turbulence / icing forecast", 0, 10, 3, step=1)
+    total_risk += weather_turb
+
+    st.markdown("### Operation / Flight Plan")
+    flight_type = st.slider("Flight type complexity (local vs long IFR cross-country)", 0, 10, 4, step=1)
+    total_risk += flight_type
+    alternate = st.slider("Alternate airport / emergency options", 0, 10, 2, step=1)
+    total_risk += alternate
+
+    st.markdown("### External Pressures")
+    pressure = st.slider("Get-there-itis / schedule pressure", 0, 10, 2, step=1)
+    total_risk += pressure
+
+    # Final score and color
+    st.markdown("---")
+    if total_risk <= 20:
+        risk_level = "Low Risk"
+        color = "green"
+    elif total_risk <= 40:
+        risk_level = "Medium Risk"
+        color = "orange"
+    else:
+        risk_level = "High Risk – Review & Mitigate"
+        color = "red"
+
+    st.markdown(f"**Total Risk Score: {total_risk} / 70**")
+    st.markdown(f"<span style='color:{color}; font-weight:bold; font-size:1.3em;'>{risk_level}</span>", unsafe_allow_html=True)
+
+    st.caption("Mitigate high-risk items before departure. This is a simple guide, not a substitute for full preflight briefing.")
+
+# ────────────────────────────────────────────────
+# Main App
 # ────────────────────────────────────────────────
 
 st.set_page_config(page_title="AgPilot – Aerial Application Performance Tool", layout="wide")
@@ -154,19 +208,32 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Aircraft selection – AT-502B is first (default)
-selected_aircraft = st.selectbox(
-    "Select Aircraft",
-    options=list(AIRCRAFT_DATA.keys()),
-    index=0,  # 0 = first item = AT-502B
-    format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
-)
+# Aircraft selection row with Risk Assessment button to the right
+col_select, col_button = st.columns([4, 1])
+
+with col_select:
+    selected_aircraft = st.selectbox(
+        "Select Aircraft",
+        options=list(AIRCRAFT_DATA.keys()),
+        index=0,
+        format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+    )
+
+with col_button:
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)  # vertical alignment
+    if st.button("Risk Assessment", type="secondary"):
+        st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
 # Show selected aircraft info
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 
-# Inputs – limits adjusted to selected aircraft
+# Risk Assessment section (toggleable)
+if st.session_state.get("show_risk", False):
+    show_risk_assessment()
+
+# ── Rest of the inputs, calculations, chart, feedback (unchanged) ──
+# Inputs
 col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
@@ -186,7 +253,7 @@ with col2:
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
     glide_height_ft  = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
 
-# Calculate
+# Calculate button
 if st.button("Calculate Performance", type="primary"):
     ground_roll_to, to_50ft     = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
@@ -232,7 +299,7 @@ rating = st.feedback("stars")
 comment = st.text_area(
     "Comments, suggestions, or issues",
     height=120,
-    placeholder="Ideas? Comments? Suggestions?..."
+    placeholder="Ideas? Bugs? Missing aircraft?..."
 )
 
 if st.button("Submit Rating & Comment"):
