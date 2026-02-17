@@ -3,10 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ────────────────────────────────────────────────
-# Aircraft Database
-# AT-502B first (default), AT-802 added
+# Aircraft Database (unchanged)
 # ────────────────────────────────────────────────
-
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
         "name": "Air Tractor AT-502B",
@@ -70,7 +68,6 @@ AIRCRAFT_DATA = {
 # ────────────────────────────────────────────────
 # Helper Functions (unchanged)
 # ────────────────────────────────────────────────
-
 def calculate_density_altitude(pressure_alt_ft, oat_c):
     isa_temp_c = 15 - (2 * pressure_alt_ft / 1000)
     da = pressure_alt_ft + (120 * (oat_c - isa_temp_c))
@@ -144,59 +141,90 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Risk Assessment Section (FRAT)
+# Baron-Style Risk Assessment (Revised & Improved)
 # ────────────────────────────────────────────────
 
 def show_risk_assessment():
-    st.subheader("Flight Risk Assessment")
-    st.caption("Simple risk scoring tool (inspired by FAA FRAT & Baron Performance style). Score each item 0–10. Higher = more risk.")
+    st.subheader("Baron-Style Flight Risk Assessment")
+    st.caption("Detailed risk scoring (inspired by Baron Performance app). Score each factor 0–10. Higher = more risk.")
 
     total_risk = 0
 
-    st.markdown("### Pilot Factors")
-    pilot_exp = st.slider("Pilot recent experience / currency (hours in last 30 days)", 0, 10, 5, step=1)
+    # Pilot Factors
+    st.markdown("**Pilot Factors**")
+    pilot_exp = st.slider("Recent flight experience / currency (hours last 30 days)", 0, 10, 5, step=1)
     total_risk += pilot_exp
-    pilot_fatigue = st.slider("Fatigue / rest (hours sleep last 24h)", 0, 10, 5, step=1)
+    pilot_fatigue = st.slider("Fatigue level / sleep in last 24 hours", 0, 10, 5, step=1)
     total_risk += pilot_fatigue
+    pilot_health = st.slider("Physical / mental health today", 0, 10, 2, step=1)
+    total_risk += pilot_health
 
-    st.markdown("### Aircraft Factors")
-    ac_maintenance = st.slider("Aircraft maintenance status / Known squawks", 0, 10, 3, step=1)
+    # Aircraft Factors
+    st.markdown("**Aircraft Factors**")
+    ac_maintenance = st.slider("Maintenance status / known discrepancies", 0, 10, 3, step=1)
     total_risk += ac_maintenance
-    ac_fuel = st.slider("Fuel planning / Landing with 20 min reserve?", 0, 10, 2, step=1)
+    ac_fuel = st.slider("Fuel planning / reserves", 0, 10, 2, step=1)
     total_risk += ac_fuel
+    ac_weight = st.slider("Weight & balance / CG within limits", 0, 10, 2, step=1)
+    total_risk += ac_weight
 
-    st.markdown("### Environment / Weather")
-    weather_ceiling = st.slider("Ceiling / visibility (Check Forcast/Notams/TFR's?)", 0, 10, 4, step=1)
+    # Environment / Weather
+    st.markdown("**Environment / Weather**")
+    weather_ceiling = st.slider("Ceiling / visibility (VFR or IFR conditions)", 0, 10, 4, step=1)
     total_risk += weather_ceiling
-    weather_turb = st.slider("Turbulence / rain or wind?", 0, 10, 3, step=1)
+    weather_turb = st.slider("Turbulence / icing / wind forecast", 0, 10, 3, step=1)
     total_risk += weather_turb
+    weather_notams = st.slider("NOTAMs / TFRs / airspace restrictions", 0, 10, 3, step=1)
+    total_risk += weather_notams
 
-    st.markdown("### Operations")
-    flight_type = st.slider("Flight type complexity (Obstructions, Towers, Wires)", 0, 10, 4, step=1)
-    total_risk += flight_type
-    alternate = st.slider("Comm time established / Emergency Plan", 0, 10, 2, step=1)
-    total_risk += alternate
+    # Operations / Flight Plan
+    st.markdown("**Operations / Flight Plan**")
+    flight_complexity = st.slider("Flight complexity (obstructions, towers, wires)", 0, 10, 4, step=1)
+    total_risk += flight_complexity
+    alternate_plan = st.slider("Alternate / emergency options planned", 0, 10, 2, step=1)
+    total_risk += alternate_plan
+    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1)
+    total_risk += night_ops
 
-    st.markdown("### External Pressures")
-    pressure = st.slider("Family / Customer pressure", 0, 10, 2, step=1)
-    total_risk += pressure
+    # External Pressures
+    st.markdown("**External Pressures**")
+    get_there_itis = st.slider("Get-there-itis / schedule pressure", 0, 10, 2, step=1)
+    total_risk += get_there_itis
+    customer_pressure = st.slider("Customer / family / operational pressure", 0, 10, 2, step=1)
+    total_risk += customer_pressure
 
-    # Final score and color
+    # Final Risk Gauge
     st.markdown("---")
-    if total_risk <= 20:
-        risk_level = "Low Risk"
+    risk_percent = (total_risk / 100) * 100  # Max possible now 100 (10 factors × 10)
+
+    if total_risk <= 30:
+        level = "Low Risk – Proceed with normal caution"
         color = "green"
-    elif total_risk <= 40:
-        risk_level = "Medium Risk"
+        emoji = "🟢"
+    elif total_risk <= 60:
+        level = "Medium Risk – Review & mitigate high items"
         color = "orange"
+        emoji = "🟡"
     else:
-        risk_level = "High Risk – Review & Mitigate"
+        level = "High Risk – Strongly reconsider or cancel"
         color = "red"
+        emoji = "🔴"
 
-    st.markdown(f"**Total Risk Score: {total_risk} / 70**")
-    st.markdown(f"<span style='color:{color}; font-weight:bold; font-size:1.3em;'>{risk_level}</span>", unsafe_allow_html=True)
+    # Visual gauge (progress bar + color + emoji)
+    st.markdown(f"**Total Risk Score: {total_risk} / 100**")
+    st.progress(risk_percent / 100)
+    st.markdown(f"<h2 style='color:{color}; text-align:center;'>{emoji} {level}</h2>", unsafe_allow_html=True)
 
-    st.caption("Mitigate high-risk items before departure. This is a simple guide, not a substitute for full preflight briefing.")
+    # Mitigation suggestions
+    if total_risk > 30:
+        st.info("**Mitigation Recommendations**")
+        st.markdown("- Delay departure if possible until conditions or pressures improve")
+        st.markdown("- Add extra fuel/reserves or select a closer alternate")
+        st.markdown("- Get a second opinion from another pilot or chief pilot")
+        st.markdown("- Re-check high-scoring items and document mitigations")
+        st.markdown("- Consider postponing non-essential flights")
+
+    st.caption("This is a simplified Baron-inspired FRAT tool. Not a substitute for full preflight briefing, company policy, or professional judgment.")
 
 # ────────────────────────────────────────────────
 # Main App
@@ -232,35 +260,34 @@ st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
 
-# ── Rest of the inputs, calculations, chart, feedback (unchanged) ──
 # Inputs
 col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
-    oat_c           = st.number_input("OAT (°C)", -30, 50, 15, step=1)
-    weight_lbs      = st.number_input(
+    oat_c = st.number_input("OAT (°C)", -30, 50, 15, step=1)
+    weight_lbs = st.number_input(
         "Gross Weight (lbs)",
         4000,
         aircraft_data["max_takeoff_weight_lbs"],
         aircraft_data["max_takeoff_weight_lbs"],
         step=50
     )
-    wind_kts        = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
+    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
 
 with col2:
-    fuel_gal         = st.number_input("Fuel (gal)", 0, aircraft_data["base_fuel_capacity_gal"], aircraft_data["base_fuel_capacity_gal"], step=10)
-    hopper_gal       = st.number_input("Hopper / Load (gal)", 0, aircraft_data["hopper_capacity_gal"], 0, step=50)
+    fuel_gal = st.number_input("Fuel (gal)", 0, aircraft_data["base_fuel_capacity_gal"], aircraft_data["base_fuel_capacity_gal"], step=10)
+    hopper_gal = st.number_input("Hopper / Load (gal)", 0, aircraft_data["hopper_capacity_gal"], 0, step=50)
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
-    glide_height_ft  = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
+    glide_height_ft = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
 
 # Calculate button
 if st.button("Calculate Performance", type="primary"):
-    ground_roll_to, to_50ft     = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
+    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
-    climb_rate                  = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
-    stall_speed                 = compute_stall_speed(weight_lbs, selected_aircraft)
-    glide_dist                  = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
-    total_weight, cg_status     = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
+    climb_rate = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
+    stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
+    glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
+    total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
 
     st.subheader("Results")
     col_a, col_b = st.columns(2)
@@ -275,7 +302,7 @@ if st.button("Calculate Performance", type="primary"):
         st.metric("Stall Speed (flaps down)", f"{stall_speed:.1f} mph")
         st.metric("Glide Distance", f"{glide_dist:.1f} nm")
 
-    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs  –  **{cg_status}**")
+    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
 
     # Climb chart
     st.subheader("Rate of Climb vs Pressure Altitude")
@@ -290,7 +317,7 @@ if st.button("Calculate Performance", type="primary"):
     ax.grid(True, linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
-# Feedback section
+# Feedback section (unchanged from your original)
 st.markdown("---")
 st.subheader("Your Feedback – Help Improve AgPilot")
 
