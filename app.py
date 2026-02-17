@@ -6,14 +6,16 @@ import matplotlib.pyplot as plt
 # Session State Initialization
 # ────────────────────────────────────────────────
 if 'fleet' not in st.session_state:
-    st.session_state.fleet = []  # [{'nickname': str, 'aircraft': str, 'empty_weight': int}]
+    st.session_state.fleet = []
 if 'custom_empty_weight' not in st.session_state:
     st.session_state.custom_empty_weight = None
 if 'show_empty_weight_input' not in st.session_state:
     st.session_state.show_empty_weight_input = False
+if 'show_risk' not in st.session_state:
+    st.session_state.show_risk = False
 
 # ────────────────────────────────────────────────
-# Aircraft Database (updated with all requested models)
+# Aircraft Database
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
@@ -166,7 +168,26 @@ AIRCRAFT_DATA = {
         "max_takeoff_weight_lbs": 7020,
         "max_landing_weight_lbs": 6500,
         "glide_ratio": 8.0,
-        "description": "Classic radial biplane ag aircraft – low stall, rugged"
+        "description": "Classic radial biplane ag aircraft – rugged, low stall speed, excellent for low-level work"
+    },
+    "Piper PA-36 Pawnee Brave": {
+        "name": "Piper PA-36 Pawnee Brave",
+        "base_takeoff_ground_roll_ft": 1470,
+        "base_takeoff_to_50ft_ft": 2225,
+        "base_landing_ground_roll_ft": 1100,
+        "base_landing_to_50ft_ft": 2000,
+        "base_climb_rate_fpm": 920,
+        "base_stall_flaps_down_mph": 60,
+        "best_climb_speed_mph": 105,
+        "base_empty_weight_lbs": 2465,
+        "base_fuel_capacity_gal": 86,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 275,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 4800,
+        "max_landing_weight_lbs": 4400,
+        "glide_ratio": 8.0,
+        "description": "Piston-powered ag aircraft – reliable, low stall, good short-field performer"
     },
     "Robinson R44 Raven II": {
         "name": "Robinson R44 Raven II",
@@ -187,7 +208,27 @@ AIRCRAFT_DATA = {
         "glide_ratio": 4.0,
         "description": "Light utility helicopter – IGE hover performance only (non-linear POH approx.)"
     },
-    # Add Bell 206 if desired...
+    "Bell 206 JetRanger III": {
+        "name": "Bell 206 JetRanger III",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1280,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,
+        "base_empty_weight_lbs": 1635,
+        "base_fuel_capacity_gal": 91,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 100,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 3200,
+        "max_landing_weight_lbs": 3200,
+        "glide_ratio": 4.0,
+        "description": "Light utility helicopter (spray capable but under construction)",
+        "hover_ceiling_ige_max_gw": 12800,
+        "hover_ceiling_oge_max_gw": 8800
+    },
 }
 
 # ────────────────────────────────────────────────
@@ -295,183 +336,265 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft, cus
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Risk Assessment (Bonanza-style, with runway & hover)
+# Risk Assessment with Animated Gauge
 # ────────────────────────────────────────────────
 def show_risk_assessment(da_ft, weight_lbs, wind_kts, ground_roll_to, runway_length_ft, runway_condition, aircraft, ige_ceiling=None):
-    st.subheader("Risk Indicator")
+    st.subheader("Risk Indicator – Bonanza Performance Style")
+
     total_risk = 0
     max_risk = 100
-    factors = {}
 
     da_risk = min(20, max(0, int((da_ft - 1500)/1000)*5))
     total_risk += da_risk
-    factors["Density Altitude"] = da_risk
 
     weight_pct = weight_lbs / AIRCRAFT_DATA[aircraft]["max_takeoff_weight_lbs"]
     weight_risk = min(15, int((weight_pct - 0.75)*100)) if weight_pct > 0.75 else 0
     total_risk += weight_risk
-    factors["Gross Weight"] = weight_risk
 
+    runway_length_risk = 12
     if runway_length_ft:
         margin_pct = (runway_length_ft - ground_roll_to) / runway_length_ft if runway_length_ft > 0 else 0
         runway_length_risk = 0 if margin_pct >= 0.5 else 8 if margin_pct >= 0.25 else 18
-    else:
-        runway_length_risk = 12
     total_risk += runway_length_risk
-    factors["Runway Margin"] = runway_length_risk
 
     surface_risk = RUNWAY_CONDITIONS[runway_condition]["risk"]
     total_risk += surface_risk
-    factors["Runway Surface"] = surface_risk
 
-    fatigue = st.slider("Fatigue level", 0, 10, 4)
+    fatigue = st.slider("Fatigue level (long day)", 0, 10, 4, key="fatigue_risk")
     total_risk += fatigue * 1.5
 
-    pressure = st.slider("Schedule pressure", 0, 10, 3)
+    pressure = st.slider("Get-it-done pressure", 0, 10, 3, key="pressure_risk")
     total_risk += pressure * 1.2
 
     if ige_ceiling is not None:
         hover_risk = 20 if ige_ceiling < 2000 else 12 if ige_ceiling < 5000 else 0
         total_risk += hover_risk
-        factors["IGE Hover"] = hover_risk
 
     total_risk = min(total_risk, max_risk)
     risk_percent = total_risk
 
     if risk_percent <= 35:
-        level, color = "Low", "#4CAF50"
+        level = "Low Risk"
+        color = "#4CAF50"
+        emoji = "🟢"
     elif risk_percent <= 65:
-        level, color = "Medium", "#FF9800"
+        level = "Medium Risk"
+        color = "#FF9800"
+        emoji = "🟡"
     else:
-        level, color = "High", "#F44336"
+        level = "High Risk"
+        color = "#F44336"
+        emoji = "🔴"
 
     gauge_html = f"""
-    <div style="text-align:center; margin:25px 0;">
-        <div style="width:220px;height:220px;border-radius:50%;background:conic-gradient({color} {risk_percent}%,#e0e0e0 {risk_percent}% 100%);margin:0 auto;position:relative;">
-            <div style="width:160px;height:160px;background:white;border-radius:50%;position:absolute;top:30px;left:30px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-                <div style="font-size:46px;font-weight:bold;color:{color};">{risk_percent:.0f}%</div>
-                <div style="font-size:18px;">{level} Risk</div>
+    <style>
+        @keyframes needle-sweep {{
+            from {{ transform: translate(-50%, -100%) rotate(-90deg); }}
+            to {{ transform: translate(-50%, -100%) rotate({risk_percent * 1.8 - 90}deg); }}
+        }}
+        .gauge-container {{
+            text-align: center;
+            margin: 40px 0;
+        }}
+        .gauge {{
+            width: 280px; height: 280px; border-radius: 50%;
+            background: radial-gradient(circle at 50% 120%, #333 0%, #111 70%, #000 100%),
+                        conic-gradient(#00ff00 0% 35%, #ffcc00 35% 65%, #ff0000 65% 100%);
+            position: relative; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }}
+        .needle {{
+            position: absolute; top: 50%; left: 50%;
+            width: 4px; height: 120px; background: white; border-radius: 2px;
+            transform-origin: bottom; box-shadow: 0 0 10px white;
+            animation: needle-sweep 1.2s ease-out forwards;
+        }}
+        .hub {{
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100px; height: 100px; background: #222; border-radius: 50%;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }}
+        .percent {{ font-size: 48px; font-weight: bold; color: {color}; }}
+        .label {{ font-size: 16px; color: #555; }}
+    </style>
+    <div class="gauge-container">
+        <div class="gauge">
+            <div class="needle"></div>
+            <div class="hub">
+                <div class="percent">{risk_percent:.0f}</div>
+                <div class="label">%</div>
             </div>
+        </div>
+        <div style="margin-top: 20px; font-size: 24px; font-weight: bold; color: {color};">
+            {emoji} {level}
         </div>
     </div>
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
 
-    if runway_length_ft:
-        margin_text = f"{(runway_length_ft - ground_roll_to):+.0f} ft ({margin_pct:.0%})"
-        if margin_pct >= 0.5:
-            st.success(f"Runway adequate – {margin_text}")
-        elif margin_pct >= 0.25:
-            st.warning(f"Tight margin – {margin_text}")
-        else:
-            st.error(f"Insufficient – {margin_text}")
+    if risk_percent > 35:
+        st.info("**Mitigation Suggestions**")
+        st.markdown("- Reduce load or wait for better conditions")
+        st.markdown("- Improve runway or choose alternate")
+        st.markdown("- Address fatigue/pressures")
+        st.markdown("- Re-evaluate high factors")
+
+    st.caption("Bonanza-style animated gauge – not a substitute for POH or judgment.")
 
 # ────────────────────────────────────────────────
 # Main App
 # ────────────────────────────────────────────────
-st.set_page_config(page_title="AgPilot", layout="wide")
-st.title("AgPilot – Aerial Application Performance Tool")
-st.caption("Prototype – educational use. Always refer to official POH.")
+st.set_page_config(page_title="AgPilot – Aerial Application Performance Tool", layout="wide")
+st.title("AgPilot")
+st.markdown("Performance calculator for agricultural fixed-wing & helicopters")
+st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Fleet Section
-st.subheader("My Fleet")
+# Fleet
+st.subheader("My Fleet – Saved Configurations")
 if st.session_state.fleet:
-    fleet_options = ["— Select —"] + [e['nickname'] for e in st.session_state.fleet]
-    selected_fleet = st.selectbox("Load saved aircraft", fleet_options)
-    if selected_fleet != "— Select —":
+    fleet_options = ["— Select from Fleet —"] + [entry['nickname'] for entry in st.session_state.fleet]
+    selected_fleet = st.selectbox("Load saved aircraft", fleet_options, index=0)
+    if selected_fleet != "— Select from Fleet —":
         entry = next(e for e in st.session_state.fleet if e['nickname'] == selected_fleet)
         selected_aircraft = entry['aircraft']
         st.session_state.custom_empty_weight = entry['empty_weight']
-        st.success(f"Loaded **{selected_fleet}** – Empty: {entry['empty_weight']} lbs")
+        st.success(f"Loaded {selected_fleet} – Empty Weight: {entry['empty_weight']} lbs")
 else:
-    st.info("No saved aircraft yet.")
+    st.info("No saved aircraft yet. Adjust empty weight below and save.")
 
-# Aircraft Selection + Empty Weight Button
-col1, col2 = st.columns([5, 1])
-with col1:
-    selected_aircraft = st.selectbox("Select Aircraft", list(AIRCRAFT_DATA.keys()),
-                                     format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}")
-with col2:
-    if st.button("✏️ Empty Weight", type="secondary"):
+# Aircraft Selection
+col_select, col_button = st.columns([4, 1])
+with col_select:
+    selected_aircraft = st.selectbox(
+        "Select Aircraft",
+        options=list(AIRCRAFT_DATA.keys()),
+        format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+    )
+with col_button:
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("✏️ Adjust Empty Weight", type="secondary"):
         st.session_state.show_empty_weight_input = not st.session_state.show_empty_weight_input
 
-data = AIRCRAFT_DATA[selected_aircraft]
-base_empty = data["base_empty_weight_lbs"]
+aircraft_data = AIRCRAFT_DATA[selected_aircraft]
+base_empty = aircraft_data["base_empty_weight_lbs"]
 
 if st.session_state.show_empty_weight_input:
-    custom_empty = st.number_input(f"Custom Empty Weight (lbs) for {data['name']}",
-                                   min_value=1000, max_value=int(base_empty * 1.5),
-                                   value=base_empty, step=10)
+    custom_empty = st.number_input(
+        f"Custom Empty Weight for {aircraft_data['name']} (lbs)",
+        min_value=1000,
+        max_value=int(base_empty * 1.5),
+        value=base_empty,
+        step=10
+    )
     st.session_state.custom_empty_weight = custom_empty
 
-    nickname = st.text_input("Nickname for Fleet (required to save)")
-    if st.button("💾 Save to Fleet", type="primary", disabled=not nickname.strip()):
-        new_entry = {'nickname': nickname.strip(), 'aircraft': selected_aircraft, 'empty_weight': custom_empty}
-        st.session_state.fleet = [e for e in st.session_state.fleet if e['nickname'] != nickname.strip()]
-        st.session_state.fleet.append(new_entry)
-        st.success(f"Saved **{nickname}**!")
-        st.rerun()
+    nickname_col, save_col = st.columns([3, 1])
+    with nickname_col:
+        nickname = st.text_input("Nickname for saving to fleet (e.g., 'My R44')")
+    with save_col:
+        st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+        if st.button("💾 Save to Fleet", disabled=not nickname.strip()):
+            new_entry = {'nickname': nickname.strip(), 'aircraft': selected_aircraft, 'empty_weight': custom_empty}
+            st.session_state.fleet = [e for e in st.session_state.fleet if e['nickname'] != nickname.strip()]
+            st.session_state.fleet.append(new_entry)
+            st.success(f"Saved {nickname} to fleet!")
+            st.rerun()
 
 effective_empty = st.session_state.custom_empty_weight if st.session_state.custom_empty_weight else base_empty
-st.caption(f"Empty weight: **{effective_empty} lbs** {'(custom)' if st.session_state.custom_empty_weight else '(base)'}")
+st.caption(f"Effective empty weight: {effective_empty} lbs {'(custom)' if st.session_state.custom_empty_weight else '(base)'}")
+
+# Risk Button Under Empty Weight
+if st.button("Risk Assessment", type="secondary"):
+    st.session_state.show_risk = not st.session_state.show_risk
+
+if st.session_state.show_risk:
+    show_risk_assessment(da_ft=0, weight_lbs=weight_lbs if 'weight_lbs' in locals() else 5000,
+                         wind_kts=0, ground_roll_to=0, runway_length_ft=3000, runway_condition="Paved - Dry",
+                         aircraft=selected_aircraft, ige_ceiling=None)
 
 # Inputs
-col_left, col_right = st.columns(2)
-with col_left:
-    pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, 100)
-    oat_c = st.number_input("OAT (°C)", -30, 50, 15, 1)
-    weight_lbs = st.number_input("Gross Weight (lbs)", 1000, data["max_takeoff_weight_lbs"], data["max_takeoff_weight_lbs"], 50)
-    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, 1)
+col1, col2 = st.columns(2)
+with col1:
+    pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
+    oat_c = st.number_input("OAT (°C)", -30, 50, 15, step=1)
+    weight_lbs = st.number_input("Gross Weight (lbs)", 1000, aircraft_data["max_takeoff_weight_lbs"], aircraft_data["max_takeoff_weight_lbs"], step=50)
+    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
 
-with col_right:
-    fuel_gal = st.number_input("Fuel (gal)", 0, data["base_fuel_capacity_gal"], data["base_fuel_capacity_gal"] // 2, 10)
-    hopper_gal = st.number_input("Hopper Load (gal)", 0, data["hopper_capacity_gal"], 0, 10)
-    pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, 10)
+with col2:
+    fuel_gal = st.number_input("Fuel (gal)", 0, aircraft_data["base_fuel_capacity_gal"], aircraft_data["base_fuel_capacity_gal"], step=10)
+    hopper_gal = st.number_input("Hopper / Spray Load (gal)", 0, aircraft_data["hopper_capacity_gal"], 0, step=10)
+    pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
+    glide_height_ft = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
     runway_condition = st.selectbox("Runway Condition", list(RUNWAY_CONDITIONS.keys()))
-    runway_length_ft = st.number_input("Available Runway (ft)", 1000, 8000, 3000, 100)
-    carb_heat = st.checkbox("Carb Heat ON (R44 only – reduces ceiling)", value=False) if "R44" in selected_aircraft else False
+    runway_length_ft = st.number_input("Available Runway (ft)", 1000, 8000, 3000, step=100)
+    if "R44" in selected_aircraft:
+        carb_heat = st.checkbox("Carb Heat ON (reduces ceilings)", value=False)
 
+# Calculate
 if st.button("Calculate Performance", type="primary"):
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
+    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
+    ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
+    climb_rate = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
+    stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
+    glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
+    total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft, st.session_state.custom_empty_weight)
 
-    if "R44" in selected_aircraft:
-        ige_ceiling = compute_ige_hover_ceiling(da_ft, weight_lbs, carb_heat)
-        st.subheader("R44 Raven II IGE Hover Performance")
-        st.metric("IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
-        if ige_ceiling < 1000:
-            st.error("Marginal/no IGE hover – reduce weight or DA.")
-        elif da_ft > 9600:
-            st.warning("DA > substantiated limit – hover unreliable in wind.")
-        # Plot
-        das = np.linspace(0, 14000, 60)
-        ceilings = [compute_ige_hover_ceiling(da, weight_lbs, carb_heat) for da in das]
-        fig, ax = plt.subplots()
-        ax.plot(das, ceilings, color="green")
-        ax.axvline(da_ft, color="red", linestyle="--")
-        ax.set_xlabel("Density Altitude (ft)")
-        ax.set_ylabel("IGE Ceiling (ft)")
-        st.pyplot(fig)
-        st.info("Vertical ops – no ground roll.")
-    else:
-        gr_to, to_50 = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
-        gr_land, from_50 = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
-        climb = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
+    st.subheader("Results")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if "R44" in selected_aircraft or "Bell 206" in selected_aircraft:
+            st.metric("Takeoff Ground Roll", "Vertical (hover)")
+            st.metric("Takeoff to 50 ft", "Vertical performance")
+            st.metric("Landing Ground Roll", "Vertical landing")
+            st.metric("Landing from 50 ft", "Vertical performance")
+        else:
+            st.metric("Takeoff Ground Roll", f"{ground_roll_to:.0f} ft")
+            st.metric("Takeoff to 50 ft", f"{to_50ft:.0f} ft")
+            st.metric("Landing Ground Roll", f"{ground_roll_land:.0f} ft")
+            st.metric("Landing from 50 ft", f"{from_50ft:.0f} ft")
+    with col_b:
+        st.metric("Climb Rate", f"{climb_rate:.0f} fpm")
+        st.metric("Best Rate Climb", f"{aircraft_data['best_climb_speed_mph']} mph IAS")
+        st.metric("Stall Speed (flaps down)", f"{stall_speed:.1f} mph" if stall_speed > 0 else "N/A (helicopter)")
+        st.metric("Glide Distance", f"{glide_dist:.1f} nm")
+    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
 
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.metric("Takeoff Ground Roll", f"{gr_to:.0f} ft")
-            st.metric("Takeoff to 50 ft", f"{to_50:.0f} ft")
-        with col_b:
-            st.metric("Landing Ground Roll", f"{gr_land:.0f} ft")
-            st.metric("Landing from 50 ft", f"{from_50:.0f} ft")
-            st.metric("Climb Rate", f"{climb:.0f} fpm")
+    # Hover for helicopters
+    if "R44" in selected_aircraft or "Bell 206" in selected_aircraft:
+        ige_ceiling = compute_ige_hover_ceiling(da_ft, total_weight, carb_heat if 'carb_heat' in locals() else False) if "R44" in selected_aircraft else compute_hover_ceiling(da_ft, total_weight, selected_aircraft)[0]
+        st.subheader("Hover Performance")
+        st.metric("Estimated IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
+        if total_weight > 2300:
+            st.warning("Note: Hover at high gross weight may be limited — check POH chart.")
+        if da_ft > 8000:
+            st.warning("High density altitude — hover performance reduced. Consult POH.")
 
-    total_weight, status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft, st.session_state.custom_empty_weight)
-    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{status}**")
+    # Climb chart
+    st.subheader("Rate of Climb vs Pressure Altitude")
+    altitudes = np.linspace(0, 12000, 60)
+    climb_rates = [compute_climb_rate(alt, oat_c, weight_lbs, selected_aircraft) for alt in altitudes]
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    ax.plot(altitudes, climb_rates, color='darkgreen', linewidth=2.2)
+    ax.set_xlabel("Pressure Altitude (ft)")
+    ax.set_ylabel("Rate of Climb (fpm)")
+    ax.set_title(f"Climb Performance – {aircraft_data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
+    ax.grid(True, linestyle='--', alpha=0.7)
+    st.pyplot(fig)
 
-    show_risk_assessment(da_ft, weight_lbs, wind_kts, gr_to if 'gr_to' in locals() else 0,
-                         runway_length_ft, runway_condition, selected_aircraft,
-                         ige_ceiling if 'ige_ceiling' in locals() else None)
+    # Full risk after calc
+    show_risk_assessment(da_ft, weight_lbs, wind_kts, ground_roll_to, runway_length_ft, runway_condition, selected_aircraft, ige_ceiling if 'ige_ceiling' in locals() else None)
 
+# Feedback
 st.markdown("---")
-st.caption("Prototype – use official POH. Feedback welcome!")
+st.subheader("Your Feedback – Help Improve AgPilot")
+rating = st.feedback("stars")
+comment = st.text_area("Comments, suggestions, or issues", height=120, placeholder="Ideas? Suggestions? Comments?...")
+if st.button("Submit Rating & Comment"):
+    if rating is not None:
+        stars = rating + 1
+        st.success(f"Thank you! You rated **{stars} stars**.")
+        if comment.strip():
+            st.caption(f"Comment: {comment}")
+    else:
+        st.warning("Please select a star rating.")
