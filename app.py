@@ -208,25 +208,6 @@ AIRCRAFT_DATA = {
         "glide_ratio": 4.0,
         "description": "Light utility helicopter – IGE hover performance only (non-linear POH approx.)"
     },
-    "Bell 206 JetRanger III": {
-        "name": "Bell 206 JetRanger III",
-        "base_takeoff_ground_roll_ft": 0,
-        "base_takeoff_to_50ft_ft": 0,
-        "base_landing_ground_roll_ft": 0,
-        "base_landing_to_50ft_ft": 0,
-        "base_climb_rate_fpm": 1280,
-        "base_stall_flaps_down_mph": 0,
-        "best_climb_speed_mph": 60,
-        "base_empty_weight_lbs": 1635,
-        "base_fuel_capacity_gal": 91,
-        "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 100,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 3200,
-        "max_landing_weight_lbs": 3200,
-        "glide_ratio": 4.0,
-        "description": "Light utility helicopter (spray capable)"
-    },
 }
 
 # ────────────────────────────────────────────────
@@ -334,7 +315,7 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft, cus
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Risk Assessment with 14 sliders + IMSAFE + Bonanza animated gauge
+# Risk Assessment – 14 sliders + IMSAFE
 # ────────────────────────────────────────────────
 def show_risk_assessment(da_ft=None, weight_lbs=None, wind_kts=None, ground_roll_to=None, runway_length_ft=None, runway_condition=None, aircraft=None, ige_ceiling=None):
     st.subheader("Risk Assessment – FAA PAVE/IMSAFE")
@@ -343,70 +324,76 @@ def show_risk_assessment(da_ft=None, weight_lbs=None, wind_kts=None, ground_roll
 
     total_risk = 0
 
-    # IMSAFE Checkboxes (FAA Pilot category)
+    # IMSAFE Checkboxes – unique keys
     st.markdown("**IMSAFE – Illness, Medication, Stress, Alcohol, Fatigue, Emotion** (FAA personal fitness check)")
     ims_points = 0
     col1, col2 = st.columns(2)
     with col1:
-        if st.checkbox("Illness / feeling unwell today?", value=False): ims_points += 10
-        if st.checkbox("Taking any medication?", value=False): ims_points += 10
-        if st.checkbox("High stress / emotional state?", value=False): ims_points += 8
+        if st.checkbox("Illness / feeling unwell today?", value=False, key="ims_illness"):
+            ims_points += 10
+        if st.checkbox("Taking any medication?", value=False, key="ims_med"):
+            ims_points += 10
+        if st.checkbox("High stress / emotional state?", value=False, key="ims_stress"):
+            ims_points += 8
     with col2:
-        if st.checkbox("Alcohol in last 8–24 hours?", value=False): ims_points += 12
-        if st.checkbox("Fatigue / poor sleep?", value=False): ims_points += 12
-        if st.checkbox("Get-there-itis / strong external pressure?", value=False): ims_points += 10
+        if st.checkbox("Alcohol in last 8–24 hours?", value=False, key="ims_alcohol"):
+            ims_points += 12
+        if st.checkbox("Fatigue / poor sleep?", value=False, key="ims_fatigue"):
+            ims_points += 12
+        if st.checkbox("Get-there-itis / strong external pressure?", value=False, key="ims_egt"):
+            ims_points += 10
 
     total_risk += ims_points
     if ims_points > 0:
         st.warning(f"IMSAFE flags detected ({ims_points} risk points). Consider delaying flight.")
 
-    # NOTAMs / TFRs
-    if not st.checkbox("Checked current NOTAMs / TFRs / airspace restrictions?", value=True):
+    # NOTAMs / TFRs – unique key
+    if not st.checkbox("Checked current NOTAMs / TFRs / airspace restrictions?", value=True, key="notams_tfrs_checked"):
         total_risk += 15
 
-    # 14 Detailed Sliders
+    # 14 Sliders – unique keys
     st.markdown("**Detailed PAVE Checklist Scoring** (0–10, higher = more risk)")
 
     st.markdown("**Pilot Factors** (beyond IMSAFE)")
-    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5, step=1)
+    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5, step=1, key="pilot_exp")
     total_risk += pilot_exp
-    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5, step=1)
+    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5, step=1, key="pilot_fatigue")
     total_risk += pilot_fatigue
-    pilot_health = st.slider("Physical/mental health today", 0, 10, 2, step=1)
+    pilot_health = st.slider("Physical/mental health today", 0, 10, 2, step=1, key="pilot_health")
     total_risk += pilot_health
 
     st.markdown("**Aircraft Factors**")
-    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3, step=1)
+    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3, step=1, key="ac_maintenance")
     total_risk += ac_maintenance
-    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2, step=1)
+    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2, step=1, key="ac_fuel")
     total_risk += ac_fuel
-    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2, step=1)
+    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2, step=1, key="ac_weight")
     total_risk += ac_weight
 
     st.markdown("**Environment / Weather**")
-    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4, step=1)
+    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4, step=1, key="weather_ceiling")
     total_risk += weather_ceiling
-    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3, step=1)
+    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3, step=1, key="weather_turb")
     total_risk += weather_turb
-    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3, step=1)
+    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3, step=1, key="weather_notams")
     total_risk += weather_notams
 
     st.markdown("**Operations / Flight Plan**")
-    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", 0, 10, 4, step=1)
+    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", 0, 10, 4, step=1, key="flight_complexity")
     total_risk += flight_complexity
-    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2, step=1)
+    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2, step=1, key="alternate_plan")
     total_risk += alternate_plan
-    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1)
+    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1, key="night_ops")
     total_risk += night_ops
 
     st.markdown("**External Pressures**")
-    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2, step=1)
+    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2, step=1, key="get_there_itis")
     total_risk += get_there_itis
-    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2, step=1)
+    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2, step=1, key="customer_pressure")
     total_risk += customer_pressure
 
-    # Normalize to 0–100% (14×10 = 140 max + IMSAFE/NOTAMs)
-    risk_percent = min(total_risk / 1.8, 100)  # scale to allow IMSAFE impact
+    # Normalize to 0–100%
+    risk_percent = min(total_risk / 1.8, 100)
 
     # Level & color
     if risk_percent <= 35:
@@ -422,7 +409,7 @@ def show_risk_assessment(da_ft=None, weight_lbs=None, wind_kts=None, ground_roll
         color = "#F44336"
         emoji = "🔴"
 
-    # Animated Bonanza-style gauge with needle
+    # Animated gauge with needle
     gauge_html = f"""
     <style>
         @keyframes needle-sweep {{
@@ -475,13 +462,13 @@ def show_risk_assessment(da_ft=None, weight_lbs=None, wind_kts=None, ground_roll
         st.info("**Mitigation Recommendations (FAA Guidance)**")
         st.markdown("""
         - Address any IMSAFE items before flight
-        - Re-check weather, NOTAMs/TFRs, and personal minimums
+        - Re-check weather, NOTAMs/TFRs, personal minimums
         - Reduce load / wait for better DA / runway
-        - Consult another pilot or chief pilot
+        - Consult another pilot
         - Document decisions and re-assess
         """)
 
-    st.caption("FAA PAVE/IMSAFE-inspired • Bonanza-style animated gauge • Not a substitute for official briefing/POH/company policy.")
+    st.caption("FAA PAVE/IMSAFE-inspired • Bonanza-style animated gauge • Not a substitute for official briefing/POH.")
 
 # ────────────────────────────────────────────────
 # Main App
@@ -584,10 +571,17 @@ if st.button("Calculate Performance", type="primary"):
     total_weight, status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft, st.session_state.custom_empty_weight)
     st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{status}**")
 
-    # Show updated risk after calculation (optional – calls with real values)
-    show_risk_assessment(da_ft=da_ft, weight_lbs=weight_lbs, wind_kts=wind_kts, ground_roll_to=gr_to if 'gr_to' in locals() else 0,
-                         runway_length_ft=runway_length_ft, runway_condition=runway_condition, aircraft=selected_aircraft,
-                         ige_ceiling=ige_ceiling if 'ige_ceiling' in locals() else None)
+    # Optional: Show risk with real values after calculation
+    show_risk_assessment(
+        da_ft=da_ft,
+        weight_lbs=weight_lbs,
+        wind_kts=wind_kts,
+        ground_roll_to=gr_to if 'gr_to' in locals() else 0,
+        runway_length_ft=runway_length_ft,
+        runway_condition=runway_condition,
+        aircraft=selected_aircraft,
+        ige_ceiling=ige_ceiling if 'ige_ceiling' in locals() else None
+    )
 
 st.markdown("---")
 st.caption("Prototype – always use official POH. Feedback welcome!")
