@@ -337,7 +337,7 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft, cus
 # Risk Assessment with 14 sliders + IMSAFE + Bonanza animated gauge
 # ────────────────────────────────────────────────
 def show_risk_assessment(da_ft=None, weight_lbs=None, wind_kts=None, ground_roll_to=None, runway_length_ft=None, runway_condition=None, aircraft=None, ige_ceiling=None):
-    st.subheader("Risk Assessment – FAA PAVE/IMSAFE + Bonanza Gauge")
+    st.subheader("Risk Assessment – FAA PAVE/IMSAFE")
 
     st.caption("Begin with IMSAFE (FAA personal fitness), then score each factor 0–10 (higher = more risk).")
 
