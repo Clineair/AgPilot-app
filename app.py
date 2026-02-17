@@ -75,7 +75,7 @@ AIRCRAFT_DATA = {
         "base_empty_weight_lbs": 1505,
         "base_fuel_capacity_gal": 50,
         "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 100,  # realistic max spray load (belly tank typical 50–100 gal)
+        "hopper_capacity_gal": 83,  # capped at 83 gallons
         "hopper_weight_per_gal": 8.0,
         "max_takeoff_weight_lbs": 2500,
         "max_landing_weight_lbs": 2500,
@@ -96,7 +96,7 @@ AIRCRAFT_DATA = {
         "base_empty_weight_lbs": 1635,
         "base_fuel_capacity_gal": 91,
         "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 140,  # common belly tank spray system (e.g. Simplex/Dart 140 gal)
+        "hopper_capacity_gal": 100,  # revised limit: 100 gallons max spray/water
         "hopper_weight_per_gal": 8.0,
         "max_takeoff_weight_lbs": 3200,
         "max_landing_weight_lbs": 3200,
@@ -108,7 +108,7 @@ AIRCRAFT_DATA = {
 }
 
 # ────────────────────────────────────────────────
-# Helper Functions (unchanged)
+# Helper Functions
 # ────────────────────────────────────────────────
 
 def calculate_density_altitude(pressure_alt_ft, oat_c):
@@ -203,6 +203,121 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     return ige_ceiling, oge_ceiling
 
 # ────────────────────────────────────────────────
+# Baron-Style Risk Assessment with Circular Dial Gauge
+# ────────────────────────────────────────────────
+
+def show_risk_assessment():
+    st.subheader("Baron-Style Flight Risk Assessment")
+    st.caption("Detailed scoring tool inspired by Baron Performance app. Rate each factor 0–10 (higher = more risk).")
+
+    total_risk = 0
+
+    st.markdown("**Pilot Factors**")
+    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5, step=1)
+    total_risk += pilot_exp
+    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5, step=1)
+    total_risk += pilot_fatigue
+    pilot_health = st.slider("Physical/mental health today", 0, 10, 2, step=1)
+    total_risk += pilot_health
+
+    st.markdown("**Aircraft Factors**")
+    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3, step=1)
+    total_risk += ac_maintenance
+    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2, step=1)
+    total_risk += ac_fuel
+    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2, step=1)
+    total_risk += ac_weight
+
+    st.markdown("**Environment / Weather**")
+    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4, step=1)
+    total_risk += weather_ceiling
+    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3, step=1)
+    total_risk += weather_turb
+    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3, step=1)
+    total_risk += weather_notams
+
+    st.markdown("**Operations / Flight Plan**")
+    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", 0, 10, 4, step=1)
+    total_risk += flight_complexity
+    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2, step=1)
+    total_risk += alternate_plan
+    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1)
+    total_risk += night_ops
+
+    st.markdown("**External Pressures**")
+    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2, step=1)
+    total_risk += get_there_itis
+    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2, step=1)
+    total_risk += customer_pressure
+
+    # Circular Dial Gauge
+    st.markdown("---")
+
+    risk_percent = (total_risk / 100) * 100
+
+    if total_risk <= 30:
+        level = "Low Risk"
+        color = "#4CAF50"
+        emoji = "🟢"
+    elif total_risk <= 60:
+        level = "Medium Risk"
+        color = "#FF9800"
+        emoji = "🟡"
+    else:
+        level = "High Risk"
+        color = "#F44336"
+        emoji = "🔴"
+
+    gauge_html = f"""
+    <div style="text-align:center; margin: 30px 0;">
+        <div style="
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: conic-gradient(
+                {color} {risk_percent}%, 
+                #e0e0e0 {risk_percent}% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        ">
+            <div style="
+                width: 170px;
+                height: 170px;
+                background: white;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+            ">
+                <div style="font-size: 48px; font-weight: bold; color: {color};">{risk_percent:.0f}%</div>
+                <div style="font-size: 18px; color: #555;">{level}</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; font-size: 22px; font-weight: bold; color: {color};">
+            {emoji} {level}
+        </div>
+    </div>
+    """
+
+    st.markdown(gauge_html, unsafe_allow_html=True)
+
+    if total_risk > 30:
+        st.info("**Mitigation Recommendations**")
+        st.markdown("- Delay departure if conditions or pressures allow")
+        st.markdown("- Increase fuel/reserves or select closer alternate")
+        st.markdown("- Consult another pilot or chief for second opinion")
+        st.markdown("- Document mitigations and re-assess high items")
+
+    st.caption("Inspired by Baron Performance FRAT. Not a substitute for official preflight briefing or company policy.")
+
+# ────────────────────────────────────────────────
 # Main App
 # ────────────────────────────────────────────────
 
@@ -222,6 +337,9 @@ selected_aircraft = st.selectbox(
 
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
+
+# Risk Assessment – always visible
+show_risk_assessment()
 
 # Inputs
 col1, col2 = st.columns(2)
@@ -248,7 +366,7 @@ with col2:
         max_hopper,
         0,
         step=10,
-        help=f"Max spray/chemical load: {max_hopper} gal ({'typical for helicopter spray tank' if 'helicopter' in aircraft_data['description'].lower() else 'hopper capacity'})"
+        help=f"Max spray/chemical load: {max_hopper} gal ({'83-gal limit for R44' if 'R44' in selected_aircraft else '100-gal limit for Bell 206' if 'Bell 206' in selected_aircraft else 'hopper capacity'})"
     )
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
     glide_height_ft = st.number_input("Glide Height AGL (ft)", 0, 15000, 1000, step=100)
