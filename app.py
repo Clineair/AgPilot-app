@@ -75,7 +75,7 @@ AIRCRAFT_DATA = {
         "base_empty_weight_lbs": 1505,
         "base_fuel_capacity_gal": 50,
         "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 83,  # capped at 83 gallons
+        "hopper_capacity_gal": 83,
         "hopper_weight_per_gal": 8.0,
         "max_takeoff_weight_lbs": 2500,
         "max_landing_weight_lbs": 2500,
@@ -96,7 +96,7 @@ AIRCRAFT_DATA = {
         "base_empty_weight_lbs": 1635,
         "base_fuel_capacity_gal": 91,
         "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 100,  # revised limit: 100 gallons max spray/water
+        "hopper_capacity_gal": 100,
         "hopper_weight_per_gal": 8.0,
         "max_takeoff_weight_lbs": 3200,
         "max_landing_weight_lbs": 3200,
@@ -203,12 +203,12 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     return ige_ceiling, oge_ceiling
 
 # ────────────────────────────────────────────────
-# Baron-Style Risk Assessment with Circular Dial Gauge
+# Risk Assessment with Circular Dial Gauge
 # ────────────────────────────────────────────────
 
 def show_risk_assessment():
-    st.subheader("Baron-Style Flight Risk Assessment")
-    st.caption("Detailed scoring tool inspired by Baron Performance app. Rate each factor 0–10 (higher = more risk).")
+    st.subheader("Risk Assessment")
+    st.caption("Score each factor 0–10 (higher = more risk).")
 
     total_risk = 0
 
@@ -315,7 +315,7 @@ def show_risk_assessment():
         st.markdown("- Consult another pilot or chief for second opinion")
         st.markdown("- Document mitigations and re-assess high items")
 
-    st.caption("Inspired by Baron Performance FRAT. Not a substitute for official preflight briefing or company policy.")
+    st.caption("Not a substitute for official preflight briefing or company policy.")
 
 # ────────────────────────────────────────────────
 # Main App
@@ -327,19 +327,29 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Aircraft selection
-selected_aircraft = st.selectbox(
-    "Select Aircraft",
-    options=list(AIRCRAFT_DATA.keys()),
-    index=0,
-    format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
-)
+# Aircraft selection row with Risk Assessment button
+col_select, col_button = st.columns([4, 1])
 
+with col_select:
+    selected_aircraft = st.selectbox(
+        "Select Aircraft",
+        options=list(AIRCRAFT_DATA.keys()),
+        index=0,
+        format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+    )
+
+with col_button:
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("Risk Assessment", type="secondary"):
+        st.session_state.show_risk = not st.session_state.get("show_risk", False)
+
+# Show selected aircraft info
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 
-# Risk Assessment – always visible
-show_risk_assessment()
+# Risk Assessment – toggleable via button
+if st.session_state.get("show_risk", False):
+    show_risk_assessment()
 
 # Inputs
 col1, col2 = st.columns(2)
