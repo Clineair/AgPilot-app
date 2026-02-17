@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ────────────────────────────────────────────────
-# Aircraft Database (Bell 206 added)
+# Aircraft Database
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
@@ -92,7 +92,7 @@ AIRCRAFT_DATA = {
         "base_landing_to_50ft_ft": 0,
         "base_climb_rate_fpm": 1280,
         "base_stall_flaps_down_mph": 0,
-        "best_climb_speed_mph": 60,  # Vy approx 60 KIAS
+        "best_climb_speed_mph": 60,
         "base_empty_weight_lbs": 1635,
         "base_fuel_capacity_gal": 91,
         "fuel_weight_per_gal": 6.7,
@@ -102,13 +102,13 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 3200,
         "glide_ratio": 4.0,
         "description": "Light utility/training helicopter",
-        "hover_ceiling_ige_max_gw": 12800,  # ft at max gross (approximate)
-        "hover_ceiling_oge_max_gw": 8800    # ft at max gross (approximate)
+        "hover_ceiling_ige_max_gw": 12800,  # approximate
+        "hover_ceiling_oge_max_gw": 8800    # approximate
     },
 }
 
 # ────────────────────────────────────────────────
-# Helper Functions (updated for hover ceiling)
+# Helper Functions
 # ────────────────────────────────────────────────
 
 def calculate_density_altitude(pressure_alt_ft, oat_c):
@@ -189,21 +189,133 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     base_ceiling_ige = data["hover_ceiling_ige_max_gw"]
     base_ceiling_oge = data["hover_ceiling_oge_max_gw"]
     
-    # Weight adjustment (ceiling drops as weight increases)
-    weight_factor = (data["max_takeoff_weight_lbs"] - weight_lbs) / 500.0  # per 500 lb
+    weight_factor = (data["max_takeoff_weight_lbs"] - weight_lbs) / 500.0
     ige_ceiling = base_ceiling_ige + (weight_factor * 1000)
     oge_ceiling = base_ceiling_oge + (weight_factor * 800)
     
-    # Density altitude adjustment (~1000 ft loss per 1000 ft DA)
     da_loss = da_ft / 1000 * 1000
     ige_ceiling -= da_loss
     oge_ceiling -= da_loss
     
-    # Clamp to 0
     ige_ceiling = max(0, ige_ceiling)
     oge_ceiling = max(0, oge_ceiling)
     
     return ige_ceiling, oge_ceiling
+
+# ────────────────────────────────────────────────
+# Baron-Style Risk Assessment with Circular Dial Gauge
+# ────────────────────────────────────────────────
+
+def show_risk_assessment():
+    st.subheader("Baron-Style Flight Risk Assessment")
+    st.caption("Detailed scoring tool inspired by Baron Performance app. Rate each factor 0–10 (higher = more risk).")
+
+    total_risk = 0
+
+    st.markdown("**Pilot Factors**")
+    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5, step=1)
+    total_risk += pilot_exp
+    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5, step=1)
+    total_risk += pilot_fatigue
+    pilot_health = st.slider("Physical/mental health today", 0, 10, 2, step=1)
+    total_risk += pilot_health
+
+    st.markdown("**Aircraft Factors**")
+    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3, step=1)
+    total_risk += ac_maintenance
+    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2, step=1)
+    total_risk += ac_fuel
+    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2, step=1)
+    total_risk += ac_weight
+
+    st.markdown("**Environment / Weather**")
+    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4, step=1)
+    total_risk += weather_ceiling
+    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3, step=1)
+    total_risk += weather_turb
+    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3, step=1)
+    total_risk += weather_notams
+
+    st.markdown("**Operations / Flight Plan**")
+    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", 0, 10, 4, step=1)
+    total_risk += flight_complexity
+    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2, step=1)
+    total_risk += alternate_plan
+    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1)
+    total_risk += night_ops
+
+    st.markdown("**External Pressures**")
+    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2, step=1)
+    total_risk += get_there_itis
+    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2, step=1)
+    total_risk += customer_pressure
+
+    # Circular Dial Gauge
+    st.markdown("---")
+
+    risk_percent = (total_risk / 100) * 100
+
+    if total_risk <= 30:
+        level = "Low Risk"
+        color = "#4CAF50"
+        emoji = "🟢"
+    elif total_risk <= 60:
+        level = "Medium Risk"
+        color = "#FF9800"
+        emoji = "🟡"
+    else:
+        level = "High Risk"
+        color = "#F44336"
+        emoji = "🔴"
+
+    gauge_html = f"""
+    <div style="text-align:center; margin: 30px 0;">
+        <div style="
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: conic-gradient(
+                {color} {risk_percent}%, 
+                #e0e0e0 {risk_percent}% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        ">
+            <div style="
+                width: 170px;
+                height: 170px;
+                background: white;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+            ">
+                <div style="font-size: 48px; font-weight: bold; color: {color};">{risk_percent:.0f}%</div>
+                <div style="font-size: 18px; color: #555;">{level}</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; font-size: 22px; font-weight: bold; color: {color};">
+            {emoji} {level}
+        </div>
+    </div>
+    """
+
+    st.markdown(gauge_html, unsafe_allow_html=True)
+
+    if total_risk > 30:
+        st.info("**Mitigation Recommendations**")
+        st.markdown("- Delay departure if conditions or pressures allow")
+        st.markdown("- Increase fuel/reserves or select closer alternate")
+        st.markdown("- Consult another pilot or chief for second opinion")
+        st.markdown("- Document mitigations and re-assess high items")
+
+    st.caption("Inspired by Baron Performance FRAT. Not a substitute for official preflight briefing or company policy.")
 
 # ────────────────────────────────────────────────
 # Main App
@@ -215,28 +327,43 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Aircraft selection
-selected_aircraft = st.selectbox(
-    "Select Aircraft",
-    options=list(AIRCRAFT_DATA.keys()),
-    index=0,
-    format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
-)
+# Aircraft selection row with Risk Assessment button
+col_select, col_button = st.columns([4, 1])
 
+with col_select:
+    selected_aircraft = st.selectbox(
+        "Select Aircraft",
+        options=list(AIRCRAFT_DATA.keys()),
+        index=0,
+        format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+    )
+
+with col_button:
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("Risk Assessment", type="secondary"):
+        st.session_state.show_risk = not st.session_state.get("show_risk", False)
+
+# Show selected aircraft info
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
+
+# Risk Assessment section (toggleable)
+if st.session_state.get("show_risk", False):
+    show_risk_assessment()
 
 # Inputs
 col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
     oat_c = st.number_input("OAT (°C)", -30, 50, 15, step=1)
+    min_weight = 1000 if any(heli in selected_aircraft for heli in ["R44", "Bell 206"]) else 4000
     weight_lbs = st.number_input(
         "Gross Weight (lbs)",
-        4000,
-        aircraft_data["max_takeoff_weight_lbs"],
-        aircraft_data["max_takeoff_weight_lbs"],
-        step=50
+        min_value=min_weight,
+        max_value=aircraft_data["max_takeoff_weight_lbs"],
+        value=aircraft_data["max_takeoff_weight_lbs"],
+        step=50,
+        help="Adjust based on actual loadout. Helicopter min lowered for realistic empty weights."
     )
     wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
 
@@ -286,7 +413,7 @@ if st.button("Calculate Performance", type="primary"):
         st.metric("Estimated OGE Hover Ceiling", f"{oge_ceiling:.0f} ft")
         if total_weight > 2300:
             st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
-        if da_ft > 7500:
+        if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
 
     # Climb chart
@@ -302,7 +429,7 @@ if st.button("Calculate Performance", type="primary"):
     ax.grid(True, linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
-# Feedback section (unchanged)
+# Feedback section
 st.markdown("---")
 st.subheader("Your Feedback – Help Improve AgPilot")
 
