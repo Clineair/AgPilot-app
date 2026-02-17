@@ -80,7 +80,7 @@ AIRCRAFT_DATA = {
         "max_takeoff_weight_lbs": 2500,
         "max_landing_weight_lbs": 2500,
         "glide_ratio": 4.0,
-        "description": "Light utility/training helicopter (spray capable)",
+        "description": "Light utility helicopter (spray capable but under construction)",
         "hover_ceiling_ige_max_gw": 8950,
         "hover_ceiling_oge_max_gw": 7500
     },
@@ -101,7 +101,7 @@ AIRCRAFT_DATA = {
         "max_takeoff_weight_lbs": 3200,
         "max_landing_weight_lbs": 3200,
         "glide_ratio": 4.0,
-        "description": "Light utility helicopter (spray capable)",
+        "description": "Light utility helicopter (spray capable but under construction)",
         "hover_ceiling_ige_max_gw": 12800,
         "hover_ceiling_oge_max_gw": 8800
     },
@@ -311,8 +311,8 @@ def show_risk_assessment():
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure if conditions or pressures allow")
-        st.markdown("- Increase fuel/reserves or select closer alternate")
-        st.markdown("- Consult another pilot or chief for second opinion")
+        st.markdown("- Increase fuel/reserves or reduce time in air")
+        st.markdown("- Consult for second opinion")
         st.markdown("- Document mitigations and re-assess high items")
 
     st.caption("Not a substitute for official preflight briefing or company policy.")
@@ -324,7 +324,7 @@ def show_risk_assessment():
 st.set_page_config(page_title="AgPilot – Aerial Application Performance Tool", layout="wide")
 
 st.title("AgPilot")
-st.markdown("Performance calculator for agricultural aircraft & helicopters")
+st.markdown("Performance calculator for agricultural fixed-wing & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
 # Aircraft selection row with Risk Assessment button
