@@ -486,7 +486,7 @@ def show_risk_assessment(
         - Document decisions and re-assess
         """)
 
-    st.caption("FAA PAVE/IMSAFE-inspired • Bonanza-style animated gauge • Not a substitute for official briefing/POH.")
+    st.caption("FAA PAVE/IMSAFE-inspired • Not a substitute for official briefing/POH.")
 
 # ────────────────────────────────────────────────
 # Main App
