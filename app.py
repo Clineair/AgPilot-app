@@ -199,7 +199,7 @@ AIRCRAFT_DATA = {
         "base_stall_flaps_down_mph": 0,
         "best_climb_speed_mph": 55,
         "base_empty_weight_lbs": 1505,
-        "base_fuel_capacity_gal": 46.5,
+        "base_fuel_capacity_gal": 47.6,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 83,
         "hopper_weight_per_gal": 8.0,
@@ -315,7 +315,7 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft, cus
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Risk Assessment – 14 sliders + IMSAFE 
+# Risk Assessment – 14 sliders + IMSAFE
 # ────────────────────────────────────────────────
 def show_risk_assessment(
     da_ft=None,
@@ -326,7 +326,7 @@ def show_risk_assessment(
     runway_condition=None,
     aircraft=None,
     ige_ceiling=None,
-    call_context="default"   # "preview" or "calculated" to avoid duplicate keys
+    call_context="default"
 ):
     prefix = f"{call_context}_"
 
@@ -335,7 +335,7 @@ def show_risk_assessment(
 
     total_risk = 0
 
-    # IMSAFE Checkboxes – prefixed keys
+    # IMSAFE Checkboxes
     st.markdown("**IMSAFE – Illness, Medication, Stress, Alcohol, Fatigue, Emotion** (FAA personal fitness check)")
     ims_points = 0
     col1, col2 = st.columns(2)
@@ -358,11 +358,11 @@ def show_risk_assessment(
     if ims_points > 0:
         st.warning(f"IMSAFE flags detected ({ims_points} risk points). Consider delaying flight.")
 
-    # NOTAMs / TFRs – prefixed key
+    # NOTAMs / TFRs
     if not st.checkbox("Checked current NOTAMs / TFRs / airspace restrictions?", value=True, key=f"{prefix}notams_tfrs_checked"):
         total_risk += 15
 
-    # 14 Sliders – prefixed keys
+    # 14 Sliders
     st.markdown("**Detailed PAVE Checklist Scoring** (0–10, higher = more risk)")
 
     st.markdown("**Pilot Factors** (beyond IMSAFE)")
@@ -543,12 +543,25 @@ col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
     oat_c = st.number_input("OAT (°C)", -30, 50, 15, step=1)
-    weight_lbs = st.number_input("Gross Weight (lbs)", 1000, data["max_takeoff_weight_lbs"], data["max_takeoff_weight_lbs"], step=50)
+    weight_lbs = st.number_input("Gross Weight (lbs)", 1000, int(data["max_takeoff_weight_lbs"]), int(data["max_takeoff_weight_lbs"]), step=50)
     wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
 
 with col2:
-    fuel_gal = st.number_input("Fuel (gal)", 0, data["base_fuel_capacity_gal"], data["base_fuel_capacity_gal"], step=10)
-    hopper_gal = st.number_input("Hopper Load (gal)", 0, data["hopper_capacity_gal"], 0, step=10)
+    base_fuel = int(data["base_fuel_capacity_gal"])
+    base_hopper = int(data["hopper_capacity_gal"])
+
+    fuel_gal = st.number_input("Fuel (gal)", 
+                               min_value=0, 
+                               max_value=base_fuel, 
+                               value=base_fuel // 2, 
+                               step=10)
+
+    hopper_gal = st.number_input("Hopper Load (gal)", 
+                                 min_value=0, 
+                                 max_value=base_hopper, 
+                                 value=0, 
+                                 step=10)
+
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
     runway_condition = st.selectbox("Runway Condition", list(RUNWAY_CONDITIONS.keys()))
     runway_length_ft = st.number_input("Available Runway (ft)", 1000, 8000, 3000, step=100)
