@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 from datetime import datetime
-import re
 
 # ────────────────────────────────────────────────
 # Session State Initialization
@@ -318,26 +317,166 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft, cus
     return total_weight, status
 
 # ────────────────────────────────────────────────
-# Risk Assessment (abbreviated – insert full sliders + gauge from your original)
+# Risk Assessment – 14 sliders + IMSAFE
 # ────────────────────────────────────────────────
-def show_risk_assessment(call_context="default"):
+def show_risk_assessment(
+    da_ft=None,
+    weight_lbs=None,
+    wind_kts=None,
+    ground_roll_to=None,
+    runway_length_ft=None,
+    runway_condition=None,
+    aircraft=None,
+    ige_ceiling=None,
+    call_context="default"
+):
     prefix = f"{call_context}_"
     st.subheader("Risk Assessment – FAA PAVE/IMSAFE")
-    st.caption("Begin with IMSAFE, then score factors 0–10 (higher = more risk).")
+    st.caption("Begin with IMSAFE (FAA personal fitness), then score each factor 0–10 (higher = more risk).")
     total_risk = 0
-    # IMSAFE checkboxes...
-    # ... (your full IMSAFE, sliders, gauge HTML, etc.)
-    # For now placeholder:
-    st.info("Full risk assessment goes here – add sliders & animated gauge.")
-    # risk_percent = ... calculate ...
-    # gauge_html = ... your HTML ...
+    # IMSAFE Checkboxes
+    st.markdown("**IMSAFE – Illness, Medication, Stress, Alcohol, Fatigue, Emotion** (FAA personal fitness check)")
+    ims_points = 0
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.checkbox("Illness / feeling unwell today?", value=False, key=f"{prefix}ims_illness"):
+            ims_points += 10
+        if st.checkbox("Taking any medication?", value=False, key=f"{prefix}ims_med"):
+            ims_points += 10
+        if st.checkbox("High stress / emotional state?", value=False, key=f"{prefix}ims_stress"):
+            ims_points += 8
+    with col2:
+        if st.checkbox("Alcohol in last 8–24 hours?", value=False, key=f"{prefix}ims_alcohol"):
+            ims_points += 12
+        if st.checkbox("Fatigue / poor sleep?", value=False, key=f"{prefix}ims_fatigue"):
+            ims_points += 12
+        if st.checkbox("Get-there-itis / strong external pressure?", value=False, key=f"{prefix}ims_egt"):
+            ims_points += 10
+    total_risk += ims_points
+    if ims_points > 0:
+        st.warning(f"IMSAFE flags detected ({ims_points} risk points). Consider delaying flight.")
+    # NOTAMs / TFRs
+    if not st.checkbox("Checked current NOTAMs / TFRs / airspace restrictions?", value=True, key=f"{prefix}notams_tfrs_checked"):
+        total_risk += 15
+    # Density Altitude auto-risk
+    if da_ft is not None:
+        da_risk = min(20, max(0, int((da_ft - 2000) / 1000) * 5))
+        total_risk += da_risk
+        if da_ft > 5000:
+            st.warning(f"High density altitude ({da_ft:.0f} ft) – adds {da_risk} risk points to environment/performance.")
+    # 14 Sliders
+    st.markdown("**Detailed PAVE Checklist Scoring** (0–10, higher = more risk)")
+    st.markdown("**Pilot Factors** (beyond IMSAFE)")
+    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5, step=1, key=f"{prefix}pilot_exp")
+    total_risk += pilot_exp
+    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5, step=1, key=f"{prefix}pilot_fatigue")
+    total_risk += pilot_fatigue
+    pilot_health = st.slider("Physical/mental health today", 0, 10, 2, step=1, key=f"{prefix}pilot_health")
+    total_risk += pilot_health
+    st.markdown("**Aircraft Factors**")
+    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3, step=1, key=f"{prefix}ac_maintenance")
+    total_risk += ac_maintenance
+    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2, step=1, key=f"{prefix}ac_fuel")
+    total_risk += ac_fuel
+    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2, step=1, key=f"{prefix}ac_weight")
+    total_risk += ac_weight
+    st.markdown("**Environment / Weather**")
+    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4, step=1, key=f"{prefix}weather_ceiling")
+    total_risk += weather_ceiling
+    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3, step=1, key=f"{prefix}weather_turb")
+    total_risk += weather_turb
+    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3, step=1, key=f"{prefix}weather_notams")
+    total_risk += weather_notams
+    st.markdown("**Operations / Flight Plan**")
+    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", 0, 10, 4, step=1, key=f"{prefix}flight_complexity")
+    total_risk += flight_complexity
+    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2, step=1, key=f"{prefix}alternate_plan")
+    total_risk += alternate_plan
+    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1, key=f"{prefix}night_ops")
+    total_risk += night_ops
+    st.markdown("**External Pressures**")
+    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2, step=1, key=f"{prefix}get_there_itis")
+    total_risk += get_there_itis
+    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2, step=1, key=f"{prefix}customer_pressure")
+    total_risk += customer_pressure
+    # Normalize to 0–100%
+    risk_percent = min(total_risk / 1.8, 100)
+    # Level & color
+    if risk_percent <= 35:
+        level = "Low Risk – Go"
+        color = "#4CAF50"
+        emoji = "🟢"
+    elif risk_percent <= 65:
+        level = "Medium Risk – Mitigate"
+        color = "#FF9800"
+        emoji = "🟡"
+    else:
+        level = "High Risk – No-Go / Replan"
+        color = "#F44336"
+        emoji = "🔴"
+    # Animated gauge with needle
+    gauge_html = f"""
+    <style>
+        @keyframes needle-sweep {{
+            from {{ transform: translate(-50%, -100%) rotate(-90deg); }}
+            to {{ transform: translate(-50%, -100%) rotate({risk_percent * 1.8 - 90}deg); }}
+        }}
+        .gauge-container {{ text-align: center; margin: 40px auto; width: 320px; }}
+        .gauge {{
+            width: 300px; height: 300px; border-radius: 50%;
+            background: radial-gradient(circle at 50% 120%, #444 0%, #111 70%, #000 100%),
+                        conic-gradient(#00ff00 0% 35%, #ffcc00 35% 65%, #ff0000 65% 100%);
+            position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.7); border: 10px solid #222;
+        }}
+        .needle {{
+            position: absolute; top: 50%; left: 50%;
+            width: 6px; height: 135px; background: linear-gradient(to top, #fff, #eee);
+            border-radius: 3px 3px 0 0; transform-origin: bottom;
+            transform: translate(-50%, -100%) rotate(-90deg);
+            animation: needle-sweep 1.4s ease-out forwards;
+            box-shadow: 0 0 15px rgba(255,255,255,0.9); z-index: 5;
+        }}
+        .hub {{
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 120px; height: 120px; background: #1a1a1a; border-radius: 50%;
+            border: 8px solid #444; box-shadow: inset 0 0 25px #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; z-index: 10;
+        }}
+        .percent {{ font-size: 58px; font-weight: bold; color: {color}; }}
+        .label {{ font-size: 18px; color: #aaa; }}
+    </style>
+    <div class="gauge-container">
+        <div class="gauge">
+            <div class="needle"></div>
+            <div class="hub">
+                <div class="percent">{risk_percent:.0f}</div>
+                <div class="label">%</div>
+            </div>
+        </div>
+        <div style="margin-top: 25px; font-size: 28px; font-weight: bold; color: {color};">
+            {emoji} {level}
+        </div>
+    </div>
+    """
+    st.markdown(gauge_html, unsafe_allow_html=True)
+    if risk_percent > 35:
+        st.info("**Mitigation Recommendations (FAA Guidance)**")
+        st.markdown("""
+        - Address any IMSAFE items before flight
+        - Re-check weather, NOTAMs/TFRs, personal minimums
+        - Reduce load / wait for better DA / runway
+        - Consult another pilot
+        - Document decisions and re-assess
+        """)
+    st.caption("FAA PAVE/IMSAFE-inspired • Not a substitute for official briefing/POH.")
 
 # ────────────────────────────────────────────────
 # Main App
 # ────────────────────────────────────────────────
 st.set_page_config(page_title="AgPilot", layout="wide")
 st.title("AgPilot – Aerial Application Performance Tool")
-st.caption("Prototype – educational use only. Always use official POH, FAA briefings (1800wxbrief.com), and current sources.")
+st.caption("Prototype – educational use only. Always refer to official POH / current weather briefings / FAA sources.")
 
 # Fleet Section
 st.subheader("My Fleet")
@@ -353,7 +492,7 @@ else:
     st.info("No saved aircraft yet.")
 
 # ────────────────────────────────────────────────
-# Airport Weather & Notices
+# Airport Selection & Weather
 # ────────────────────────────────────────────────
 st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
 
@@ -373,95 +512,92 @@ selected_icao = st.selectbox(
     index=0
 )
 
+custom_icao = st.text_input(
+    "Or enter any ICAO code (4 letters)",
+    value="",
+    max_chars=4,
+    help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
+).strip().upper()
+
+# Use custom if provided, else selected
+icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
+
 metar_text = None
 metar_timestamp = None
 taf_text = None
 taf_issued = None
-notam_html_snippet = None
-notam_fetch_time = None
 
-if selected_icao and selected_icao != "None":
-    icao_upper = selected_icao.upper()
-
-    # METAR
+if icao_upper and icao_upper != "None":
+    # METAR fetch
     try:
         url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
-            lines = resp.text.strip().splitlines()
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            lines = response.text.strip().splitlines()
             if len(lines) >= 2:
                 metar_timestamp = lines[0].strip()
                 metar_text = lines[1].strip()
             elif lines:
                 metar_text = lines[0].strip()
-    except:
-        pass
+    except Exception as e:
+        st.warning(f"METAR fetch error for {icao_upper}: {e}")
 
-    # TAF
+    # TAF fetch
     try:
         url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200 and resp.text.strip():
-            taf_text = resp.text.strip()
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200 and response.text.strip():
+            taf_text = response.text.strip()
             lines = taf_text.splitlines()
             if lines and "Z" in lines[0]:
                 taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
-    except:
-        pass
+    except Exception as e:
+        st.warning(f"TAF fetch error for {icao_upper}: {e}")
 
-    # NOTAMs – public search page (no count estimate)
-    try:
-        url = "https://notams.aim.faa.gov/notamSearch/search"
-        params = {
-            "search": "location",
-            "loc": icao_upper,
-            "offset": "0",
-            "sort": "effective",
-            "direction": "desc",
-            "format": "icao"
-        }
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; AgPilot)"}
-        resp = requests.get(url, params=params, headers=headers, timeout=12)
-        if resp.status_code == 200:
-            notam_fetch_time = datetime.now().strftime('%Y-%m-%d %H:%M UTC')
-            notam_html_snippet = resp.text[:3000] + "..." if len(resp.text) > 3000 else resp.text
-    except:
-        pass
+if icao_upper and icao_upper != "None":
+    st.markdown(f"**Latest Weather for {icao_upper}**")
+    
+    st.markdown("**METAR (Current)**")
+    if metar_text:
+        st.markdown(f"({metar_timestamp or 'fetched ' + datetime.now().strftime('%Y-%m-%d %H:%M UTC')})")
+        st.code(metar_text, language="text")
+        parts = metar_text.split()
+        wind_part = next((p for p in parts if "KT" in p and len(p) >= 6), "—")
+        temp_dew_part = next((p for p in parts if "/" in p and len(p.split("/")) == 2), "—")
+        altimeter_part = next((p for p in parts if (p.startswith("A") and len(p) == 5) or p.startswith("Q")), "—")
+        cols = st.columns(3)
+        cols[0].metric("Wind", wind_part)
+        cols[1].metric("Temp / Dew", temp_dew_part)
+        cols[2].metric("Altimeter", altimeter_part)
+    else:
+        st.info("No METAR available – check ICAO code or try later.")
 
-# Display
-st.markdown("**METAR (Current Observation)**")
-if metar_text:
-    st.markdown(f"**{selected_icao}** ({metar_timestamp or 'recent'})")
-    st.code(metar_text, language="text")
-    parts = metar_text.split()
-    wind = next((p for p in parts if "KT" in p and len(p) >= 6), "—")
-    temp_dew = next((p for p in parts if "/" in p and len(p.split("/")) == 2), "—")
-    alt = next((p for p in parts if (p.startswith("A") and len(p) == 5) or p.startswith("Q")), "—")
-    cols = st.columns(3)
-    cols[0].metric("Wind", wind)
-    cols[1].metric("Temp/Dew", temp_dew)
-    cols[2].metric("Altimeter", alt)
-else:
-    st.info("No METAR available.")
+    st.markdown("**TAF (Forecast)**")
+    if taf_text:
+        issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
+        st.markdown(f"({issued_str})")
+        st.code(taf_text, language="text")
+    else:
+        st.info("No TAF available (common for small fields).")
 
-st.markdown("**TAF (Forecast)**")
-if taf_text:
-    issued = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
-    st.markdown(f"**{selected_icao}** ({issued})")
-    st.code(taf_text, language="text")
-else:
-    st.info("No TAF (common for small fields).")
-
-st.markdown("**NOTAMs (Active Notices)**")
-st.caption("Prototype fetch from public FAA page – **always verify with official source**:")
-st.markdown(f"[View current NOTAMs for {selected_icao} on FAA site](https://notams.aim.faa.gov/notamSearch/?search=location&loc={icao_upper})")
-if notam_html_snippet:
-    st.code(notam_html_snippet, language="html")
-    st.caption(f"Page snapshot fetched {notam_fetch_time}")
-elif selected_icao != "None":
-    st.info("NOTAM page content not retrieved – please use the link above for the most current information.")
+    st.markdown("**NOTAMs (Notices to Airmen)**")
+    st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
+    st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
+    st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot for complete, real-time info.")
 
 st.markdown("---")
+
+# ────────────────────────────────────────────────
+# TFR Map Visualization
+# ────────────────────────────────────────────────
+st.subheader("Temporary Flight Restrictions (TFR) Map")
+st.caption("Live interactive FAA TFR map – shows current restrictions. Zoom to your area/state.")
+st.components.v1.iframe(
+    src="https://tfr.faa.gov/tfr3/?page=map",
+    height=600,
+    scrolling=True
+)
+st.markdown("[Open full-screen FAA TFR Map](https://tfr.faa.gov/tfr3/?page=map) – recommended for detailed view.")
 
 # Aircraft Selection + Empty Weight
 col_select, col_button = st.columns([5, 1])
@@ -491,15 +627,14 @@ if st.session_state.show_empty_weight_input:
 effective_empty = st.session_state.custom_empty_weight if st.session_state.custom_empty_weight else base_empty
 st.caption(f"Empty weight: **{effective_empty} lbs** {'(custom)' if st.session_state.custom_empty_weight else '(base)'}")
 
-# Risk Assessment Button
+# Risk Assessment Button (under Empty Weight – only place it's triggered)
 st.markdown("### Safety Check")
 if st.button("Risk Assessment", type="secondary"):
     st.session_state.show_risk = not st.session_state.show_risk
-
 if st.session_state.show_risk:
     show_risk_assessment(call_context="preview")
 
-# Inputs (unchanged)
+# Inputs
 col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
@@ -509,27 +644,72 @@ with col1:
 with col2:
     base_fuel = int(data["base_fuel_capacity_gal"])
     base_hopper = int(data["hopper_capacity_gal"])
-    fuel_gal = st.number_input("Fuel (gal)", min_value=0, max_value=base_fuel, value=base_fuel // 2, step=10)
-    hopper_gal = st.number_input("Hopper Load (gal)", min_value=0, max_value=base_hopper, value=0, step=10)
+    fuel_gal = st.number_input("Fuel (gal)",
+                               min_value=0,
+                               max_value=base_fuel,
+                               value=base_fuel // 2,
+                               step=10)
+    hopper_gal = st.number_input("Hopper Load (gal)",
+                                 min_value=0,
+                                 max_value=base_hopper,
+                                 value=0,
+                                 step=10)
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
     runway_condition = st.selectbox("Runway Condition", list(RUNWAY_CONDITIONS.keys()))
     runway_length_ft = st.number_input("Available Runway (ft)", 1000, 8000, 3000, step=100)
     if "R44" in selected_aircraft:
         carb_heat = st.checkbox("Carb Heat ON (reduces ceilings)", value=False)
 
-# Calculate Button & Outputs (unchanged – abbreviated here)
+# Calculate Button
 if st.button("Calculate Performance", type="primary"):
-    # ... your full calculation logic, metrics, climb chart, weight balance ...
-    pass  # insert your original calculate block here
+    da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
+   
+    st.subheader("Density Altitude")
+    st.metric("Calculated Density Altitude", f"{da_ft} ft", help="Pressure altitude corrected for non-standard temperature")
+   
+    if "R44" in selected_aircraft:
+        ige_ceiling = compute_ige_hover_ceiling(da_ft, weight_lbs, carb_heat if 'carb_heat' in locals() else False)
+        st.subheader("R44 Raven II IGE Hover Performance")
+        st.metric("IGE Hover Ceiling", f"{ige_ceiling} ft")
+        if ige_ceiling < 1000:
+            st.error("Marginal/no IGE hover – reduce weight or DA.")
+    else:
+        gr_to, to_50 = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
+        gr_land, from_50 = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
+        climb = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.metric("Takeoff Ground Roll", f"{gr_to} ft")
+            st.metric("Takeoff to 50 ft", f"{to_50} ft")
+        with col_b:
+            st.metric("Landing Ground Roll", f"{gr_land} ft")
+            st.metric("Landing from 50 ft", f"{from_50} ft")
+            st.metric("Climb Rate", f"{climb} fpm")
+   
+    total_weight, status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft, st.session_state.custom_empty_weight)
+    st.markdown(f"**Total Weight:** {total_weight} lbs – **{status}**")
+   
+    # Climb chart
+    st.subheader("Rate of Climb vs Pressure Altitude")
+    altitudes = np.linspace(0, 12000, 60)
+    climb_rates = [compute_climb_rate(alt, oat_c, weight_lbs, selected_aircraft) for alt in altitudes]
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    ax.plot(altitudes, climb_rates, color='darkgreen', linewidth=2.2)
+    ax.set_xlabel("Pressure Altitude (ft)")
+    ax.set_ylabel("Rate of Climb (fpm)")
+    ax.set_title(f"Climb Performance – {data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
+    ax.grid(True, linestyle='--', alpha=0.7)
+    st.pyplot(fig)
 
-# Feedback section (unchanged)
+# Feedback section
 st.markdown("---")
 st.subheader("Your Feedback – Help Improve AgPilot")
 rating = st.feedback("stars")
-comment = st.text_area("Comments, suggestions, or issues", height=120, placeholder="Ideas? Suggestions?...")
+comment = st.text_area("Comments, suggestions, or issues", height=120, placeholder="Ideas? Suggestions? Comments?...")
 if st.button("Submit Rating & Comment"):
     if rating is not None:
-        st.success(f"Thank you! You rated **{rating + 1} stars**.")
+        stars = rating + 1
+        st.success(f"Thank you! You rated **{stars} stars**.")
         if comment.strip():
             st.caption(f"Comment: {comment}")
     else:
