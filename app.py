@@ -31,7 +31,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 170,
         "fuel_weight_per_gal": 6.0,
         "hopper_capacity_gal": 500,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 9400,
         "max_landing_weight_lbs": 8000,
         "glide_ratio": 8.0,
@@ -50,7 +50,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 380,
         "fuel_weight_per_gal": 6.0,
         "hopper_capacity_gal": 510,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 12000,
         "max_landing_weight_lbs": 10500,
         "glide_ratio": 7.5,
@@ -69,7 +69,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 380,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 800,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 16000,
         "max_landing_weight_lbs": 14000,
         "glide_ratio": 7.0,
@@ -88,7 +88,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 50,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 83,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 2500,
         "max_landing_weight_lbs": 2500,
         "glide_ratio": 4.0,
@@ -109,7 +109,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 91,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 100,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 3200,
         "max_landing_weight_lbs": 3200,
         "glide_ratio": 4.0,
@@ -130,7 +130,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 95,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 100,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 2800,
         "max_landing_weight_lbs": 2800,
         "glide_ratio": 4.0,
@@ -151,7 +151,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 95,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 100,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 2850,
         "max_landing_weight_lbs": 2850,
         "glide_ratio": 4.0,
@@ -172,7 +172,7 @@ AIRCRAFT_DATA = {
         "base_fuel_capacity_gal": 73.6,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 130,
-        "hopper_weight_per_gal": 8.0,
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 2700,
         "max_landing_weight_lbs": 2700,
         "glide_ratio": 4.0,
@@ -395,10 +395,10 @@ def show_risk_assessment():
 
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
-        st.markdown("- Delay departure if conditions or pressures allow")
-        st.markdown("- Increase fuel/reserves or select closer alternate")
-        st.markdown("- Consult another pilot or chief for second opinion")
-        st.markdown("- Document mitigations and re-assess high items")
+        st.markdown("- Delay departure or mitigate")
+        st.markdown("- Increase fuel or choose closer field")
+        st.markdown("- Consult for second opinion")
+        st.markdown("- Screenshot and re-assess high risk")
 
     st.caption("Not a substitute for official preflight briefing or company policy.")
 
@@ -706,7 +706,7 @@ st.subheader("Your Feedback – Help Improve AgPilot")
 rating = st.feedback("stars")
 
 comment = st.text_area(
-    "Comments, suggestions, or issues",
+    "Any suggestons send screenshot to cvh@centralvalleyheli.com",
     height=120,
     placeholder="Ideas? Suggestions? Comments?..."
 )
