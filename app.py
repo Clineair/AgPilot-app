@@ -1,23 +1,9 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import requests
-from datetime import datetime
 
 # ────────────────────────────────────────────────
-# Session State Initialization
-# ────────────────────────────────────────────────
-if 'fleet' not in st.session_state:
-    st.session_state.fleet = []
-if 'custom_empty_weight' not in st.session_state:
-    st.session_state.custom_empty_weight = None
-if 'show_empty_weight_input' not in st.session_state:
-    st.session_state.show_empty_weight_input = False
-if 'show_risk' not in st.session_state:
-    st.session_state.show_risk = False
-
-# ────────────────────────────────────────────────
-# Aircraft Database
+# Aircraft Database (Robinson R66 added)
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
@@ -77,120 +63,6 @@ AIRCRAFT_DATA = {
         "glide_ratio": 7.0,
         "description": "Large turbine ag aircraft – high payload & range"
     },
-    "Air Tractor AT-602": {
-        "name": "Air Tractor AT-602",
-        "base_takeoff_ground_roll_ft": 1830,
-        "base_takeoff_to_50ft_ft": 3500,
-        "base_landing_ground_roll_ft": 1300,
-        "base_landing_to_50ft_ft": 2200,
-        "base_climb_rate_fpm": 650,
-        "base_stall_flaps_down_mph": 82,
-        "best_climb_speed_mph": 125,
-        "base_empty_weight_lbs": 5829,
-        "base_fuel_capacity_gal": 216,
-        "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 630,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 12500,
-        "max_landing_weight_lbs": 12000,
-        "glide_ratio": 7.5,
-        "description": "Mid-size turbine ag aircraft – 630 gal hopper, high productivity"
-    },
-    "Air Tractor AT-402": {
-        "name": "Air Tractor AT-402",
-        "base_takeoff_ground_roll_ft": 1200,
-        "base_takeoff_to_50ft_ft": 2500,
-        "base_landing_ground_roll_ft": 800,
-        "base_landing_to_50ft_ft": 1800,
-        "base_climb_rate_fpm": 1100,
-        "base_stall_flaps_down_mph": 73,
-        "best_climb_speed_mph": 110,
-        "base_empty_weight_lbs": 4135,
-        "base_fuel_capacity_gal": 170,
-        "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 400,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 7860,
-        "max_landing_weight_lbs": 7000,
-        "glide_ratio": 7.8,
-        "description": "Early turbine ag aircraft – PT6A-15AG, compact & efficient"
-    },
-    "Air Tractor AT-402B": {
-        "name": "Air Tractor AT-402B",
-        "base_takeoff_ground_roll_ft": 975,
-        "base_takeoff_to_50ft_ft": 2200,
-        "base_landing_ground_roll_ft": 900,
-        "base_landing_to_50ft_ft": 2000,
-        "base_climb_rate_fpm": 800,
-        "base_stall_flaps_down_mph": 53,
-        "best_climb_speed_mph": 105,
-        "base_empty_weight_lbs": 4299,
-        "base_fuel_capacity_gal": 170,
-        "fuel_weight_per_gal": 6.7,
-        "hopper_capacity_gal": 400,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 9170,
-        "max_landing_weight_lbs": 7000,
-        "glide_ratio": 7.8,
-        "description": "Upgraded turbine ag aircraft – PT6A-15AG, higher useful load"
-    },
-    "Air Tractor AT-401": {
-        "name": "Air Tractor AT-401",
-        "base_takeoff_ground_roll_ft": 1318,
-        "base_takeoff_to_50ft_ft": 2500,
-        "base_landing_ground_roll_ft": 900,
-        "base_landing_to_50ft_ft": 1800,
-        "base_climb_rate_fpm": 1100,
-        "base_stall_flaps_down_mph": 61,
-        "best_climb_speed_mph": 110,
-        "base_empty_weight_lbs": 4135,
-        "base_fuel_capacity_gal": 170,
-        "fuel_weight_per_gal": 6.0,
-        "hopper_capacity_gal": 400,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 7860,
-        "max_landing_weight_lbs": 7000,
-        "glide_ratio": 7.8,
-        "description": "Radial piston ag aircraft (R-1340 600 hp) – reliable workhorse"
-    },
-    "Grumman G-164B Ag-Cat": {
-        "name": "Grumman G-164B Ag-Cat",
-        "base_takeoff_ground_roll_ft": 1300,
-        "base_takeoff_to_50ft_ft": 2500,
-        "base_landing_ground_roll_ft": 950,
-        "base_landing_to_50ft_ft": 1800,
-        "base_climb_rate_fpm": 1000,
-        "base_stall_flaps_down_mph": 60,
-        "best_climb_speed_mph": 105,
-        "base_empty_weight_lbs": 3150,
-        "base_fuel_capacity_gal": 170,
-        "fuel_weight_per_gal": 6.0,
-        "hopper_capacity_gal": 400,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 7020,
-        "max_landing_weight_lbs": 6500,
-        "glide_ratio": 8.0,
-        "description": "Classic radial biplane ag aircraft – low stall, rugged"
-    },
-    "Piper PA-36 Pawnee Brave": {
-        "name": "Piper PA-36 Pawnee Brave",
-        "base_takeoff_ground_roll_ft": 1470,
-        "base_takeoff_to_50ft_ft": 2225,
-        "base_landing_ground_roll_ft": 1100,
-        "base_landing_to_50ft_ft": 2000,
-        "base_climb_rate_fpm": 920,
-        "base_stall_flaps_down_mph": 60,
-        "best_climb_speed_mph": 105,
-        "base_empty_weight_lbs": 2465,
-        "base_fuel_capacity_gal": 86,
-        "fuel_weight_per_gal": 6.0,
-        "hopper_capacity_gal": 275,
-        "hopper_weight_per_gal": 8.0,
-        "max_takeoff_weight_lbs": 4800,
-        "max_landing_weight_lbs": 4400,
-        "glide_ratio": 8.0,
-        "description": "Piston-powered ag aircraft – reliable, low stall, good short-field performer"
-    },
     "Robinson R44 Raven II": {
         "name": "Robinson R44 Raven II",
         "base_takeoff_ground_roll_ft": 0,
@@ -201,37 +73,111 @@ AIRCRAFT_DATA = {
         "base_stall_flaps_down_mph": 0,
         "best_climb_speed_mph": 55,
         "base_empty_weight_lbs": 1505,
-        "base_fuel_capacity_gal": 46.5,
+        "base_fuel_capacity_gal": 50,
         "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 83,
         "hopper_weight_per_gal": 8.0,
         "max_takeoff_weight_lbs": 2500,
         "max_landing_weight_lbs": 2500,
         "glide_ratio": 4.0,
-        "description": "Light utility helicopter – IGE hover performance only (non-linear POH approx.)"
+        "description": "Light utility/training helicopter (spray capable)",
+        "hover_ceiling_ige_max_gw": 8950,
+        "hover_ceiling_oge_max_gw": 7500
+    },
+    "Bell 206 JetRanger III": {
+        "name": "Bell 206 JetRanger III",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1280,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,
+        "base_empty_weight_lbs": 1635,
+        "base_fuel_capacity_gal": 91,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 100,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 3200,
+        "max_landing_weight_lbs": 3200,
+        "glide_ratio": 4.0,
+        "description": "Light utility helicopter (spray capable)",
+        "hover_ceiling_ige_max_gw": 12800,
+        "hover_ceiling_oge_max_gw": 8800
+    },
+    "Enstrom 480": {
+        "name": "Enstrom 480",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1100,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,
+        "base_empty_weight_lbs": 1750,
+        "base_fuel_capacity_gal": 95,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 100,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 2800,
+        "max_landing_weight_lbs": 2800,
+        "glide_ratio": 4.0,
+        "description": "Turbine light utility helicopter (spray capable)",
+        "hover_ceiling_ige_max_gw": 11000,
+        "hover_ceiling_oge_max_gw": 8500
+    },
+    "Enstrom 480B": {
+        "name": "Enstrom 480B",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1200,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,
+        "base_empty_weight_lbs": 1800,
+        "base_fuel_capacity_gal": 95,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 100,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 2850,
+        "max_landing_weight_lbs": 2850,
+        "glide_ratio": 4.0,
+        "description": "Improved turbine light utility helicopter (spray capable)",
+        "hover_ceiling_ige_max_gw": 12000,
+        "hover_ceiling_oge_max_gw": 9000
+    },
+    "Robinson R66": {
+        "name": "Robinson R66",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1100,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,
+        "base_empty_weight_lbs": 1290,
+        "base_fuel_capacity_gal": 73.6,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 130,
+        "hopper_weight_per_gal": 8.0,
+        "max_takeoff_weight_lbs": 2700,
+        "max_landing_weight_lbs": 2700,
+        "glide_ratio": 4.0,
+        "description": "Turbine light utility helicopter (spray capable)",
+        "hover_ceiling_ige_max_gw": 11000,
+        "hover_ceiling_oge_max_gw": 10000
     },
 }
 
 # ────────────────────────────────────────────────
-# Runway Condition Factors
+# Helper Functions (unchanged)
 # ────────────────────────────────────────────────
-RUNWAY_CONDITIONS = {
-    "Paved - Dry": {"takeoff": 1.00, "landing": 1.00, "risk": 0},
-    "Paved - Wet": {"takeoff": 1.15, "landing": 1.30, "risk": 4},
-    "Grass - Firm/Dry": {"takeoff": 1.10, "landing": 1.15, "risk": 3},
-    "Grass - Soft/Wet": {"takeoff": 1.40, "landing": 1.60, "risk": 10},
-    "Dirt - Firm/Dry": {"takeoff": 1.20, "landing": 1.25, "risk": 5},
-    "Dirt - Soft/Muddy": {"takeoff": 1.60, "landing": 1.80, "risk": 14},
-    "Short/Uneven/Unimproved": {"takeoff": 1.45, "landing": 1.55, "risk": 12},
-}
 
-# ────────────────────────────────────────────────
-# Helper Functions
-# ────────────────────────────────────────────────
 def calculate_density_altitude(pressure_alt_ft, oat_c):
     isa_temp_c = 15 - (2 * pressure_alt_ft / 1000)
-    da = pressure_alt_ft + 120 * (oat_c - isa_temp_c)
-    return round(da)
+    da = pressure_alt_ft + (120 * (oat_c - isa_temp_c))
+    return da
 
 def adjust_for_weight(value, current_weight, base_weight, exponent=1.5):
     return value * (current_weight / base_weight) ** exponent
@@ -244,42 +190,29 @@ def adjust_for_da(value, da_ft):
     factor = 1 + (0.07 * da_ft / 1000)
     return value * factor
 
-def adjust_for_runway(value, condition, phase="takeoff"):
-    return value * RUNWAY_CONDITIONS[condition][phase]
-
 @st.cache_data
-def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
+def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-   
     ground_roll = adjust_for_weight(data["base_takeoff_ground_roll_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
-    ground_roll = adjust_for_runway(ground_roll, runway_condition, "takeoff")
-   
     to_50ft = adjust_for_weight(data["base_takeoff_to_50ft_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     to_50ft = adjust_for_da(to_50ft, da_ft)
     to_50ft = adjust_for_wind(to_50ft, wind_kts)
-    to_50ft = adjust_for_runway(to_50ft, runway_condition, "takeoff")
-   
     return ground_roll, to_50ft
 
 @st.cache_data
-def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
+def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     weight_lbs = min(weight_lbs, data["max_landing_weight_lbs"])
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-   
     ground_roll = adjust_for_weight(data["base_landing_ground_roll_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
-    ground_roll = adjust_for_runway(ground_roll, runway_condition, "landing")
-   
     from_50ft = adjust_for_weight(data["base_landing_to_50ft_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
     from_50ft = adjust_for_da(from_50ft, da_ft)
     from_50ft = adjust_for_wind(from_50ft, wind_kts)
-    from_50ft = adjust_for_runway(from_50ft, runway_condition, "landing")
-   
     return ground_roll, from_50ft
 
 @st.cache_data
@@ -291,421 +224,294 @@ def compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, aircraft):
     return max(climb, 0)
 
 @st.cache_data
-def compute_ige_hover_ceiling(da_ft, weight_lbs, carb_heat_on=False):
-    base_ceiling = 11600
-    ref_weight = 1800
-    weight_excess = max(0, weight_lbs - ref_weight)
-    weight_penalty = 0.00012 * weight_excess ** 1.8 + 3.5 * weight_excess
-    da_penalty = 0.00008 * da_ft ** 1.9 + 0.07 * da_ft
-    ceiling = base_ceiling - weight_penalty - da_penalty
-    if carb_heat_on:
-        ceiling -= 2400
-    if da_ft > 9600:
-        ceiling *= 0.75
-    return max(0, min(ceiling, 11600))
+def compute_stall_speed(weight_lbs, aircraft):
+    data = AIRCRAFT_DATA[aircraft]
+    return data["base_stall_flaps_down_mph"] * np.sqrt(weight_lbs / data["max_landing_weight_lbs"])
 
 @st.cache_data
-def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft, custom_empty=None):
+def compute_glide_distance(height_ft, wind_kts, aircraft):
     data = AIRCRAFT_DATA[aircraft]
-    empty_weight = custom_empty if custom_empty is not None else data["base_empty_weight_lbs"]
+    ground_speed_mph = 100 + wind_kts
+    glide_distance_nm = (height_ft / 6076) * data["glide_ratio"] * (ground_speed_mph / 60)
+    return glide_distance_nm
+
+@st.cache_data
+def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
+    data = AIRCRAFT_DATA[aircraft]
     fuel_weight = fuel_gal * data["fuel_weight_per_gal"]
     hopper_weight = hopper_gal * data["hopper_weight_per_gal"]
-    total_weight = empty_weight + fuel_weight + hopper_weight + pilot_weight_lbs
+    total_weight = data["base_empty_weight_lbs"] + fuel_weight + hopper_weight + pilot_weight_lbs
     status = "Within limits" if total_weight <= data["max_takeoff_weight_lbs"] else "Overweight!"
     if total_weight > data["max_landing_weight_lbs"]:
         status += " (Exceeds max landing weight)"
     return total_weight, status
 
+# Hover Ceiling Calculation (for helicopters)
+def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
+    data = AIRCRAFT_DATA[aircraft]
+    base_ceiling_ige = data["hover_ceiling_ige_max_gw"]
+    base_ceiling_oge = data["hover_ceiling_oge_max_gw"]
+    
+    weight_factor = (data["max_takeoff_weight_lbs"] - weight_lbs) / 500.0
+    ige_ceiling = base_ceiling_ige + (weight_factor * 1000)
+    oge_ceiling = base_ceiling_oge + (weight_factor * 800)
+    
+    da_loss = da_ft / 1000 * 1000
+    ige_ceiling -= da_loss
+    oge_ceiling -= da_loss
+    
+    ige_ceiling = max(0, ige_ceiling)
+    oge_ceiling = max(0, oge_ceiling)
+    
+    return ige_ceiling, oge_ceiling
+
 # ────────────────────────────────────────────────
-# Risk Assessment – 14 sliders + IMSAFE
+# Risk Assessment – Fixed sliders with explicit bounds
 # ────────────────────────────────────────────────
-def show_risk_assessment(
-    da_ft=None,
-    weight_lbs=None,
-    wind_kts=None,
-    ground_roll_to=None,
-    runway_length_ft=None,
-    runway_condition=None,
-    aircraft=None,
-    ige_ceiling=None,
-    call_context="default"
-):
-    prefix = f"{call_context}_"
-    st.subheader("Risk Assessment – FAA PAVE/IMSAFE")
-    st.caption("Begin with IMSAFE (FAA personal fitness), then score each factor 0–10 (higher = more risk).")
+
+def show_risk_assessment():
+    st.subheader("Risk Assessment")
+    st.caption("Score each factor 0–10 (higher = more risk).")
+
     total_risk = 0
-    # IMSAFE Checkboxes
-    st.markdown("**IMSAFE – Illness, Medication, Stress, Alcohol, Fatigue, Emotion** (FAA personal fitness check)")
-    ims_points = 0
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.checkbox("Illness / feeling unwell today?", value=False, key=f"{prefix}ims_illness"):
-            ims_points += 10
-        if st.checkbox("Taking any medication?", value=False, key=f"{prefix}ims_med"):
-            ims_points += 10
-        if st.checkbox("High stress / emotional state?", value=False, key=f"{prefix}ims_stress"):
-            ims_points += 8
-    with col2:
-        if st.checkbox("Alcohol in last 8–24 hours?", value=False, key=f"{prefix}ims_alcohol"):
-            ims_points += 12
-        if st.checkbox("Fatigue / poor sleep?", value=False, key=f"{prefix}ims_fatigue"):
-            ims_points += 12
-        if st.checkbox("Get-there-itis / strong external pressure?", value=False, key=f"{prefix}ims_egt"):
-            ims_points += 10
-    total_risk += ims_points
-    if ims_points > 0:
-        st.warning(f"IMSAFE flags detected ({ims_points} risk points). Consider delaying flight.")
-    # NOTAMs / TFRs
-    if not st.checkbox("Checked current NOTAMs / TFRs / airspace restrictions?", value=True, key=f"{prefix}notams_tfrs_checked"):
-        total_risk += 15
-    # Density Altitude auto-risk
-    if da_ft is not None:
-        da_risk = min(20, max(0, int((da_ft - 2000) / 1000) * 5))
-        total_risk += da_risk
-        if da_ft > 5000:
-            st.warning(f"High density altitude ({da_ft:.0f} ft) – adds {da_risk} risk points to environment/performance.")
-    # 14 Sliders
-    st.markdown("**Detailed PAVE Checklist Scoring** (0–10, higher = more risk)")
-    st.markdown("**Pilot Factors** (beyond IMSAFE)")
-    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5, step=1, key=f"{prefix}pilot_exp")
+
+    st.markdown("**Pilot Factors**")
+    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", min_value=0, max_value=10, value=5, step=1)
     total_risk += pilot_exp
-    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5, step=1, key=f"{prefix}pilot_fatigue")
+    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", min_value=0, max_value=10, value=5, step=1)
     total_risk += pilot_fatigue
-    pilot_health = st.slider("Physical/mental health today", 0, 10, 2, step=1, key=f"{prefix}pilot_health")
+    pilot_health = st.slider("Physical/mental health today", min_value=0, max_value=10, value=2, step=1)
     total_risk += pilot_health
+
     st.markdown("**Aircraft Factors**")
-    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3, step=1, key=f"{prefix}ac_maintenance")
+    ac_maintenance = st.slider("Maintenance status/known squawks", min_value=0, max_value=10, value=3, step=1)
     total_risk += ac_maintenance
-    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2, step=1, key=f"{prefix}ac_fuel")
+    ac_fuel = st.slider("Fuel planning/reserves", min_value=0, max_value=10, value=2, step=1)
     total_risk += ac_fuel
-    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2, step=1, key=f"{prefix}ac_weight")
+    ac_weight = st.slider("Weight & balance/CG within limits", min_value=0, max_value=10, value=2, step=1)
     total_risk += ac_weight
+
     st.markdown("**Environment / Weather**")
-    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4, step=1, key=f"{prefix}weather_ceiling")
+    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", min_value=0, max_value=10, value=4, step=1)
     total_risk += weather_ceiling
-    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3, step=1, key=f"{prefix}weather_turb")
+    weather_turb = st.slider("Turbulence/icing/wind forecast", min_value=0, max_value=10, value=3, step=1)
     total_risk += weather_turb
-    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3, step=1, key=f"{prefix}weather_notams")
+    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", min_value=0, max_value=10, value=3, step=1)
     total_risk += weather_notams
+
     st.markdown("**Operations / Flight Plan**")
-    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", 0, 10, 4, step=1, key=f"{prefix}flight_complexity")
+    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires)", min_value=0, max_value=10, value=4, step=1)
     total_risk += flight_complexity
-    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2, step=1, key=f"{prefix}alternate_plan")
+    alternate_plan = st.slider("Alternate/emergency options planned", min_value=0, max_value=10, value=2, step=1)
     total_risk += alternate_plan
-    night_ops = st.slider("Night or low-light operations", 0, 10, 0, step=1, key=f"{prefix}night_ops")
+    night_ops = st.slider("Night or low-light operations", min_value=0, max_value=10, value=0, step=1)
     total_risk += night_ops
+
     st.markdown("**External Pressures**")
-    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2, step=1, key=f"{prefix}get_there_itis")
+    get_there_itis = st.slider("Get-there-itis/schedule pressure", min_value=0, max_value=10, value=2, step=1)
     total_risk += get_there_itis
-    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2, step=1, key=f"{prefix}customer_pressure")
+    customer_pressure = st.slider("Customer/family/operational pressure", min_value=0, max_value=10, value=2, step=1)
     total_risk += customer_pressure
-    # Normalize to 0–100%
-    risk_percent = min(total_risk / 1.8, 100)
-    # Level & color
-    if risk_percent <= 35:
-        level = "Low Risk – Go"
+
+    # Circular Dial Gauge
+    st.markdown("---")
+
+    risk_percent = (total_risk / 100) * 100
+
+    if total_risk <= 30:
+        level = "Low Risk"
         color = "#4CAF50"
         emoji = "🟢"
-    elif risk_percent <= 65:
-        level = "Medium Risk – Mitigate"
+    elif total_risk <= 60:
+        level = "Medium Risk"
         color = "#FF9800"
         emoji = "🟡"
     else:
-        level = "High Risk – No-Go / Replan"
+        level = "High Risk"
         color = "#F44336"
         emoji = "🔴"
-    # Animated gauge with needle
+
     gauge_html = f"""
-    <style>
-        @keyframes needle-sweep {{
-            from {{ transform: translate(-50%, -100%) rotate(-90deg); }}
-            to {{ transform: translate(-50%, -100%) rotate({risk_percent * 1.8 - 90}deg); }}
-        }}
-        .gauge-container {{ text-align: center; margin: 40px auto; width: 320px; }}
-        .gauge {{
-            width: 300px; height: 300px; border-radius: 50%;
-            background: radial-gradient(circle at 50% 120%, #444 0%, #111 70%, #000 100%),
-                        conic-gradient(#00ff00 0% 35%, #ffcc00 35% 65%, #ff0000 65% 100%);
-            position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.7); border: 10px solid #222;
-        }}
-        .needle {{
-            position: absolute; top: 50%; left: 50%;
-            width: 6px; height: 135px; background: linear-gradient(to top, #fff, #eee);
-            border-radius: 3px 3px 0 0; transform-origin: bottom;
-            transform: translate(-50%, -100%) rotate(-90deg);
-            animation: needle-sweep 1.4s ease-out forwards;
-            box-shadow: 0 0 15px rgba(255,255,255,0.9); z-index: 5;
-        }}
-        .hub {{
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 120px; height: 120px; background: #1a1a1a; border-radius: 50%;
-            border: 8px solid #444; box-shadow: inset 0 0 25px #000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; z-index: 10;
-        }}
-        .percent {{ font-size: 58px; font-weight: bold; color: {color}; }}
-        .label {{ font-size: 18px; color: #aaa; }}
-    </style>
-    <div class="gauge-container">
-        <div class="gauge">
-            <div class="needle"></div>
-            <div class="hub">
-                <div class="percent">{risk_percent:.0f}</div>
-                <div class="label">%</div>
+    <div style="text-align:center; margin: 30px 0;">
+        <div style="
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: conic-gradient(
+                {color} {risk_percent}%, 
+                #e0e0e0 {risk_percent}% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        ">
+            <div style="
+                width: 170px;
+                height: 170px;
+                background: white;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+            ">
+                <div style="font-size: 48px; font-weight: bold; color: {color};">{risk_percent:.0f}%</div>
+                <div style="font-size: 18px; color: #555;">{level}</div>
             </div>
         </div>
-        <div style="margin-top: 25px; font-size: 28px; font-weight: bold; color: {color};">
+        <div style="margin-top: 15px; font-size: 22px; font-weight: bold; color: {color};">
             {emoji} {level}
         </div>
     </div>
     """
+
     st.markdown(gauge_html, unsafe_allow_html=True)
-    if risk_percent > 35:
-        st.info("**Mitigation Recommendations (FAA Guidance)**")
-        st.markdown("""
-        - Address any IMSAFE items before flight
-        - Re-check weather, NOTAMs/TFRs, personal minimums
-        - Reduce load / wait for better DA / runway
-        - Consult another pilot
-        - Document decisions and re-assess
-        """)
-    st.caption("FAA PAVE/IMSAFE-inspired • Not a substitute for official briefing/POH.")
+
+    if total_risk > 30:
+        st.info("**Mitigation Recommendations**")
+        st.markdown("- Delay departure or have that 3rd coffee")
+        st.markdown("- Increase fuel or have a closer fuel option")
+        st.markdown("- Consult for a second opinion")
+        st.markdown("- Screenshot mitigations and re-assess high items")
+
+    st.caption("Not a substitute for official preflight briefing or company policy.")
 
 # ────────────────────────────────────────────────
 # Main App
 # ────────────────────────────────────────────────
-st.set_page_config(page_title="AgPilot", layout="wide")
-st.title("AgPilot – Aerial Application Performance Tool")
-st.caption("Prototype – educational use only. Always refer to official POH / current weather briefings / FAA sources.")
 
-# Fleet Section
-st.subheader("My Fleet")
-if st.session_state.fleet:
-    fleet_options = ["— Select —"] + [e['nickname'] for e in st.session_state.fleet]
-    selected_fleet = st.selectbox("Load saved aircraft", fleet_options)
-    if selected_fleet != "— Select —":
-        entry = next(e for e in st.session_state.fleet if e['nickname'] == selected_fleet)
-        selected_aircraft = entry['aircraft']
-        st.session_state.custom_empty_weight = entry['empty_weight']
-        st.success(f"Loaded **{selected_fleet}** – Empty: {entry['empty_weight']} lbs")
-else:
-    st.info("No saved aircraft yet.")
+st.set_page_config(page_title="AgPilot – Aerial Application Performance Tool", layout="wide")
 
-# ────────────────────────────────────────────────
-# Airport Selection & Weather
-# ────────────────────────────────────────────────
-st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
+st.title("AgPilot")
+st.markdown("Performance calculator for agricultural fixed-wing & helicopters")
+st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-common_airports = {
-    "KELN": "Ellensburg Bowers Field (KELN) – Home base",
-    "KYKM": "Yakima Air Terminal (KYKM)",
-    "KEAT": "Pangborn Memorial (KEAT) – Wenatchee",
-    "KPUW": "Pullman/Moscow Regional (KPUW)",
-    "KSEA": "Seattle-Tacoma Intl (KSEA)",
-    "None": "—— No airport selected ——"
-}
+# Aircraft selection row with Risk Assessment button
+col_select, col_button = st.columns([4, 1])
 
-selected_icao = st.selectbox(
-    "Select Nearby Airport",
-    options=list(common_airports.keys()),
-    format_func=lambda x: common_airports.get(x, x),
-    index=0
-)
-
-custom_icao = st.text_input(
-    "Or enter any ICAO code (4 letters)",
-    value="",
-    max_chars=4,
-    help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
-).strip().upper()
-
-# Use custom if provided, else selected
-icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
-
-metar_text = None
-metar_timestamp = None
-taf_text = None
-taf_issued = None
-
-if icao_upper and icao_upper != "None":
-    # METAR fetch
-    try:
-        url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            lines = response.text.strip().splitlines()
-            if len(lines) >= 2:
-                metar_timestamp = lines[0].strip()
-                metar_text = lines[1].strip()
-            elif lines:
-                metar_text = lines[0].strip()
-    except Exception as e:
-        st.warning(f"METAR fetch error for {icao_upper}: {e}")
-
-    # TAF fetch
-    try:
-        url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200 and response.text.strip():
-            taf_text = response.text.strip()
-            lines = taf_text.splitlines()
-            if lines and "Z" in lines[0]:
-                taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
-    except Exception as e:
-        st.warning(f"TAF fetch error for {icao_upper}: {e}")
-
-if icao_upper and icao_upper != "None":
-    st.markdown(f"**Latest Weather for {icao_upper}**")
-    
-    st.markdown("**METAR (Current)**")
-    if metar_text:
-        st.markdown(f"({metar_timestamp or 'fetched ' + datetime.now().strftime('%Y-%m-%d %H:%M UTC')})")
-        st.code(metar_text, language="text")
-        parts = metar_text.split()
-        wind_part = next((p for p in parts if "KT" in p and len(p) >= 6), "—")
-        temp_dew_part = next((p for p in parts if "/" in p and len(p.split("/")) == 2), "—")
-        altimeter_part = next((p for p in parts if (p.startswith("A") and len(p) == 5) or p.startswith("Q")), "—")
-        cols = st.columns(3)
-        cols[0].metric("Wind", wind_part)
-        cols[1].metric("Temp / Dew", temp_dew_part)
-        cols[2].metric("Altimeter", altimeter_part)
-    else:
-        st.info("No METAR available – check ICAO code or try later.")
-
-    st.markdown("**TAF (Forecast)**")
-    if taf_text:
-        issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
-        st.markdown(f"({issued_str})")
-        st.code(taf_text, language="text")
-    else:
-        st.info("No TAF available (common for small fields).")
-
-    st.markdown("**NOTAMs (Notices to Airmen)**")
-    st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
-    st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
-    st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot for complete, real-time info.")
-
-st.markdown("---")
-
-# ────────────────────────────────────────────────
-# TFR Map Visualization
-# ────────────────────────────────────────────────
-st.subheader("Temporary Flight Restrictions (TFR) Map")
-st.caption("Live interactive FAA TFR map – shows current restrictions. Zoom to your area/state.")
-st.components.v1.iframe(
-    src="https://tfr.faa.gov/tfr3/?page=map",
-    height=600,
-    scrolling=True
-)
-st.markdown("[Open full-screen FAA TFR Map](https://tfr.faa.gov/tfr3/?page=map) – recommended for detailed view.")
-
-# Aircraft Selection + Empty Weight
-col_select, col_button = st.columns([5, 1])
 with col_select:
-    selected_aircraft = st.selectbox("Select Aircraft", list(AIRCRAFT_DATA.keys()),
-                                     format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}")
+    selected_aircraft = st.selectbox(
+        "Select Aircraft",
+        options=list(AIRCRAFT_DATA.keys()),
+        index=0,
+        format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+    )
+
 with col_button:
-    if st.button("✏️ Empty Weight", type="secondary"):
-        st.session_state.show_empty_weight_input = not st.session_state.show_empty_weight_input
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("Risk Assessment", type="secondary"):
+        st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
-data = AIRCRAFT_DATA[selected_aircraft]
-base_empty = data["base_empty_weight_lbs"]
+# Show selected aircraft info
+aircraft_data = AIRCRAFT_DATA[selected_aircraft]
+st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 
-if st.session_state.show_empty_weight_input:
-    custom_empty = st.number_input(f"Custom Empty Weight (lbs) for {data['name']}",
-                                   min_value=1000, max_value=int(base_empty * 1.5),
-                                   value=base_empty, step=10)
-    st.session_state.custom_empty_weight = custom_empty
-    nickname = st.text_input("Nickname for Fleet (required to save)")
-    if st.button("💾 Save to Fleet", type="primary", disabled=not nickname.strip()):
-        new_entry = {'nickname': nickname.strip(), 'aircraft': selected_aircraft, 'empty_weight': custom_empty}
-        st.session_state.fleet = [e for e in st.session_state.fleet if e['nickname'] != nickname.strip()]
-        st.session_state.fleet.append(new_entry)
-        st.success(f"Saved **{nickname}**!")
-        st.rerun()
-
-effective_empty = st.session_state.custom_empty_weight if st.session_state.custom_empty_weight else base_empty
-st.caption(f"Empty weight: **{effective_empty} lbs** {'(custom)' if st.session_state.custom_empty_weight else '(base)'}")
-
-# Risk Assessment Button (under Empty Weight – only place it's triggered)
-st.markdown("### Safety Check")
-if st.button("Risk Assessment", type="secondary"):
-    st.session_state.show_risk = not st.session_state.show_risk
-if st.session_state.show_risk:
-    show_risk_assessment(call_context="preview")
+# Risk Assessment – toggleable via button
+if st.session_state.get("show_risk", False):
+    show_risk_assessment()
 
 # Inputs
 col1, col2 = st.columns(2)
 with col1:
-    pressure_alt_ft = st.number_input("Pressure Altitude (ft)", 0, 20000, 0, step=100)
-    oat_c = st.number_input("OAT (°C)", -30, 50, 15, step=1)
-    weight_lbs = st.number_input("Gross Weight (lbs)", 1000, int(data["max_takeoff_weight_lbs"]), int(data["max_takeoff_weight_lbs"]), step=50)
-    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", -20, 20, 0, step=1)
-with col2:
-    base_fuel = int(data["base_fuel_capacity_gal"])
-    base_hopper = int(data["hopper_capacity_gal"])
-    fuel_gal = st.number_input("Fuel (gal)",
-                               min_value=0,
-                               max_value=base_fuel,
-                               value=base_fuel // 2,
-                               step=10)
-    hopper_gal = st.number_input("Hopper Load (gal)",
-                                 min_value=0,
-                                 max_value=base_hopper,
-                                 value=0,
-                                 step=10)
-    pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", 100, 300, 200, step=10)
-    runway_condition = st.selectbox("Runway Condition", list(RUNWAY_CONDITIONS.keys()))
-    runway_length_ft = st.number_input("Available Runway (ft)", 1000, 8000, 3000, step=100)
-    if "R44" in selected_aircraft:
-        carb_heat = st.checkbox("Carb Heat ON (reduces ceilings)", value=False)
+    pressure_alt_ft = st.number_input("Pressure Altitude (ft)", min_value=0, max_value=20000, value=0, step=100)
+    oat_c = st.number_input("OAT (°C)", min_value=-30, max_value=50, value=15, step=1)
+    min_weight = 1000 if any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom 480", "Robinson R66"]) else 4000
+    weight_lbs = st.number_input(
+        "Gross Weight (lbs)",
+        min_value=min_weight,
+        max_value=aircraft_data["max_takeoff_weight_lbs"],
+        value=aircraft_data["max_takeoff_weight_lbs"],
+        step=50,
+        help="Adjust based on actual loadout. Helicopter min lowered for realistic empty weights."
+    )
+    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", min_value=-20, max_value=20, value=0, step=1)
 
-# Calculate Button
+with col2:
+    fuel_gal = st.number_input("Fuel (gal)", min_value=0, max_value=aircraft_data["base_fuel_capacity_gal"], value=aircraft_data["base_fuel_capacity_gal"], step=10)
+    max_hopper = aircraft_data["hopper_capacity_gal"]
+    hopper_gal = st.number_input(
+        "Hopper / Spray Load (gal)",
+        min_value=0,
+        max_value=max_hopper,
+        value=0,
+        step=10,
+        help=f"Max spray/chemical load: {max_hopper} gal ({'83-gal limit for R44' if 'R44' in selected_aircraft else '100-gal limit for Bell 206 / Enstrom 480' if any(x in selected_aircraft for x in ['Bell 206', 'Enstrom 480']) else '130-gal limit for R66' if 'Robinson R66' in selected_aircraft else 'hopper capacity'})"
+    )
+    pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", min_value=100, max_value=300, value=200, step=10)
+    glide_height_ft = st.number_input("Glide Height AGL (ft)", min_value=0, max_value=15000, value=1000, step=100)
+
+# Calculate button
 if st.button("Calculate Performance", type="primary"):
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-   
-    st.subheader("Density Altitude")
-    st.metric("Calculated Density Altitude", f"{da_ft} ft", help="Pressure altitude corrected for non-standard temperature")
-   
-    if "R44" in selected_aircraft:
-        ige_ceiling = compute_ige_hover_ceiling(da_ft, weight_lbs, carb_heat if 'carb_heat' in locals() else False)
-        st.subheader("R44 Raven II IGE Hover Performance")
-        st.metric("IGE Hover Ceiling", f"{ige_ceiling} ft")
-        if ige_ceiling < 1000:
-            st.error("Marginal/no IGE hover – reduce weight or DA.")
-    else:
-        gr_to, to_50 = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
-        gr_land, from_50 = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
-        climb = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.metric("Takeoff Ground Roll", f"{gr_to} ft")
-            st.metric("Takeoff to 50 ft", f"{to_50} ft")
-        with col_b:
-            st.metric("Landing Ground Roll", f"{gr_land} ft")
-            st.metric("Landing from 50 ft", f"{from_50} ft")
-            st.metric("Climb Rate", f"{climb} fpm")
-   
-    total_weight, status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft, st.session_state.custom_empty_weight)
-    st.markdown(f"**Total Weight:** {total_weight} lbs – **{status}**")
-   
+
+    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
+    ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
+    climb_rate = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
+    stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
+    glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
+    total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
+
+    st.subheader("Results")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        if any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom 480", "Robinson R66"]):
+            st.metric("Takeoff Ground Roll", "Vertical (hover)")
+            st.metric("Takeoff to 50 ft", "Vertical performance")
+            st.metric("Landing Ground Roll", "Vertical landing")
+            st.metric("Landing from 50 ft", "Vertical performance")
+        else:
+            st.metric("Takeoff Ground Roll", f"{ground_roll_to:.0f} ft")
+            st.metric("Takeoff to 50 ft", f"{to_50ft:.0f} ft")
+            st.metric("Landing Ground Roll", f"{ground_roll_land:.0f} ft")
+            st.metric("Landing from 50 ft", f"{from_50ft:.0f} ft")
+    with col_b:
+        st.metric("Climb Rate", f"{climb_rate:.0f} fpm")
+        st.metric("Best Rate Climb", f"{aircraft_data['best_climb_speed_mph']} mph IAS")
+        st.metric("Stall Speed (flaps down)", f"{stall_speed:.1f} mph" if stall_speed > 0 else "N/A (helicopter)")
+        st.metric("Glide Distance", f"{glide_dist:.1f} nm")
+
+    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
+
+    # Hover Ceiling for helicopters
+    if any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom 480", "Robinson R66"]):
+        ige_ceiling, oge_ceiling = compute_hover_ceiling(da_ft, total_weight, selected_aircraft)
+        st.subheader("Hover Performance")
+        st.metric("Estimated IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
+        st.metric("Estimated OGE Hover Ceiling", f"{oge_ceiling:.0f} ft")
+        if total_weight > 2300:
+            st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
+        if da_ft > 8000:
+            st.warning("High density altitude — hover performance reduced. Consult POH.")
+
     # Climb chart
     st.subheader("Rate of Climb vs Pressure Altitude")
     altitudes = np.linspace(0, 12000, 60)
     climb_rates = [compute_climb_rate(alt, oat_c, weight_lbs, selected_aircraft) for alt in altitudes]
+
     fig, ax = plt.subplots(figsize=(10, 5.5))
     ax.plot(altitudes, climb_rates, color='darkgreen', linewidth=2.2)
     ax.set_xlabel("Pressure Altitude (ft)")
     ax.set_ylabel("Rate of Climb (fpm)")
-    ax.set_title(f"Climb Performance – {data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
+    ax.set_title(f"Climb Performance – {aircraft_data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
     ax.grid(True, linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
 # Feedback section
 st.markdown("---")
 st.subheader("Your Feedback – Help Improve AgPilot")
+
 rating = st.feedback("stars")
-comment = st.text_area("Comments, suggestions, or issues", height=120, placeholder="Ideas? Suggestions? Comments?...")
+
+comment = st.text_area(
+    "Comments, suggestions, or issues",
+    height=120,
+    placeholder="For faster suggestions send screenshot to cvh@centralvalleyheli.com"
+)
+
 if st.button("Submit Rating & Comment"):
     if rating is not None:
         stars = rating + 1
