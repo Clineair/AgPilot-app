@@ -1,8 +1,6 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import requests
-from datetime import datetime
 
 # ────────────────────────────────────────────────
 # Session State Initialization
@@ -192,7 +190,7 @@ def calculate_density_altitude(pressure_alt_ft, oat_c):
     return round(da_ft)
 
 # ────────────────────────────────────────────────
-# Helper Functions (unchanged)
+# Helper Functions (updated for custom empty weight)
 # ────────────────────────────────────────────────
 
 def adjust_for_weight(value, current_weight, base_weight, exponent=1.5):
@@ -438,11 +436,18 @@ aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 st.subheader("Custom Empty Weight (optional)")
 col_empty1, col_empty2 = st.columns([3, 1])
 with col_empty1:
+    # Safely get current value: use custom if exists and is not None, else base
+    current_empty = st.session_state.get('custom_empty_weight')
+    if current_empty is None:
+        current_empty = aircraft_data["base_empty_weight_lbs"]
+    else:
+        current_empty = int(current_empty)  # ensure it's an int
+
     custom_empty = st.number_input(
         f"Custom Empty Weight for {aircraft_data['name']} (lb)",
         min_value=500,
         max_value=int(aircraft_data["max_takeoff_weight_lbs"] * 0.9),
-        value=int(st.session_state.get('custom_empty_weight', aircraft_data["base_empty_weight_lbs"])),
+        value=current_empty,
         step=10,
         help="Override base empty weight if your aircraft has modifications, avionics, etc."
     )
@@ -467,8 +472,13 @@ effective_empty = custom_empty if custom_empty != aircraft_data["base_empty_weig
 st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if custom_empty != aircraft_data['base_empty_weight_lbs'] else '(base)'}")
 
 # Risk Assessment button
-if st.button("Risk Assessment", type="secondary"):
-    st.session_state.show_risk = not st.session_state.get("show_risk", False)
+col_select_risk, col_button_risk = st.columns([4, 1])
+with col_select_risk:
+    pass  # placeholder
+with col_button_risk:
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("Risk Assessment", type="secondary"):
+        st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
 # Show selected aircraft info
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
@@ -476,122 +486,6 @@ st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 # Risk Assessment section (toggleable)
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
-
-# ────────────────────────────────────────────────
-# Airport Weather & Notices (METAR + TAF + NOTAMs)
-# ────────────────────────────────────────────────
-st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
-
-common_airports = {
-    "KELN": "Ellensburg Bowers Field (KELN) – Home base",
-    "KYKM": "Yakima Air Terminal (KYKM)",
-    "KEAT": "Pangborn Memorial (KEAT) – Wenatchee",
-    "KPUW": "Pullman/Moscow Regional (KPUW)",
-    "KSEA": "Seattle-Tacoma Intl (KSEA)",
-    "None": "—— No airport selected ——"
-}
-
-selected_icao = st.selectbox(
-    "Select Nearby Airport",
-    options=list(common_airports.keys()),
-    format_func=lambda x: common_airports.get(x, x),
-    index=0
-)
-
-custom_icao = st.text_input(
-    "Or enter any ICAO code (4 letters)",
-    value="",
-    max_chars=4,
-    help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
-).strip().upper()
-
-# Use custom if provided, else selected
-icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
-
-metar_text = None
-metar_timestamp = None
-taf_text = None
-taf_issued = None
-
-if icao_upper and icao_upper != "None":
-    # METAR fetch
-    try:
-        url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            lines = response.text.strip().splitlines()
-            if len(lines) >= 2:
-                metar_timestamp = lines[0].strip()
-                metar_text = lines[1].strip()
-            elif lines:
-                metar_text = lines[0].strip()
-    except Exception as e:
-        st.warning(f"METAR fetch error for {icao_upper}: {e}")
-
-    # TAF fetch
-    try:
-        url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200 and response.text.strip():
-            taf_text = response.text.strip()
-            lines = taf_text.splitlines()
-            if lines and "Z" in lines[0]:
-                taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
-    except Exception as e:
-        st.warning(f"TAF fetch error for {icao_upper}: {e}")
-
-if icao_upper and icao_upper != "None":
-    st.markdown(f"**Latest Weather for {icao_upper}**")
-    
-    st.markdown("**METAR (Current)**")
-    if metar_text:
-        st.markdown(f"({metar_timestamp or 'fetched ' + datetime.now().strftime('%Y-%m-%d %H:%M UTC')})")
-        st.code(metar_text, language="text")
-        parts = metar_text.split()
-        wind_part = next((p for p in parts if "KT" in p and len(p) >= 6), "—")
-        temp_dew_part = next((p for p in parts if "/" in p and len(p.split("/")) == 2), "—")
-        altimeter_part = next((p for p in parts if (p.startswith("A") and len(p) == 5) or p.startswith("Q")), "—")
-        cols = st.columns(3)
-        cols[0].metric("Wind", wind_part)
-        cols[1].metric("Temp / Dew", temp_dew_part)
-        cols[2].metric("Altimeter", altimeter_part)
-    else:
-        st.info("No METAR available – check ICAO code or try later.")
-
-    st.markdown("**TAF (Forecast)**")
-    if taf_text:
-        issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
-        st.markdown(f"({issued_str})")
-        st.code(taf_text, language="text")
-    else:
-        st.info("No TAF available (common for small fields).")
-
-    st.markdown("**NOTAMs (Notices to Airmen)**")
-    st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
-    st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
-    st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot for complete, real-time info.")
-
-st.markdown("---")
-
-# ────────────────────────────────────────────────
-# TFR Map Visualization
-# ────────────────────────────────────────────────
-st.subheader("Temporary Flight Restrictions (TFR) Map")
-st.caption("Live interactive FAA TFR map – shows current restrictions. Zoom to your area/state.")
-st.components.v1.iframe(
-    src="https://tfr.faa.gov/tfr3/?page=map",
-    height=600,
-    scrolling=True
-)
-st.markdown("[Open full-screen FAA TFR Map](https://tfr.faa.gov/tfr3/?page=map) – recommended for detailed view.")
-
-# ────────────────────────────────────────────────
-# Inputs & Calculations (unchanged from previous working version)
-# ────────────────────────────────────────────────
-
-# Aircraft selection already handled above
-
-# Custom Empty Weight already handled above
 
 # Inputs
 col1, col2 = st.columns(2)
@@ -623,7 +517,7 @@ with col2:
     pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", min_value=100, max_value=300, value=200, step=10)
     glide_height_ft = st.number_input("Glide Height AGL (ft)", min_value=0, max_value=15000, value=1000, step=100)
 
-# Density Altitude Display
+# Density Altitude Display (from Enstrom 480 POH method)
 da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
 isa_temp_c = 15 - (2 * (pressure_alt_ft / 1000))
 isa_deviation = oat_c - isa_temp_c
