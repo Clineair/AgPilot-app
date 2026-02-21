@@ -194,9 +194,10 @@ def calculate_density_altitude(pressure_alt_ft, oat_c):
 # ────────────────────────────────────────────────
 # Helper Functions
 # ────────────────────────────────────────────────
-
 def adjust_for_weight(value, current_weight, base_weight, exponent=1.5):
     return value * (current_weight / base_weight) ** exponent
+
+
 def adjust_for_runway_condition(value, condition):
     multipliers = {
         "Paved / Dry Hard Surface": 1.00,
@@ -206,15 +207,19 @@ def adjust_for_runway_condition(value, condition):
     }
     factor = multipliers.get(condition, 1.00)
     return value * factor
+
+
 def adjust_for_wind(value, wind_kts):
     factor = 1 - (0.1 * wind_kts / 9)
     return value * max(factor, 0.5)
+
 
 def adjust_for_da(value, da_ft):
     factor = 1 + (0.07 * da_ft / 1000)
     return value * factor
 
-    @st.cache_data
+
+@st.cache_data
 def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
@@ -222,20 +227,17 @@ def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_conditi
     ground_roll = adjust_for_weight(data["base_takeoff_ground_roll_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
-    ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)   # ← add this line
+    ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)
     
     to_50ft = adjust_for_weight(data["base_takeoff_to_50ft_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     to_50ft = adjust_for_da(to_50ft, da_ft)
     to_50ft = adjust_for_wind(to_50ft, wind_kts)
-    to_50ft = adjust_for_runway_condition(to_50ft, runway_condition) * 1.10   # ← add this line (extra for climb phase)
+    to_50ft = adjust_for_runway_condition(to_50ft, runway_condition) * 1.10
     
-    return ground_roll, to_50ft
-    to_50ft = adjust_for_weight(data["base_takeoff_to_50ft_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
-    to_50ft = adjust_for_da(to_50ft, da_ft)
-    to_50ft = adjust_for_wind(to_50ft, wind_kts)
     return ground_roll, to_50ft
 
-   @st.cache_data
+
+@st.cache_data
 def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     weight_lbs = min(weight_lbs, data["max_landing_weight_lbs"])
@@ -244,24 +246,15 @@ def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_conditi
     ground_roll = adjust_for_weight(data["base_landing_ground_roll_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
-    ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)   # ← add this line
+    ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)
     
     from_50ft = adjust_for_weight(data["base_landing_to_50ft_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
     from_50ft = adjust_for_da(from_50ft, da_ft)
     from_50ft = adjust_for_wind(from_50ft, wind_kts)
-    from_50ft = adjust_for_runway_condition(from_50ft, runway_condition) * 1.15   # ← add this line (more effect on landing)
+    from_50ft = adjust_for_runway_condition(from_50ft, runway_condition) * 1.15
     
-    return ground_roll, from_50ft 
-    data = AIRCRAFT_DATA[aircraft]
-    weight_lbs = min(weight_lbs, data["max_landing_weight_lbs"])
-    da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-    ground_roll = adjust_for_weight(data["base_landing_ground_roll_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
-    ground_roll = adjust_for_da(ground_roll, da_ft)
-    ground_roll = adjust_for_wind(ground_roll, wind_kts)
-    from_50ft = adjust_for_weight(data["base_landing_to_50ft_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
-    from_50ft = adjust_for_da(from_50ft, da_ft)
-    from_50ft = adjust_for_wind(from_50ft, wind_kts)
     return ground_roll, from_50ft
+
 
 @st.cache_data
 def compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, aircraft):
@@ -271,10 +264,12 @@ def compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, aircraft):
     climb *= (1 - (0.05 * da_ft / 1000))
     return max(climb, 0)
 
+
 @st.cache_data
 def compute_stall_speed(weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     return data["base_stall_flaps_down_mph"] * np.sqrt(weight_lbs / data["max_landing_weight_lbs"])
+
 
 @st.cache_data
 def compute_glide_distance(height_ft, wind_kts, aircraft):
@@ -283,16 +278,15 @@ def compute_glide_distance(height_ft, wind_kts, aircraft):
     glide_distance_nm = (height_ft / 6076) * data["glide_ratio"] * (ground_speed_mph / 60)
     return glide_distance_nm
 
+
 @st.cache_data
 def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
-    # Safely handle empty_weight: default to base if None
     empty_weight = st.session_state.get('custom_empty_weight')
     if empty_weight is None:
         empty_weight = data["base_empty_weight_lbs"]
     else:
-        empty_weight = int(empty_weight)  # ensure numeric
-
+        empty_weight = int(empty_weight)
     fuel_weight = fuel_gal * data["fuel_weight_per_gal"]
     hopper_weight = hopper_gal * data["hopper_weight_per_gal"]
     total_weight = empty_weight + fuel_weight + hopper_weight + pilot_weight_lbs
@@ -301,11 +295,11 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
         status += " (Exceeds max landing weight)"
     return total_weight, status
 
-# Hover Ceiling Calculation (for helicopters)
+
 def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
-    base_ceiling_ige = data["hover_ceiling_ige_max_gw"]
-    base_ceiling_oge = data["hover_ceiling_oge_max_gw"]
+    base_ceiling_ige = data.get("hover_ceiling_ige_max_gw", 0)
+    base_ceiling_oge = data.get("hover_ceiling_oge_max_gw", 0)
     
     weight_factor = (data["max_takeoff_weight_lbs"] - weight_lbs) / 500.0
     ige_ceiling = base_ceiling_ige + (weight_factor * 1000)
@@ -319,7 +313,6 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     oge_ceiling = max(0, oge_ceiling)
     
     return ige_ceiling, oge_ceiling
-
 # ────────────────────────────────────────────────
 # Risk Assessment
 # ────────────────────────────────────────────────
