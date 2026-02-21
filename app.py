@@ -180,7 +180,7 @@ AIRCRAFT_DATA = {
         "hover_ceiling_ige_max_gw": 11000,
         "hover_ceiling_oge_max_gw": 10000
     },
-}    "Cessna 188 Ag Truck": {
+    "Cessna 188 Ag Truck": {
         "name": "Cessna 188 Ag Truck",
         "base_takeoff_ground_roll_ft": 680,
         "base_takeoff_to_50ft_ft": 1090,
