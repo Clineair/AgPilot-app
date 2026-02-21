@@ -197,7 +197,15 @@ def calculate_density_altitude(pressure_alt_ft, oat_c):
 
 def adjust_for_weight(value, current_weight, base_weight, exponent=1.5):
     return value * (current_weight / base_weight) ** exponent
-
+def adjust_for_runway_condition(value, condition):
+    multipliers = {
+        "Paved / Dry Hard Surface": 1.00,
+        "Dry Grass / Firm Turf": 1.15,
+        "Wet Grass / Damp Turf": 1.45,
+        "Soft / Muddy / Rough": 1.80
+    }
+    factor = multipliers.get(condition, 1.00)
+    return value * factor
 def adjust_for_wind(value, wind_kts):
     factor = 1 - (0.1 * wind_kts / 9)
     return value * max(factor, 0.5)
@@ -206,20 +214,44 @@ def adjust_for_da(value, da_ft):
     factor = 1 + (0.07 * da_ft / 1000)
     return value * factor
 
-@st.cache_data
-def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, aircraft):
+    @st.cache_data
+def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
+    
     ground_roll = adjust_for_weight(data["base_takeoff_ground_roll_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
+    ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)   # ← add this line
+    
+    to_50ft = adjust_for_weight(data["base_takeoff_to_50ft_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
+    to_50ft = adjust_for_da(to_50ft, da_ft)
+    to_50ft = adjust_for_wind(to_50ft, wind_kts)
+    to_50ft = adjust_for_runway_condition(to_50ft, runway_condition) * 1.10   # ← add this line (extra for climb phase)
+    
+    return ground_roll, to_50ft
     to_50ft = adjust_for_weight(data["base_takeoff_to_50ft_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     to_50ft = adjust_for_da(to_50ft, da_ft)
     to_50ft = adjust_for_wind(to_50ft, wind_kts)
     return ground_roll, to_50ft
 
-@st.cache_data
-def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, aircraft):
+   @st.cache_data
+def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
+    data = AIRCRAFT_DATA[aircraft]
+    weight_lbs = min(weight_lbs, data["max_landing_weight_lbs"])
+    da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
+    
+    ground_roll = adjust_for_weight(data["base_landing_ground_roll_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
+    ground_roll = adjust_for_da(ground_roll, da_ft)
+    ground_roll = adjust_for_wind(ground_roll, wind_kts)
+    ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)   # ← add this line
+    
+    from_50ft = adjust_for_weight(data["base_landing_to_50ft_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
+    from_50ft = adjust_for_da(from_50ft, da_ft)
+    from_50ft = adjust_for_wind(from_50ft, wind_kts)
+    from_50ft = adjust_for_runway_condition(from_50ft, runway_condition) * 1.15   # ← add this line (more effect on landing)
+    
+    return ground_roll, from_50ft 
     data = AIRCRAFT_DATA[aircraft]
     weight_lbs = min(weight_lbs, data["max_landing_weight_lbs"])
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
@@ -644,11 +676,21 @@ st.metric(
     help="Calculated as Pressure Altitude + 120 ft per °C deviation from ISA (per Enstrom 480 POH and standard aviation method)"
 )
 st.caption(f"ISA temperature at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
-
+    runway_condition = st.selectbox(
+        "Runway Condition",
+        options=[
+            "Paved / Dry Hard Surface",
+            "Dry Grass / Firm Turf",
+            "Wet Grass / Damp Turf",
+            "Soft / Muddy / Rough"
+        ],
+        index=0,
+        help="Adjusts takeoff/landing distances. Baseline = paved/dry. Grass/soft fields increase roll significantly."
+    )
 # Calculate button
 if st.button("Calculate Performance", type="primary"):
-    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
-    ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, selected_aircraft)
+    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
+    ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
     climb_rate = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
     stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
     glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
