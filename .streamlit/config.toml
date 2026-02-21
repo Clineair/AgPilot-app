@@ -1,0 +1,6 @@
+[theme]
+base = "light"
+primaryColor = "#4CAF50"          # Vibrant green for accents/previews
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#E8F5E9"
+textColor = "#000000"
