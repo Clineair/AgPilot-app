@@ -743,7 +743,7 @@ rating = st.feedback("stars")
 comment = st.text_area(
     "Any suggestons send screenshot to cvh@centralvalleyheli.com",
     height=120,
-    placeholder="Ideas? Suggestions? Comments?..."
+    placeholder="To keep AgPilot free send comments to email above"
 )
 
 if st.button("Submit Rating & Comment"):
