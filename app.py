@@ -116,6 +116,27 @@ AIRCRAFT_DATA = {
         "description": "Light utility helicopter (spray capable)",
         "hover_ceiling_ige_max_gw": 12800,
         "hover_ceiling_oge_max_gw": 8800
+    },   
+    "Airbus AS350 B2": {
+        "name": "Airbus AS350 B2",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1675,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,  # Approximate Vy for turbine helis
+        "base_empty_weight_lbs": 2800,  # Approx ag-equipped (adjust if your config differs)
+        "base_fuel_capacity_gal": 143,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 150,  # Common ag spray tank size; tweak for your setup
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 4960,
+        "max_landing_weight_lbs": 4960,
+        "glide_ratio": 4.0,
+        "description": "Turbine ag spray helicopter – high performance utility",
+        "hover_ceiling_ige_max_gw": 9850,  # Base IGE at max gross; app adjusts
+        "hover_ceiling_oge_max_gw": 7550
     },
     "Enstrom 480": {
         "name": "Enstrom 480",
