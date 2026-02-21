@@ -218,8 +218,8 @@ AIRCRAFT_DATA = {
         "glide_ratio": 4.0,
         "description": "Piston helicopter (Falcon) – utility/ag capable",
         "hover_ceiling_ige_max_gw": 13200,  # IGE at lower weights; app adjusts dynamically
-        "hover_ceiling_oge_max_gw": 8700
-    }
+        "hover_ceiling_oge_max_gw": 8700}
+    
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
