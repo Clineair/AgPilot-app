@@ -218,8 +218,15 @@ AIRCRAFT_DATA = {
         "glide_ratio": 4.0,
         "description": "Piston helicopter (Falcon) – utility/ag capable",
         "hover_ceiling_ige_max_gw": 13200,  # IGE at lower weights; app adjusts dynamically
-        "hover_ceiling_oge_max_gw": 8700}
-    
+        "hover_ceiling_oge_max_gw": 8700
+    }   # ← this closes Enstrom F28F
+}       # ← ADD THIS LINE to close the entire AIRCRAFT_DATA dictionary
+
+# ────────────────────────────────────────────────
+# Density Altitude Calculation (Enstrom 480 POH method)
+# ────────────────────────────────────────────────
+def calculate_density_altitude(pressure_alt_ft, oat_c):
+    ...
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
