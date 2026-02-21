@@ -642,7 +642,17 @@ with col1:
         help="Adjust based on actual loadout. Helicopter min lowered for realistic empty weights."
     )
     wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", min_value=-20, max_value=20, value=0, step=1)
-
+    runway_condition = st.selectbox(
+        "Runway Condition",
+        options=[
+            "Paved / Dry Hard Surface",
+            "Dry Grass / Firm Turf",
+            "Wet Grass / Damp Turf",
+            "Soft / Muddy / Rough"
+        ],
+        index=0,
+        help="Adjusts takeoff/landing distances. Baseline = paved/dry. Grass/soft fields increase roll significantly."
+    )
 with col2:
     fuel_gal = st.number_input("Fuel (gal)", min_value=0, max_value=aircraft_data["base_fuel_capacity_gal"], value=aircraft_data["base_fuel_capacity_gal"], step=10)
     max_hopper = aircraft_data["hopper_capacity_gal"]
@@ -669,17 +679,7 @@ st.metric(
     help="Calculated as Pressure Altitude + 120 ft per °C deviation from ISA (per Enstrom 480 POH and standard aviation method)"
 )
 st.caption(f"ISA temperature at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
-    runway_condition = st.selectbox(
-        "Runway Condition",
-        options=[
-            "Paved / Dry Hard Surface",
-            "Dry Grass / Firm Turf",
-            "Wet Grass / Damp Turf",
-            "Soft / Muddy / Rough"
-        ],
-        index=0,
-        help="Adjusts takeoff/landing distances. Baseline = paved/dry. Grass/soft fields increase roll significantly."
-    )
+  
 # Calculate button
 if st.button("Calculate Performance", type="primary"):
     ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
