@@ -3,12 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 from datetime import datetime
-.streamlit/config.toml[theme]
-base = "light"                  # or "dark" if you prefer dark mode overall
-primaryColor = "#4CAF50"        # Vibrant green (change to any hex you like)
-backgroundColor = "#FFFFFF"     # White background (optional)
-secondaryBackgroundColor = "#E8F5E9"  # Very light green for blocks/sidebar (optional)
-textColor = "#000000"           # Black text (optional)
+
 # ────────────────────────────────────────────────
 # Session State Initialization
 # ────────────────────────────────────────────────
