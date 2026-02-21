@@ -180,7 +180,46 @@ AIRCRAFT_DATA = {
         "hover_ceiling_ige_max_gw": 11000,
         "hover_ceiling_oge_max_gw": 10000
     },
-}
+}    "Cessna 188 Ag Truck": {
+        "name": "Cessna 188 Ag Truck",
+        "base_takeoff_ground_roll_ft": 680,
+        "base_takeoff_to_50ft_ft": 1090,
+        "base_landing_ground_roll_ft": 420,
+        "base_landing_to_50ft_ft": 1265,
+        "base_climb_rate_fpm": 690,
+        "base_stall_flaps_down_mph": 50,
+        "best_climb_speed_mph": 80,  # Approximate best rate; adjust per POH
+        "base_empty_weight_lbs": 2220,
+        "base_fuel_capacity_gal": 54,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 280,  # Standard ag hopper for Ag Truck
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 4200,  # Restricted ag category
+        "max_landing_weight_lbs": 4200,
+        "glide_ratio": 8.0,  # Approximate for piston ag plane
+        "description": "Classic single-engine piston ag sprayer"
+    },
+    "Enstrom F28F": {
+        "name": "Enstrom F28F",
+        "base_takeoff_ground_roll_ft": 0,
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 1450,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 57,
+        "base_empty_weight_lbs": 1640,
+        "base_fuel_capacity_gal": 40,  # Usable ~40 gal
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 100,  # Approximate for ag/spray config; adjust if your setup differs
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 2600,
+        "max_landing_weight_lbs": 2600,
+        "glide_ratio": 4.0,
+        "description": "Piston helicopter (Falcon) – utility/ag capable",
+        "hover_ceiling_ige_max_gw": 13200,  # IGE at lower weights; app adjusts dynamically
+        "hover_ceiling_oge_max_gw": 8700
+    },
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
