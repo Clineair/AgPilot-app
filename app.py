@@ -1,3 +1,15 @@
+from PIL import Image
+import streamlit as st
+
+# Load your logo (adjust path if it's in a subfolder like "images/")
+logo = Image.open("AgPilotApp_logo.png")
+
+st.set_page_config(
+    page_title="AgPilot – Aerial Application Performance Tool",
+    page_icon=logo,               # ← your PNG here
+    layout="wide",
+    initial_sidebar_state="auto"  # or "expanded" / "collapsed"
+)
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
