@@ -21,14 +21,13 @@ st.markdown("""
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
 
-# Try to load your custom logo from GitHub raw URL
-LOGO_URL = "https://raw.githubusercontent.com/captn357417/agpilot-app/main/AgPilotApp.png"  # ← change if needed
-
+# Try to load custom logo from GitHub raw URL
+LOGO_URL = "https://raw.githubusercontent.com/captn357417/agpilot-app/main/AgPilotApp.png"
 try:
     st.logo(LOGO_URL, size="medium")
 except Exception:
     try:
-        st.logo("AgPilotApp.png", size="medium")  # fallback to local if URL fails
+        st.logo("AgPilotApp.png", size="medium")  # fallback to local
     except Exception:
         st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
 
@@ -43,7 +42,7 @@ if 'show_risk' not in st.session_state:
     st.session_state.show_risk = False
 
 # ────────────────────────────────────────────────
-# Aircraft Database (now properly closed)
+# Aircraft Database
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
@@ -269,7 +268,7 @@ AIRCRAFT_DATA = {
         "hover_ceiling_ige_max_gw": 13200,
         "hover_ceiling_oge_max_gw": 8700
     }
-}  # ← Properly closed dictionary
+}
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
@@ -308,17 +307,14 @@ def adjust_for_da(value, da_ft):
 def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-    
     ground_roll = adjust_for_weight(data["base_takeoff_ground_roll_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
     ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)
-    
     to_50ft = adjust_for_weight(data["base_takeoff_to_50ft_ft"], weight_lbs, data["max_takeoff_weight_lbs"])
     to_50ft = adjust_for_da(to_50ft, da_ft)
     to_50ft = adjust_for_wind(to_50ft, wind_kts)
     to_50ft = adjust_for_runway_condition(to_50ft, runway_condition) * 1.10
-    
     return ground_roll, to_50ft
 
 @st.cache_data
@@ -326,17 +322,14 @@ def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_conditi
     data = AIRCRAFT_DATA[aircraft]
     weight_lbs = min(weight_lbs, data["max_landing_weight_lbs"])
     da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-    
     ground_roll = adjust_for_weight(data["base_landing_ground_roll_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
     ground_roll = adjust_for_da(ground_roll, da_ft)
     ground_roll = adjust_for_wind(ground_roll, wind_kts)
     ground_roll = adjust_for_runway_condition(ground_roll, runway_condition)
-    
     from_50ft = adjust_for_weight(data["base_landing_to_50ft_ft"], weight_lbs, data["max_landing_weight_lbs"], exponent=1.0)
     from_50ft = adjust_for_da(from_50ft, da_ft)
     from_50ft = adjust_for_wind(from_50ft, wind_kts)
     from_50ft = adjust_for_runway_condition(from_50ft, runway_condition) * 1.15
-    
     return ground_roll, from_50ft
 
 @st.cache_data
@@ -355,9 +348,15 @@ def compute_stall_speed(weight_lbs, aircraft):
 @st.cache_data
 def compute_glide_distance(height_ft, wind_kts, aircraft):
     data = AIRCRAFT_DATA[aircraft]
-    ground_speed_mph = 100 + wind_kts
-    glide_distance_nm = (height_ft / 6076) * data["glide_ratio"] * (ground_speed_mph / 60)
-    return glide_distance_nm
+    if is_helicopter:
+        # Helicopter autorotation approximation (best range config)
+        base_distance_nm = height_ft / 1300  # ~4.5:1 ratio → 1 nm per ~1,300 ft
+        wind_factor = 1 + (wind_kts / 20)   # rough wind adjustment
+        return base_distance_nm * wind_factor
+    else:
+        # Fixed-wing airplane glide
+        ground_speed_mph = 100 + wind_kts
+        return (height_ft / 6076) * data["glide_ratio"] * (ground_speed_mph / 60)
 
 @st.cache_data
 def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
@@ -379,18 +378,14 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     base_ceiling_ige = data.get("hover_ceiling_ige_max_gw", 0)
     base_ceiling_oge = data.get("hover_ceiling_oge_max_gw", 0)
-    
     weight_factor = (data["max_takeoff_weight_lbs"] - weight_lbs) / 500.0
     ige_ceiling = base_ceiling_ige + (weight_factor * 1000)
     oge_ceiling = base_ceiling_oge + (weight_factor * 800)
-    
     da_loss = da_ft / 1000 * 1000
     ige_ceiling -= da_loss
     oge_ceiling -= da_loss
-    
     ige_ceiling = max(0, ige_ceiling)
     oge_ceiling = max(0, oge_ceiling)
-    
     return ige_ceiling, oge_ceiling
 
 # ────────────────────────────────────────────────
@@ -496,7 +491,6 @@ def show_risk_assessment():
 # ────────────────────────────────────────────────
 # Main App
 # ────────────────────────────────────────────────
-
 st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
@@ -506,7 +500,6 @@ st.subheader("My Fleet")
 if st.session_state.fleet:
     fleet_nicknames = ["— Select a saved aircraft —"] + [entry["nickname"] for entry in st.session_state.fleet]
     selected_nickname = st.selectbox("Load from Fleet", fleet_nicknames)
-   
     if selected_nickname != "— Select a saved aircraft —":
         entry = next(e for e in st.session_state.fleet if e["nickname"] == selected_nickname)
         st.session_state.selected_aircraft = entry["aircraft"]
@@ -517,18 +510,6 @@ else:
     st.info("No aircraft saved to fleet yet.")
 
 # Aircraft selection
-is_helicopter = any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom", "Robinson R66", "Airbus AS350", "Enstrom F28F"])
-
-# In compute_glide_distance or a new function:
-if is_helicopter:
-    # Approximate autorotation best range
-    glide_ratio_heli = 4.5  # average; or per-model dict
-    glide_distance_nm = (height_ft / 1300) * (1 + wind_kts / 20)  # rough wind help
-    st.caption("Helicopter autorotation estimate (best range config) – actual varies by entry, RRPM, flare.")
-else:
-    # Current airplane formula
-    ground_speed_mph = 100 + wind_kts
-    glide_distance_nm = (height_ft / 6076) * aircraft_data["glide_ratio"] * (ground_speed_mph / 60)
 selected_aircraft = st.selectbox(
     "Select Aircraft",
     options=list(AIRCRAFT_DATA.keys()),
@@ -536,6 +517,12 @@ selected_aircraft = st.selectbox(
     format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
 )
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
+
+# Helicopter detection (moved here after selected_aircraft is defined)
+is_helicopter = any(heli in selected_aircraft for heli in [
+    "R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66",
+    "Airbus AS350", "Enstrom F28F"
+])
 
 # Custom Empty Weight Input
 st.subheader("Custom Empty Weight (optional)")
@@ -603,14 +590,11 @@ custom_icao = st.text_input(
     max_chars=4,
     help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
 ).strip().upper()
-
 icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
-
 metar_text = None
 metar_timestamp = None
 taf_text = None
 taf_issued = None
-
 if icao_upper and icao_upper != "None":
     try:
         url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
@@ -624,7 +608,6 @@ if icao_upper and icao_upper != "None":
                 metar_text = lines[0].strip()
     except Exception as e:
         st.warning(f"METAR fetch error for {icao_upper}: {e}")
-
     try:
         url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
         response = requests.get(url, timeout=10)
@@ -635,10 +618,8 @@ if icao_upper and icao_upper != "None":
                 taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
     except Exception as e:
         st.warning(f"TAF fetch error for {icao_upper}: {e}")
-
 if icao_upper and icao_upper != "None":
     st.markdown(f"**Latest Weather for {icao_upper}**")
-    
     st.markdown("**METAR (Current)**")
     if metar_text:
         st.markdown(f"({metar_timestamp or 'fetched ' + datetime.now().strftime('%Y-%m-%d %H:%M UTC')})")
@@ -653,7 +634,6 @@ if icao_upper and icao_upper != "None":
         cols[2].metric("Altimeter", altimeter_part)
     else:
         st.info("No METAR available – check ICAO code or try later.")
-
     st.markdown("**TAF (Forecast)**")
     if taf_text:
         issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
@@ -661,12 +641,10 @@ if icao_upper and icao_upper != "None":
         st.code(taf_text, language="text")
     else:
         st.info("No TAF available (common for small fields).")
-
     st.markdown("**NOTAMs (Notices to Airmen)**")
     st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
     st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
     st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot.")
-
 st.markdown("---")
 
 # TFR Map
@@ -684,7 +662,7 @@ col1, col2 = st.columns(2)
 with col1:
     pressure_alt_ft = st.number_input("Pressure Altitude (ft)", min_value=0, max_value=20000, value=0, step=100)
     oat_c = st.number_input("OAT (°C)", min_value=-30, max_value=50, value=15, step=1)
-    min_weight = 1000 if any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66", "Airbus AS350 B2", "Enstrom F28F"]) else 4000
+    min_weight = 1000 if is_helicopter else 4000
     weight_lbs = st.number_input(
         "Gross Weight (lbs)",
         min_value=min_weight,
@@ -705,7 +683,6 @@ with col1:
         index=0,
         help="Adjusts takeoff/landing distances. Baseline = paved/dry."
     )
-
 with col2:
     fuel_gal = st.number_input("Fuel (gal)", min_value=0, max_value=aircraft_data["base_fuel_capacity_gal"], value=aircraft_data["base_fuel_capacity_gal"], step=10)
     max_hopper = aircraft_data["hopper_capacity_gal"]
@@ -724,7 +701,6 @@ with col2:
 da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
 isa_temp_c = 15 - (2 * (pressure_alt_ft / 1000))
 isa_deviation = oat_c - isa_temp_c
-
 st.subheader("Density Altitude")
 st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
@@ -741,7 +717,7 @@ if st.button("Calculate Performance", type="primary"):
     st.subheader("Results")
     col_a, col_b = st.columns(2)
     with col_a:
-        if any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66", "Airbus AS350 B2", "Enstrom F28F"]):
+        if is_helicopter:
             st.metric("Takeoff Ground Roll", "Vertical (hover)")
             st.metric("Takeoff to 50 ft", "Vertical performance")
             st.metric("Landing Ground Roll", "Vertical landing")
@@ -756,10 +732,16 @@ if st.button("Calculate Performance", type="primary"):
         st.metric("Best Rate Climb", f"{aircraft_data['best_climb_speed_mph']} mph IAS")
         st.metric("Stall Speed (flaps down)", f"{stall_speed:.1f} mph" if stall_speed > 0 else "N/A (helicopter)")
         st.metric("Glide Distance", f"{glide_dist:.1f} nm")
+        if is_helicopter:
+            st.caption("Helicopter value = approximate autorotation distance (best range config). "
+                       "Actual performance depends on entry airspeed, rotor RPM, flare technique, "
+                       "and conditions. Always refer to your aircraft POH.")
+        else:
+            st.caption("Fixed-wing glide estimate (best glide speed config). Adjust for actual conditions.")
 
     st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
 
-    if any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66", "Airbus AS350 B2", "Enstrom F28F"]):
+    if is_helicopter:
         ige_ceiling, oge_ceiling = compute_hover_ceiling(da_ft, total_weight, selected_aircraft)
         st.subheader("Hover Performance")
         st.metric("Estimated IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
@@ -772,7 +754,6 @@ if st.button("Calculate Performance", type="primary"):
     st.subheader("Rate of Climb vs Pressure Altitude")
     altitudes = np.linspace(0, 12000, 60)
     climb_rates = [compute_climb_rate(alt, oat_c, weight_lbs, selected_aircraft) for alt in altitudes]
-
     fig, ax = plt.subplots(figsize=(10, 5.5))
     ax.plot(altitudes, climb_rates, color='darkgreen', linewidth=2.2)
     ax.set_xlabel("Pressure Altitude (ft)")
@@ -790,7 +771,7 @@ comment = st.text_area(
     height=120,
     placeholder="To keep AgPilot free send comments to email above"
 )
-if st.button("Safe flying & have a Blessed day⌯✈︎ "):
+if st.button("Safe flying & have a Blessed day ⌯✈︎"):
     if rating is not None:
         stars = rating + 1
         st.success(f"Thank you! You rated **{stars} stars**.")
