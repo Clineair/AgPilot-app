@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 # Optional: Show visible logo in top-left (adapts to sidebar collapse)
-st.logo("AgPilotApp_logo.png", size="medium")  # same path; use "small" if too big
+st.logo("AgPilotApp.png", size="medium")  # same path; use "small" if too big
 
 # Rest of your imports & code continue here...
 # (session state, AIRCRAFT_DATA, functions, etc.)
