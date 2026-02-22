@@ -9,7 +9,7 @@ from datetime import datetime
 # Page Config & Safe Logo
 # ────────────────────────────────────────────────
 st.set_page_config(
-    page_title="AgPilot – Aerial Application Performance Tool",
+    page_title="AgPilotApp – Aerial Application Performance Tool",
     page_icon="⌯✈︎",
     layout="wide",
     initial_sidebar_state="auto"
@@ -778,7 +778,7 @@ comment = st.text_area(
     height=120,
     placeholder="To keep AgPilot free send comments to email above"
 )
-if st.button("Submit Rating & Comment"):
+if st.button("Safe Flying & have a Blessed day"):
     if rating is not None:
         stars = rating + 1
         st.success(f"Thank you! You rated **{stars} stars**.")
