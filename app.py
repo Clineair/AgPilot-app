@@ -517,6 +517,18 @@ else:
     st.info("No aircraft saved to fleet yet.")
 
 # Aircraft selection
+is_helicopter = any(heli in selected_aircraft for heli in ["R44", "Bell 206", "Enstrom", "Robinson R66", "Airbus AS350", "Enstrom F28F"])
+
+# In compute_glide_distance or a new function:
+if is_helicopter:
+    # Approximate autorotation best range
+    glide_ratio_heli = 4.5  # average; or per-model dict
+    glide_distance_nm = (height_ft / 1300) * (1 + wind_kts / 20)  # rough wind help
+    st.caption("Helicopter autorotation estimate (best range config) – actual varies by entry, RRPM, flare.")
+else:
+    # Current airplane formula
+    ground_speed_mph = 100 + wind_kts
+    glide_distance_nm = (height_ft / 6076) * aircraft_data["glide_ratio"] * (ground_speed_mph / 60)
 selected_aircraft = st.selectbox(
     "Select Aircraft",
     options=list(AIRCRAFT_DATA.keys()),
