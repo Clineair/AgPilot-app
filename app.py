@@ -9,7 +9,7 @@ from datetime import datetime
 # Page Config & Logo – MUST be FIRST Streamlit command!
 # ────────────────────────────────────────────────
 try:
-    logo = Image.open("AgPilotApp_logo.png")  # ← assumes file is in repo ROOT
+    logo = Image.open("AgPilotApp.png")  # ← assumes file is in repo ROOT
 except FileNotFoundError:
     logo = "🛩️"  # fallback emoji (or use ":material/agriculture:" for material icon)
     st.warning("AgPilotApp_logo.png not found in repo root – using fallback icon. Commit the file & reboot app.")
