@@ -30,7 +30,7 @@ except Exception:
     try:
         st.logo("AgPilotApp.png", size="medium")  # fallback to local if URL fails
     except Exception:
-        st.markdown("### AgPilot ⌯✈︎ (logo not loaded – check file/URL)")
+        st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
 
 # ────────────────────────────────────────────────
 # Session State Initialization
