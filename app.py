@@ -6,33 +6,31 @@ import requests
 from datetime import datetime
 
 # ────────────────────────────────────────────────
-# Page Config & Green Theme + Logo (MUST be first Streamlit command!)
+# Page Config & Safe Logo
 # ────────────────────────────────────────────────
-try:
-    logo_img = Image.open("AgPilotApp.png")  # Assumes file is in repo ROOT
-    page_icon = logo_img
-except FileNotFoundError:
-    page_icon = "🚁"  # Green helicopter emoji fallback
-    st.warning("AgPilotApp.png not found in repo root – using fallback icon. Commit the file & redeploy.")
-
 st.set_page_config(
     page_title="AgPilot – Aerial Application Performance Tool",
-    page_icon=page_icon,
+    page_icon=""⌯✈︎,
     layout="wide",
     initial_sidebar_state="auto"
 )
 
-# Green theme for browser tab / link previews / favicon
+# Green preview theme
 st.markdown("""
     <meta name="theme-color" content="#4CAF50">
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
 
-# Optional: Show visible logo in app (if file exists)
-if 'logo_img' in locals():
-    st.logo("AgPilotApp.png", size="medium")
-else:
-    st.markdown("### AgPilot 🚁 (logo not loaded)")
+# Try to load your custom logo from GitHub raw URL
+LOGO_URL = "https://raw.githubusercontent.com/captn357417/agpilot-app/main/AgPilotApp.png"  # ← change if needed
+
+try:
+    st.logo(LOGO_URL, size="medium")
+except Exception:
+    try:
+        st.logo("AgPilotApp.png", size="medium")  # fallback to local if URL fails
+    except Exception:
+        st.markdown("### AgPilot ⌯✈︎ (logo not loaded – check file/URL)")
 
 # ────────────────────────────────────────────────
 # Session State Initialization
