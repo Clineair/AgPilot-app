@@ -10,7 +10,7 @@ from datetime import datetime
 # ────────────────────────────────────────────────
 st.set_page_config(
     page_title="AgPilot – Aerial Application Performance Tool",
-    page_icon=""⌯✈︎,
+    page_icon="⌯✈︎",
     layout="wide",
     initial_sidebar_state="auto"
 )
