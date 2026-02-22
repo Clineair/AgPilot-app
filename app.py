@@ -1,15 +1,31 @@
 from PIL import Image
 import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+import requests
+from datetime import datetime
 
-# Load your logo (adjust path if it's in a subfolder like "images/")
-logo = Image.open("AgPilotApp_logo.png")
+# ────────────────────────────────────────────────
+# Page Config & Logo – MUST be FIRST Streamlit command!
+# ────────────────────────────────────────────────
+try:
+    logo = Image.open("AgPilotApp_logo.png")  # ← assumes file is in repo ROOT
+except FileNotFoundError:
+    logo = "🛩️"  # fallback emoji (or use ":material/agriculture:" for material icon)
+    st.warning("AgPilotApp_logo.png not found in repo root – using fallback icon. Commit the file & reboot app.")
 
 st.set_page_config(
     page_title="AgPilot – Aerial Application Performance Tool",
-    page_icon=logo,               # ← your PNG here
+    page_icon=logo,
     layout="wide",
-    initial_sidebar_state="auto"  # or "expanded" / "collapsed"
+    initial_sidebar_state="auto"
 )
+
+# Optional: Show visible logo in top-left (adapts to sidebar collapse)
+st.logo("AgPilotApp_logo.png", size="medium")  # same path; use "small" if too big
+
+# Rest of your imports & code continue here...
+# (session state, AIRCRAFT_DATA, functions, etc.)
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
