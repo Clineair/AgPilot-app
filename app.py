@@ -354,6 +354,29 @@ AIRCRAFT_DATA = {
         "description": "Piston helicopter (Falcon) – utility/ag capable",
         "hover_ceiling_ige_max_gw": 13200,
         "hover_ceiling_oge_max_gw": 8700
+     },
+     "Scott's Bell 47": {
+        "name": "Scott's Bell 47",
+        "base_takeoff_ground_roll_ft": 0,             # helicopter – vertical takeoff/hover
+        "base_takeoff_to_50ft_ft": 0,
+        "base_landing_ground_roll_ft": 0,
+        "base_landing_to_50ft_ft": 0,
+        "base_climb_rate_fpm": 900,                   # approximate at mid-weight; ~800–1100 fpm typical for 47G-3B
+        "base_stall_flaps_down_mph": 0,               # N/A for helicopter
+        "best_climb_speed_mph": 60,                   # approx best rate / Vy
+        "base_empty_weight_lbs": 1900,                # typical equipped empty (47G series ~1850–1950 lb)
+        "base_fuel_capacity_gal": 43,                 # usable fuel typical for many 47G models
+        "fuel_weight_per_gal": 6.0,                   # avgas for piston (Lycoming/Franklin)
+        "hopper_capacity_gal": 100,                   # approximate ag spray load (external belly tank/common conversion; varies 80–150 gal)
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 2950,               # common for 47G-3B / later variants; some limited to 2450–2650 lb
+        "max_landing_weight_lbs": 2950,
+        "glide_ratio": 4.0,                           # typical helicopter autorotation glide
+        "description": "Light piston utility/ag helicopter – classic bubble canopy, spray capable",
+        # Helicopter-specific fields
+        "hover_ceiling_ige_max_gw": 10000,            # approximate IGE hover ceiling at gross (varies with temp/DA)
+        "hover_ceiling_oge_max_gw": 8000              # approximate OGE hover ceiling at gross
+    },  
     }
 }
 
