@@ -903,14 +903,15 @@ if st.button("Activate Emergency Response", type="primary", use_container_width=
         st.markdown("""
         1. **Declare an emergency / Call 911 / Render first aid**
            - Make sure fuel shut-off is off and battery switch turned off.
+           - Evacuate upwind if fire/chemical risk
            - Always look for possible contamination from spray mixture or fuel and advise medical responders along with providing SDS’s
-           - Spill Response Action (See HRM-NI & NW Spill Response Procedure)
+           - Spill Response Action (See Spill Response Procedure)
            - Preservation of: Wreckage, documents
 
         2. **Observe and note witnesses**
            - Secure the scene with spill response coordination
            - Do not speak to the media or make statements to government officials
-           - State: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events."
+           - State: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events and to prevent further harm."
            - Do not, under any circumstances, speculate as to the cause of an accident / incident or other emergency
 
         3. **All press and/or media inquiries should be referred to [Name] or [Name].**
@@ -920,14 +921,9 @@ if st.button("Activate Emergency Response", type="primary", use_container_width=
            - Make arrangements to preserve any wreckage
 
         4. **Prepare statement for release to the press.**
-
-        5. **Post-Impact / Survival**
-           - Shut off fuel/master/electrical if possible
-           - Evacuate upwind if fire/chemical risk
            - Activate ELT if equipped
            - Treat injuries (first aid kit), stay with aircraft if safe
            - Call 911 or local (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555)
-        """)
 
     st.markdown("**Local Emergency Contacts**")
     st.markdown("""
