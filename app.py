@@ -124,6 +124,29 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 14000,
         "glide_ratio": 7.0,
         "description": "Large turbine ag aircraft – high payload & range"
+   },
+   "Ayres Thrush S2R-T34 Eagle": {
+        "name": "Ayres Thrush S2R-T34 Eagle",
+        "base_takeoff_ground_roll_ft": 1650,          # at 10,500 lb gross, typical dry paved
+        "base_takeoff_to_50ft_ft": 2500,              # conservative estimate to clear 50 ft
+        "base_landing_ground_roll_ft": 600,
+        "base_landing_to_50ft_ft": 1500,
+        "base_climb_rate_fpm": 666,                   # ~666 fpm at gross (some sources 800–1000 fpm lighter)
+        "base_stall_flaps_down_mph": 50,              # power off, flaps down (very low for ag ops)
+        "best_climb_speed_mph": 110,
+        "base_empty_weight_lbs": 4900,                # typical equipped empty (4,900–5,000 lb range)
+        "base_fuel_capacity_gal": 228,                # usable fuel
+        "fuel_weight_per_gal": 6.7,                   # Jet-A turbine fuel
+        "hopper_capacity_gal": 510,                   # liquid capacity (standard large hopper)
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 10500,              # certified gross weight
+        "max_landing_weight_lbs": 10500,
+        "glide_ratio": 7.0,
+        "description": "Turbine-powered high-capacity ag sprayer – excellent short-field & payload",
+        # No helicopter fields
+        "hover_ceiling_ige_max_gw": 0,
+        "hover_ceiling_oge_max_gw": 0
+            
      },
      "Grumman G-164B Ag-Cat": {
         "name": "Grumman G-164B Ag-Cat",
