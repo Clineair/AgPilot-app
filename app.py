@@ -85,8 +85,8 @@ AIRCRAFT_DATA = {
         # Optional helicopter-specific fields (leave out or set to 0)
         "hover_ceiling_ige_max_gw": 0,
         "hover_ceiling_oge_max_gw": 0
-    },
-    "Air Tractor AT-802": {
+     },
+     "Air Tractor AT-802": {
         "name": "Air Tractor AT-802",
         "base_takeoff_ground_roll_ft": 1800,
         "base_takeoff_to_50ft_ft": 3400,
