@@ -63,8 +63,8 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 8000,
         "glide_ratio": 8.0,
         "description": "Single-engine piston ag aircraft"
-       }, 
-       "Air Tractor AT-602": {
+    },
+    "Air Tractor AT-602": {
         "name": "Air Tractor AT-602",
         "base_takeoff_ground_roll_ft": 1400,
         "base_takeoff_to_50ft_ft": 2800,
@@ -75,18 +75,17 @@ AIRCRAFT_DATA = {
         "best_climb_speed_mph": 118,
         "base_empty_weight_lbs": 6200,
         "base_fuel_capacity_gal": 380,
-        "fuel_weight_per_gal": 6.7,          # Jet-A / turbine fuel
+        "fuel_weight_per_gal": 6.7,
         "hopper_capacity_gal": 600,
-        "hopper_weight_per_gal": 8.3,        # typical chemical/water weight
+        "hopper_weight_per_gal": 8.3,
         "max_takeoff_weight_lbs": 12500,
         "max_landing_weight_lbs": 11000,
         "glide_ratio": 7.2,
         "description": "Turbine ag aircraft – balanced payload & performance",
-        # Optional helicopter-specific fields (leave out or set to 0)
         "hover_ceiling_ige_max_gw": 0,
         "hover_ceiling_oge_max_gw": 0
-     },
-     "Air Tractor AT-802": {
+    },
+    "Air Tractor AT-802": {
         "name": "Air Tractor AT-802",
         "base_takeoff_ground_roll_ft": 1800,
         "base_takeoff_to_50ft_ft": 3400,
@@ -123,30 +122,29 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 10500,
         "glide_ratio": 7.5,
         "description": "Turbine-powered high-capacity ag aircraft"
-   },
-   "Ayres Thrush S2R-T34 Eagle": {
+    },
+    "Ayres Thrush S2R-T34 Eagle": {
         "name": "Ayres Thrush S2R-T34 Eagle",
-        "base_takeoff_ground_roll_ft": 1650,          # at 10,500 lb gross, typical dry paved
-        "base_takeoff_to_50ft_ft": 2500,              # conservative estimate to clear 50 ft
+        "base_takeoff_ground_roll_ft": 1650,
+        "base_takeoff_to_50ft_ft": 2500,
         "base_landing_ground_roll_ft": 600,
         "base_landing_to_50ft_ft": 1500,
-        "base_climb_rate_fpm": 666,                   # ~666 fpm at gross (some sources 800–1000 fpm lighter)
-        "base_stall_flaps_down_mph": 50,              # power off, flaps down (very low for ag ops)
+        "base_climb_rate_fpm": 666,
+        "base_stall_flaps_down_mph": 50,
         "best_climb_speed_mph": 110,
-        "base_empty_weight_lbs": 4900,                # typical equipped empty (4,900–5,000 lb range)
-        "base_fuel_capacity_gal": 228,                # usable fuel
-        "fuel_weight_per_gal": 6.7,                   # Jet-A turbine fuel
-        "hopper_capacity_gal": 510,                   # liquid capacity (standard large hopper)
+        "base_empty_weight_lbs": 4900,
+        "base_fuel_capacity_gal": 228,
+        "fuel_weight_per_gal": 6.7,
+        "hopper_capacity_gal": 510,
         "hopper_weight_per_gal": 8.3,
-        "max_takeoff_weight_lbs": 10500,              # certified gross weight
+        "max_takeoff_weight_lbs": 10500,
         "max_landing_weight_lbs": 10500,
         "glide_ratio": 7.0,
         "description": "Turbine-powered high-capacity ag sprayer – excellent short-field & payload",
-        # No helicopter fields
         "hover_ceiling_ige_max_gw": 0,
         "hover_ceiling_oge_max_gw": 0
-     },
-     "Grumman G-164B Ag-Cat": {
+    },
+    "Grumman G-164B Ag-Cat": {
         "name": "Grumman G-164B Ag-Cat",
         "base_takeoff_ground_roll_ft": 1200,
         "base_takeoff_to_50ft_ft": 2200,
@@ -163,7 +161,7 @@ AIRCRAFT_DATA = {
         "max_takeoff_weight_lbs": 4500,
         "max_landing_weight_lbs": 4500,
         "glide_ratio": 7.5,
-        "description": "Classic radial-engine biplane ag sprayer – rugged & low stall speed",
+        "description": "Classic radial-engine biplane ag sprayer – rugged & low stall speed"
     },
     "Cessna 188 Ag Truck": {
         "name": "Cessna 188 Ag Truck",
@@ -183,29 +181,26 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 4200,
         "glide_ratio": 8.0,
         "description": "Classic single-engine piston ag sprayer"
-    },       
+    },
     "Piper PA-36 Pawnee Brave": {
         "name": "Piper PA-36 Pawnee Brave",
-        "base_takeoff_ground_roll_ft": 1200,          # approximate sea level, mid-weight, dry paved
-        "base_takeoff_to_50ft_ft": 1500,              # to clear 50 ft obstacle
+        "base_takeoff_ground_roll_ft": 1200,
+        "base_takeoff_to_50ft_ft": 1500,
         "base_landing_ground_roll_ft": 850,
         "base_landing_to_50ft_ft": 1800,
-        "base_climb_rate_fpm": 920,                   # ~920 fpm at gross (Lycoming IO-720)
-        "base_stall_flaps_down_mph": 65,              # approximate clean ~75 mph, flaps down lower
+        "base_climb_rate_fpm": 920,
+        "base_stall_flaps_down_mph": 65,
         "best_climb_speed_mph": 100,
-        "base_empty_weight_lbs": 2560,                # typical equipped empty for -375
-        "base_fuel_capacity_gal": 86,                 # usable fuel
-        "fuel_weight_per_gal": 6.0,                   # avgas
-        "hopper_capacity_gal": 275,                   # liquid capacity (standard large hopper)
+        "base_empty_weight_lbs": 2560,
+        "base_fuel_capacity_gal": 86,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 275,
         "hopper_weight_per_gal": 8.3,
-        "max_takeoff_weight_lbs": 4800,               # restricted category / common approval
+        "max_takeoff_weight_lbs": 4800,
         "max_landing_weight_lbs": 4800,
         "glide_ratio": 7.5,
-        "description": "Single-engine piston ag sprayer – large hopper & good swath width",
-        # No helicopter fields
-        "hover_ceiling_ige_max_gw": 0,
-        "hover_ceiling_oge_max_gw": 0
-     },
+        "description": "Single-engine piston ag sprayer – large hopper & good swath width"
+    },
     "Robinson R44 Raven II": {
         "name": "Robinson R44 Raven II",
         "base_takeoff_ground_roll_ft": 0,
@@ -352,29 +347,29 @@ AIRCRAFT_DATA = {
         "description": "Piston helicopter (Falcon) – utility/ag capable",
         "hover_ceiling_ige_max_gw": 13200,
         "hover_ceiling_oge_max_gw": 8700
-     },
-     "Scott's Bell 47": {
+    },
+    "Scott's Bell 47": {
         "name": "Scott's Bell 47",
-        "base_takeoff_ground_roll_ft": 0,             # helicopter – vertical takeoff/hover
+        "base_takeoff_ground_roll_ft": 0,
         "base_takeoff_to_50ft_ft": 0,
         "base_landing_ground_roll_ft": 0,
         "base_landing_to_50ft_ft": 0,
-        "base_climb_rate_fpm": 900,                   # approximate at mid-weight; ~800–1100 fpm typical for 47G-3B
-        "base_stall_flaps_down_mph": 0,               # N/A for helicopter
-        "best_climb_speed_mph": 60,                   # approx best rate / Vy
-        "base_empty_weight_lbs": 1900,                # typical equipped empty (47G series ~1850–1950 lb)
-        "base_fuel_capacity_gal": 43,                 # usable fuel typical for many 47G models
-        "fuel_weight_per_gal": 6.0,                   # avgas for piston (Lycoming/Franklin)
-        "hopper_capacity_gal": 100,                   # approximate ag spray load (external belly tank/common conversion; varies 80–150 gal)
+        "base_climb_rate_fpm": 900,
+        "base_stall_flaps_down_mph": 0,
+        "best_climb_speed_mph": 60,
+        "base_empty_weight_lbs": 1900,
+        "base_fuel_capacity_gal": 43,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 100,
         "hopper_weight_per_gal": 8.3,
-        "max_takeoff_weight_lbs": 2950,               # common for 47G-3B / later variants; some limited to 2450–2650 lb
+        "max_takeoff_weight_lbs": 2950,
         "max_landing_weight_lbs": 2950,
-        "glide_ratio": 4.0,                           # typical helicopter autorotation glide
+        "glide_ratio": 4.0,
         "description": "Light piston utility/ag helicopter – classic bubble canopy, spray capable",
-        # Helicopter-specific fields
-        "hover_ceiling_ige_max_gw": 10000,            # approximate IGE hover ceiling at gross (varies with temp/DA)
-        "hover_ceiling_oge_max_gw": 8000              # approximate OGE hover ceiling at gross
-    }, 
+        "hover_ceiling_ige_max_gw": 10000,
+        "hover_ceiling_oge_max_gw": 8000
+    },
+}
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
@@ -455,12 +450,10 @@ def compute_stall_speed(weight_lbs, aircraft):
 def compute_glide_distance(height_ft, wind_kts, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     if is_helicopter:
-        # Helicopter autorotation approximation (best range config)
-        base_distance_nm = height_ft / 1300  # ~4.5:1 ratio → 1 nm per ~1,300 ft
-        wind_factor = 1 + (wind_kts / 20)   # rough wind adjustment
+        base_distance_nm = height_ft / 1300
+        wind_factor = 1 + (wind_kts / 20)
         return base_distance_nm * wind_factor
     else:
-        # Fixed-wing airplane glide
         ground_speed_mph = 100 + wind_kts
         return (height_ft / 6076) * data["glide_ratio"] * (ground_speed_mph / 60)
 
@@ -501,6 +494,7 @@ def show_risk_assessment():
     st.subheader("Risk Assessment")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
+
     st.markdown("**Pilot Factors**")
     pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", min_value=0, max_value=10, value=5, step=1)
     total_risk += pilot_exp
@@ -508,6 +502,7 @@ def show_risk_assessment():
     total_risk += pilot_fatigue
     pilot_health = st.slider("Physical/mental health today", min_value=0, max_value=10, value=2, step=1)
     total_risk += pilot_health
+
     st.markdown("**Aircraft Factors**")
     ac_maintenance = st.slider("Maintenance status/known squawks", min_value=0, max_value=10, value=3, step=1)
     total_risk += ac_maintenance
@@ -515,6 +510,7 @@ def show_risk_assessment():
     total_risk += ac_fuel
     ac_weight = st.slider("Weight & balance/CG within limits", min_value=0, max_value=10, value=2, step=1)
     total_risk += ac_weight
+
     st.markdown("**Environment / Weather**")
     weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", min_value=0, max_value=10, value=4, step=1)
     total_risk += weather_ceiling
@@ -522,6 +518,7 @@ def show_risk_assessment():
     total_risk += weather_turb
     weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", min_value=0, max_value=10, value=3, step=1)
     total_risk += weather_notams
+
     st.markdown("**Operations / Flight Plan**")
     flight_complexity = st.slider("Flight complexity (obstructions/towers/wires/tracklines/birds)", min_value=0, max_value=10, value=4, step=1)
     total_risk += flight_complexity
@@ -529,13 +526,16 @@ def show_risk_assessment():
     total_risk += alternate_plan
     night_ops = st.slider("Night or low-light operations", min_value=0, max_value=10, value=0, step=1)
     total_risk += night_ops
+
     st.markdown("**External Pressures**")
     get_there_itis = st.slider("Get-there-itis/schedule pressure", min_value=0, max_value=10, value=2, step=1)
     total_risk += get_there_itis
     customer_pressure = st.slider("Customer/family/operational pressure", min_value=0, max_value=10, value=2, step=1)
     total_risk += customer_pressure
+
     st.markdown("---")
     risk_percent = (total_risk / 100) * 100
+
     if total_risk <= 30:
         level = "Low Risk"
         color = "#4CAF50"
@@ -548,6 +548,7 @@ def show_risk_assessment():
         level = "High Risk"
         color = "#F44336"
         emoji = "🔴"
+
     gauge_html = f"""
     <div style="text-align:center; margin: 30px 0;">
         <div style="
@@ -586,6 +587,7 @@ def show_risk_assessment():
     </div>
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
+
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure or mitigate")
@@ -624,10 +626,10 @@ selected_aircraft = st.selectbox(
 )
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 
-# Helicopter detection (moved here after selected_aircraft is defined)
+# Helicopter detection
 is_helicopter = any(heli in selected_aircraft for heli in [
     "R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66",
-    "Airbus AS350", "Enstrom F28F"
+    "Airbus AS350", "Enstrom F28F", "Bell 47"
 ])
 
 # Custom Empty Weight Input
@@ -697,10 +699,12 @@ custom_icao = st.text_input(
     help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
 ).strip().upper()
 icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
+
 metar_text = None
 metar_timestamp = None
 taf_text = None
 taf_issued = None
+
 if icao_upper and icao_upper != "None":
     try:
         url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
@@ -714,6 +718,7 @@ if icao_upper and icao_upper != "None":
                 metar_text = lines[0].strip()
     except Exception as e:
         st.warning(f"METAR fetch error for {icao_upper}: {e}")
+
     try:
         url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
         response = requests.get(url, timeout=10)
@@ -724,6 +729,7 @@ if icao_upper and icao_upper != "None":
                 taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
     except Exception as e:
         st.warning(f"TAF fetch error for {icao_upper}: {e}")
+
 if icao_upper and icao_upper != "None":
     st.markdown(f"**Latest Weather for {icao_upper}**")
     st.markdown("**METAR (Current)**")
@@ -740,6 +746,7 @@ if icao_upper and icao_upper != "None":
         cols[2].metric("Altimeter", altimeter_part)
     else:
         st.info("No METAR available – check ICAO code or try later.")
+
     st.markdown("**TAF (Forecast)**")
     if taf_text:
         issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
@@ -747,10 +754,12 @@ if icao_upper and icao_upper != "None":
         st.code(taf_text, language="text")
     else:
         st.info("No TAF available (common for small fields).")
+
     st.markdown("**NOTAMs (Notices to Airmen)**")
     st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
     st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
     st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot.")
+
 st.markdown("---")
 
 # TFR Map
