@@ -125,8 +125,7 @@ AIRCRAFT_DATA = {
         "glide_ratio": 7.0,
         "description": "Large turbine ag aircraft – high payload & range"
      },
-    
-    "Grumman G-164B Ag-Cat": {
+     "Grumman G-164B Ag-Cat": {
         "name": "Grumman G-164B Ag-Cat",
         "base_takeoff_ground_roll_ft": 1200,
         "base_takeoff_to_50ft_ft": 2200,
@@ -144,10 +143,6 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 4500,
         "glide_ratio": 7.5,
         "description": "Classic radial-engine biplane ag sprayer – rugged & low stall speed",
-    },   # ← comma if more entries follow
-
-    "Robinson R44 Raven II": { ... },
-        
     },
     "Cessna 188 Ag Truck": {
         "name": "Cessna 188 Ag Truck",
