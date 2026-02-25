@@ -85,26 +85,6 @@ AIRCRAFT_DATA = {
         # Optional helicopter-specific fields (leave out or set to 0)
         "hover_ceiling_ige_max_gw": 0,
         "hover_ceiling_oge_max_gw": 0
-   
-    },
-    "Thrush 510P": {
-        "name": "Thrush 510P",
-        "base_takeoff_ground_roll_ft": 1300,
-        "base_takeoff_to_50ft_ft": 2800,
-        "base_landing_ground_roll_ft": 750,
-        "base_landing_to_50ft_ft": 1600,
-        "base_climb_rate_fpm": 950,
-        "base_stall_flaps_down_mph": 72,
-        "best_climb_speed_mph": 115,
-        "base_empty_weight_lbs": 6800,
-        "base_fuel_capacity_gal": 380,
-        "fuel_weight_per_gal": 6.0,
-        "hopper_capacity_gal": 510,
-        "hopper_weight_per_gal": 8.3,
-        "max_takeoff_weight_lbs": 12000,
-        "max_landing_weight_lbs": 10500,
-        "glide_ratio": 7.5,
-        "description": "Turbine-powered high-capacity ag aircraft"
     },
     "Air Tractor AT-802": {
         "name": "Air Tractor AT-802",
@@ -124,6 +104,26 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 14000,
         "glide_ratio": 7.0,
         "description": "Large turbine ag aircraft – high payload & range"
+    },
+    "Thrush 510P": {
+        "name": "Thrush 510P",
+        "base_takeoff_ground_roll_ft": 1300,
+        "base_takeoff_to_50ft_ft": 2800,
+        "base_landing_ground_roll_ft": 750,
+        "base_landing_to_50ft_ft": 1600,
+        "base_climb_rate_fpm": 950,
+        "base_stall_flaps_down_mph": 72,
+        "best_climb_speed_mph": 115,
+        "base_empty_weight_lbs": 6800,
+        "base_fuel_capacity_gal": 380,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 510,
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 12000,
+        "max_landing_weight_lbs": 10500,
+        "glide_ratio": 7.5,
+        "description": "Turbine-powered high-capacity ag aircraft"
+   
    },
    "Ayres Thrush S2R-T34 Eagle": {
         "name": "Ayres Thrush S2R-T34 Eagle",
