@@ -162,7 +162,29 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 4200,
         "glide_ratio": 8.0,
         "description": "Classic single-engine piston ag sprayer"
-    },
+    },       
+    "Piper PA-36 Pawnee Brave": {
+        "name": "Piper PA-36 Pawnee Brave",
+        "base_takeoff_ground_roll_ft": 1200,          # approximate sea level, mid-weight, dry paved
+        "base_takeoff_to_50ft_ft": 1500,              # to clear 50 ft obstacle
+        "base_landing_ground_roll_ft": 850,
+        "base_landing_to_50ft_ft": 1800,
+        "base_climb_rate_fpm": 920,                   # ~920 fpm at gross (Lycoming IO-720)
+        "base_stall_flaps_down_mph": 65,              # approximate clean ~75 mph, flaps down lower
+        "best_climb_speed_mph": 100,
+        "base_empty_weight_lbs": 2560,                # typical equipped empty for -375
+        "base_fuel_capacity_gal": 86,                 # usable fuel
+        "fuel_weight_per_gal": 6.0,                   # avgas
+        "hopper_capacity_gal": 275,                   # liquid capacity (standard large hopper)
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 4800,               # restricted category / common approval
+        "max_landing_weight_lbs": 4800,
+        "glide_ratio": 7.5,
+        "description": "Single-engine piston ag sprayer – large hopper & good swath width",
+        # No helicopter fields
+        "hover_ceiling_ige_max_gw": 0,
+        "hover_ceiling_oge_max_gw": 0
+     },
     "Robinson R44 Raven II": {
         "name": "Robinson R44 Raven II",
         "base_takeoff_ground_roll_ft": 0,
