@@ -63,6 +63,29 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 8000,
         "glide_ratio": 8.0,
         "description": "Single-engine piston ag aircraft"
+       }, 
+            "Air Tractor AT-602": {
+        "name": "Air Tractor AT-602",
+        "base_takeoff_ground_roll_ft": 1400,
+        "base_takeoff_to_50ft_ft": 2800,
+        "base_landing_ground_roll_ft": 850,
+        "base_landing_to_50ft_ft": 1850,
+        "base_climb_rate_fpm": 1050,
+        "base_stall_flaps_down_mph": 74,
+        "best_climb_speed_mph": 118,
+        "base_empty_weight_lbs": 6200,
+        "base_fuel_capacity_gal": 380,
+        "fuel_weight_per_gal": 6.7,          # Jet-A / turbine fuel
+        "hopper_capacity_gal": 600,
+        "hopper_weight_per_gal": 8.3,        # typical chemical/water weight
+        "max_takeoff_weight_lbs": 12500,
+        "max_landing_weight_lbs": 11000,
+        "glide_ratio": 7.2,
+        "description": "Turbine ag aircraft – balanced payload & performance",
+        # Optional helicopter-specific fields (leave out or set to 0)
+        "hover_ceiling_ige_max_gw": 0,
+        "hover_ceiling_oge_max_gw": 0
+   
     },
     "Thrush 510P": {
         "name": "Thrush 510P",
