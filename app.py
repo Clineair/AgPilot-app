@@ -44,7 +44,7 @@ if 'show_risk' not in st.session_state:
 # ────────────────────────────────────────────────
 # Aircraft Database
 # ────────────────────────────────────────────────
-AIRCRAFT_DATA = {
+AIRCRAFT_DATA = {,
     "Air Tractor AT-502B": {
         "name": "Air Tractor AT-502B",
         "base_takeoff_ground_roll_ft": 1140,
@@ -123,7 +123,6 @@ AIRCRAFT_DATA = {
         "max_landing_weight_lbs": 10500,
         "glide_ratio": 7.5,
         "description": "Turbine-powered high-capacity ag aircraft"
-   
    },
    "Ayres Thrush S2R-T34 Eagle": {
         "name": "Ayres Thrush S2R-T34 Eagle",
@@ -146,7 +145,6 @@ AIRCRAFT_DATA = {
         # No helicopter fields
         "hover_ceiling_ige_max_gw": 0,
         "hover_ceiling_oge_max_gw": 0
-            
      },
      "Grumman G-164B Ag-Cat": {
         "name": "Grumman G-164B Ag-Cat",
@@ -376,7 +374,7 @@ AIRCRAFT_DATA = {
         # Helicopter-specific fields
         "hover_ceiling_ige_max_gw": 10000,            # approximate IGE hover ceiling at gross (varies with temp/DA)
         "hover_ceiling_oge_max_gw": 8000              # approximate OGE hover ceiling at gross
-    }  
+    }, 
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
