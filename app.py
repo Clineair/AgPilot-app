@@ -44,7 +44,7 @@ if 'show_risk' not in st.session_state:
 # ────────────────────────────────────────────────
 # Aircraft Database
 # ────────────────────────────────────────────────
-AIRCRAFT_DATA = {,
+AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
         "name": "Air Tractor AT-502B",
         "base_takeoff_ground_roll_ft": 1140,
