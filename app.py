@@ -876,7 +876,51 @@ if st.button("Calculate Performance", type="primary"):
     ax.set_title(f"Climb Performance – {aircraft_data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
     ax.grid(True, linestyle='--', alpha=0.7)
     st.pyplot(fig)
+# ────────────────────────────────────────────────
+# Emergency Response Button & Checklist (Bottom of App)
+# ────────────────────────────────────────────────
+st.markdown("---")
+st.markdown("### Emergency Response")
 
+    
+    st.markdown("**Priority: Aviate → Navigate → Communicate**")
+    
+    with st.expander("**Immediate Actions Checklist**", expanded=True):
+        st.markdown("""
+        1. **Declare an emergency / Call 911/ Render first aid**  
+           - Make sure fuel shut-off is off and battery switch turned off. 
+           - Always look for possible contamination from spray mixture or fuel and advise medical responders along with providing SDS’s  
+           - Spill Response Action (See HRM-NI & NW Spill Response Procedure)
+           - Preservation of: Wreckage, documents
+
+        2. **Observe and note witnesses**  
+           - Secure the scene with spill response coordination
+           - Do not speak to the media or make statements to government officials   
+           - State: Company has contacted the appropriate authorities for a full investigation to ensure understanding of events. 
+           - Do not, under any circumstances, speculate as to the cause of an accident / incident or other emergency
+
+        3. **All press and/or media inquiries should be referred to Name or Name.**  
+           - Company Management notify FAA and NTSB  
+           - Direct all calls to other managers  
+           - Contact local Law Enforcement   
+           - Make arrangements to preserve any wreckage 
+
+        4. **Prepare statement for release to the press.**  
+           
+        5. **Post-Impact / Survival**  
+           - Shut off fuel/master/electrical if possible  
+           - Evacuate upwind if fire/chemical risk  
+           - Activate ELT if equipped  
+           - Treat injuries (first aid kit), stay with aircraft if safe  
+           - Call 911 or local (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555)
+
+        **Local Emergency Contacts**  
+        - Emergency: **911**  
+        - Poison Control: **1-800-222-1222**  
+        - Nearest Trauma Center:
+
+       # Optional: Add a quick phone link for mobile users
+    st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
 # Feedback
 st.markdown("---")
 st.subheader("Your Feedback – Help Improve AgPilot")
