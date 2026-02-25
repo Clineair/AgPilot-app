@@ -102,6 +102,25 @@ AIRCRAFT_DATA = {
         "glide_ratio": 7.0,
         "description": "Large turbine ag aircraft – high payload & range"
     },
+    "Cessna 188 Ag Truck": {
+        "name": "Cessna 188 Ag Truck",
+        "base_takeoff_ground_roll_ft": 680,
+        "base_takeoff_to_50ft_ft": 1090,
+        "base_landing_ground_roll_ft": 420,
+        "base_landing_to_50ft_ft": 1265,
+        "base_climb_rate_fpm": 690,
+        "base_stall_flaps_down_mph": 50,
+        "best_climb_speed_mph": 80,
+        "base_empty_weight_lbs": 2220,
+        "base_fuel_capacity_gal": 54,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 280,
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 4200,
+        "max_landing_weight_lbs": 4200,
+        "glide_ratio": 8.0,
+        "description": "Classic single-engine piston ag sprayer"
+    },
     "Robinson R44 Raven II": {
         "name": "Robinson R44 Raven II",
         "base_takeoff_ground_roll_ft": 0,
@@ -227,27 +246,7 @@ AIRCRAFT_DATA = {
         "description": "Turbine light utility helicopter (spray capable)",
         "hover_ceiling_ige_max_gw": 11000,
         "hover_ceiling_oge_max_gw": 10000
-    },
-    "Cessna 188 Ag Truck": {
-        "name": "Cessna 188 Ag Truck",
-        "base_takeoff_ground_roll_ft": 680,
-        "base_takeoff_to_50ft_ft": 1090,
-        "base_landing_ground_roll_ft": 420,
-        "base_landing_to_50ft_ft": 1265,
-        "base_climb_rate_fpm": 690,
-        "base_stall_flaps_down_mph": 50,
-        "best_climb_speed_mph": 80,
-        "base_empty_weight_lbs": 2220,
-        "base_fuel_capacity_gal": 54,
-        "fuel_weight_per_gal": 6.0,
-        "hopper_capacity_gal": 280,
-        "hopper_weight_per_gal": 8.3,
-        "max_takeoff_weight_lbs": 4200,
-        "max_landing_weight_lbs": 4200,
-        "glide_ratio": 8.0,
-        "description": "Classic single-engine piston ag sprayer"
-    },
-    "Enstrom F28F": {
+"Enstrom F28F": {
         "name": "Enstrom F28F",
         "base_takeoff_ground_roll_ft": 0,
         "base_takeoff_to_50ft_ft": 0,
