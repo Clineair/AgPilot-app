@@ -377,8 +377,6 @@ AIRCRAFT_DATA = {
         "hover_ceiling_ige_max_gw": 10000,            # approximate IGE hover ceiling at gross (varies with temp/DA)
         "hover_ceiling_oge_max_gw": 8000              # approximate OGE hover ceiling at gross
     },  
-    }
-}
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
