@@ -246,7 +246,8 @@ AIRCRAFT_DATA = {
         "description": "Turbine light utility helicopter (spray capable)",
         "hover_ceiling_ige_max_gw": 11000,
         "hover_ceiling_oge_max_gw": 10000
-"Enstrom F28F": {
+    },
+    "Enstrom F28F": {
         "name": "Enstrom F28F",
         "base_takeoff_ground_roll_ft": 0,
         "base_takeoff_to_50ft_ft": 0,
