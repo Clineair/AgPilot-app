@@ -64,7 +64,7 @@ AIRCRAFT_DATA = {
         "glide_ratio": 8.0,
         "description": "Single-engine piston ag aircraft"
        }, 
-            "Air Tractor AT-602": {
+       "Air Tractor AT-602": {
         "name": "Air Tractor AT-602",
         "base_takeoff_ground_roll_ft": 1400,
         "base_takeoff_to_50ft_ft": 2800,
@@ -376,7 +376,7 @@ AIRCRAFT_DATA = {
         # Helicopter-specific fields
         "hover_ceiling_ige_max_gw": 10000,            # approximate IGE hover ceiling at gross (varies with temp/DA)
         "hover_ceiling_oge_max_gw": 8000              # approximate OGE hover ceiling at gross
-    },  
+    }  
 
 # ────────────────────────────────────────────────
 # Density Altitude Calculation (Enstrom 480 POH method)
