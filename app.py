@@ -618,7 +618,7 @@ selected_aircraft = st.selectbox(
 )
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 
-# Helicopter detection (moved here after selected_aircraft is defined)
+# Helicopter detection
 is_helicopter = any(heli in selected_aircraft for heli in [
     "R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66",
     "Airbus AS350", "Enstrom F28F", "Bell 47"
@@ -805,7 +805,49 @@ st.subheader("Density Altitude")
 st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
 
-# Calculate Performance
+# ────────────────────────────────────────────────
+# Emergency Response – Always visible, placed below inputs / DA
+# ────────────────────────────────────────────────
+st.markdown("---")
+st.markdown("### Emergency Response")
+st.caption("Quick access – use only in real emergencies")
+if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
+             help="Tap only in real emergency – shows immediate action checklist"):
+    st.markdown("**Priority: Aviate → Navigate → Communicate**")
+    with st.expander("**Immediate Actions Checklist**", expanded=True):
+        st.markdown("""
+        1. **Declare an emergency / Call 911 / Render first aid**
+           - Make sure fuel shut-off is off and battery switch turned off.
+           - Evacuate upwind if fire/chemical risk
+           - Always look for possible contamination from spray mixture or fuel and advise medical responders along with providing SDS’s
+           - Spill Response Action (See Spill Response Procedure)
+           - Preservation of: Wreckage, documents
+        2. **Observe and note witnesses**
+           - Secure the scene with spill response coordination
+           - Do not speak to the media or make statements to government officials
+           - State: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events and to prevent further harm."
+           - Do not, under any circumstances, speculate as to the cause of an accident / incident or other emergency
+        3. **All press and/or media inquiries should be referred to [Name] or [Name].**
+           - Company Management notify FAA and NTSB
+           - Direct all calls to other managers
+           - Contact local Law Enforcement
+           - Make arrangements to preserve any wreckage
+        4. **Prepare statement for release to the press.**
+           - Activate ELT if equipped
+           - Treat injuries (first aid kit), stay with aircraft if safe
+           - Call 911 or local (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555)
+        """.strip())
+    st.markdown("**Local Emergency Contacts**")
+    st.markdown("""
+    - **Emergency**: **911**
+    - **Poison Control** (chemical exposure): **1-800-222-1222**
+    - **Nearest Trauma Center**: Central Washington Hospital (Wenatchee) or Yakima Valley Memorial
+    """)
+    st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
+    st.info("This is a quick-reference checklist only. Follow your company Emergency Response Plan and official guidance at all times.")
+st.markdown("---")
+
+# Calculate Performance (button and results)
 if st.button("Calculate Performance", type="primary"):
     ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
@@ -861,48 +903,6 @@ if st.button("Calculate Performance", type="primary"):
     ax.set_title(f"Climb Performance – {aircraft_data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
     ax.grid(True, linestyle='--', alpha=0.7)
     st.pyplot(fig)
-
-    # ────────────────────────────────────────────────
-    # Emergency Response Button & Checklist – Moved here after Calculate Performance
-    # ────────────────────────────────────────────────
-    st.markdown("---")
-    st.markdown("### Emergency Response")
-    if st.button("Emergency Response", type="primary", use_container_width=True,
-                 help="Tap only in real emergency – shows immediate action checklist"):
-        st.markdown("**Priority: Aviate → Navigate → Communicate**")
-        with st.expander("**Immediate Actions Checklist**", expanded=True):
-            st.markdown("""
-            1. **Declare an emergency / Call 911 / Render first aid**
-               - Make sure fuel shut-off is off and battery switch turned off.
-               - Evacuate upwind if fire/chemical risk
-               - Always look for possible contamination from spray mixture or fuel and advise medical responders along with providing SDS’s
-               - Spill Response Action (See Spill Response Procedure)
-               - Preservation of: Wreckage, documents
-            2. **Observe and note witnesses**
-               - Secure the scene with spill response coordination
-               - Do not speak to the media or make statements to government officials
-               - State: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events and to prevent further harm."
-               - Do not, under any circumstances, speculate as to the cause of an accident / incident or other emergency
-            3. **All press and/or media inquiries should be referred to [Name] or [Name].**
-               - Company Management notify FAA and NTSB
-               - Direct all calls to other managers
-               - Contact local Law Enforcement
-               - Make arrangements to preserve any wreckage
-            4. **Prepare statement for release to the press.**
-               - Activate ELT if equipped
-               - Treat injuries (first aid kit), stay with aircraft if safe
-               - Call 911 or local (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555)
-            """.strip())
-        st.markdown("**Local Emergency Contacts**")
-        st.markdown("""
-        - **Emergency**: **911**
-        - **Poison Control** (chemical exposure): **1-800-222-1222**
-        - **Nearest Trauma Center**: Central Washington Hospital (Wenatchee) or Yakima Valley Memorial
-        """)
-        # Quick mobile phone link
-        st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
-        st.info("This is a quick-reference checklist only. Follow your company Emergency Response Plan and official guidance at all times.")
-    st.markdown("---")
 
 # Feedback
 st.subheader("Your Feedback – Help Improve AgPilot")
