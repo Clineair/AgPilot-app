@@ -618,7 +618,7 @@ selected_aircraft = st.selectbox(
 )
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
 
-# Helicopter detection
+# Helicopter detection (moved here after selected_aircraft is defined)
 is_helicopter = any(heli in selected_aircraft for heli in [
     "R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66",
     "Airbus AS350", "Enstrom F28F", "Bell 47"
@@ -691,12 +691,10 @@ custom_icao = st.text_input(
     help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
 ).strip().upper()
 icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
-
 metar_text = None
 metar_timestamp = None
 taf_text = None
 taf_issued = None
-
 if icao_upper and icao_upper != "None":
     try:
         url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
@@ -710,7 +708,6 @@ if icao_upper and icao_upper != "None":
                 metar_text = lines[0].strip()
     except Exception as e:
         st.warning(f"METAR fetch error for {icao_upper}: {e}")
-
     try:
         url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
         response = requests.get(url, timeout=10)
@@ -721,7 +718,6 @@ if icao_upper and icao_upper != "None":
                 taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
     except Exception as e:
         st.warning(f"TAF fetch error for {icao_upper}: {e}")
-
 if icao_upper and icao_upper != "None":
     st.markdown(f"**Latest Weather for {icao_upper}**")
     st.markdown("**METAR (Current)**")
@@ -738,7 +734,6 @@ if icao_upper and icao_upper != "None":
         cols[2].metric("Altimeter", altimeter_part)
     else:
         st.info("No METAR available – check ICAO code or try later.")
-
     st.markdown("**TAF (Forecast)**")
     if taf_text:
         issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
@@ -746,12 +741,10 @@ if icao_upper and icao_upper != "None":
         st.code(taf_text, language="text")
     else:
         st.info("No TAF available (common for small fields).")
-
     st.markdown("**NOTAMs (Notices to Airmen)**")
     st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
     st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
-    st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot")
-
+    st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot.")
 st.markdown("---")
 
 # TFR Map
@@ -870,16 +863,13 @@ if st.button("Calculate Performance", type="primary"):
     st.pyplot(fig)
 
     # ────────────────────────────────────────────────
-    # Emergency Response Button & Checklist
+    # Emergency Response Button & Checklist – Moved here after Calculate Performance
     # ────────────────────────────────────────────────
     st.markdown("---")
     st.markdown("### Emergency Response")
-
     if st.button("Emergency Response", type="primary", use_container_width=True,
                  help="Tap only in real emergency – shows immediate action checklist"):
-
         st.markdown("**Priority: Aviate → Navigate → Communicate**")
-
         with st.expander("**Immediate Actions Checklist**", expanded=True):
             st.markdown("""
             1. **Declare an emergency / Call 911 / Render first aid**
@@ -903,21 +893,18 @@ if st.button("Calculate Performance", type="primary"):
                - Treat injuries (first aid kit), stay with aircraft if safe
                - Call 911 or local (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555)
             """.strip())
-
         st.markdown("**Local Emergency Contacts**")
         st.markdown("""
         - **Emergency**: **911**
         - **Poison Control** (chemical exposure): **1-800-222-1222**
         - **Nearest Trauma Center**: Central Washington Hospital (Wenatchee) or Yakima Valley Memorial
         """)
-
         # Quick mobile phone link
         st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
         st.info("This is a quick-reference checklist only. Follow your company Emergency Response Plan and official guidance at all times.")
-
     st.markdown("---")
 
-# Feedback section
+# Feedback
 st.subheader("Your Feedback – Help Improve AgPilot")
 rating = st.feedback("stars")
 comment = st.text_area(
@@ -925,7 +912,6 @@ comment = st.text_area(
     height=120,
     placeholder="To keep AgPilot free send comments to email above"
 )
-
 if st.button("Safe flying & have a Blessed day ⌯✈︎"):
     if rating is not None:
         stars = rating + 1
