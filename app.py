@@ -875,7 +875,7 @@ if st.button("Calculate Performance", type="primary"):
     st.markdown("---")
     st.markdown("### Emergency Response")
 
-    if st.button("Activate Emergency Response", type="primary", use_container_width=True,
+    if st.button("Emergency Response", type="primary", use_container_width=True,
                  help="Tap only in real emergency – shows immediate action checklist"):
 
         st.markdown("**Priority: Aviate → Navigate → Communicate**")
