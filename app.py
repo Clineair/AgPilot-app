@@ -806,45 +806,63 @@ st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
 
 # ────────────────────────────────────────────────
-# Emergency Response – Always visible, placed below inputs / DA
+# Emergency Response – Always visible, below Calculate Performance
 # ────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("### Emergency Response")
 st.caption("Quick access – use only in real emergencies")
+
+# Styled 12 pt bold header for "Priority: Aviate → Navigate → Communicate**")
+st.markdown(
+    """
+    <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
+        Priority: Aviate
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
              help="Tap only in real emergency – shows immediate action checklist"):
-    st.markdown("**Priority: Aviate → Navigate → Communicate**")
+    st.markdown("**Full Priority Sequence: Aviate → Navigate → Communicate**")
     with st.expander("**Immediate Actions Checklist**", expanded=True):
         st.markdown("""
         1. **Declare an emergency / Call 911 / Render first aid**
-           - Make sure fuel shut-off is off and battery switch turned off.
-           - Evacuate upwind if fire/chemical risk
-           - Always look for possible contamination from spray mixture or fuel and advise medical responders along with providing SDS’s
-           - Spill Response Action (See Spill Response Procedure)
-           - Preservation of: Wreckage, documents
+           - Ensure fuel shut-off is off and battery switch is turned off.
+           - Evacuate upwind if there is fire or chemical risk.
+           - Look for possible contamination from spray mixture or fuel; advise medical responders and provide SDS sheets.
+           - Follow Spill Response Procedure if applicable.
+           - Preserve wreckage and documents.
+
         2. **Observe and note witnesses**
-           - Secure the scene with spill response coordination
-           - Do not speak to the media or make statements to government officials
-           - State: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events and to prevent further harm."
-           - Do not, under any circumstances, speculate as to the cause of an accident / incident or other emergency
-        3. **All press and/or media inquiries should be referred to [Name] or [Name].**
-           - Company Management notify FAA and NTSB
-           - Direct all calls to other managers
-           - Contact local Law Enforcement
-           - Make arrangements to preserve any wreckage
-        4. **Prepare statement for release to the press.**
-           - Activate ELT if equipped
-           - Treat injuries (first aid kit), stay with aircraft if safe
-           - Call 911 or local (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555)
+           - Secure the scene with spill response coordination.
+           - Do **not** speak to media or make statements to government officials.
+           - Use this response: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events and to prevent further harm."
+           - **Do not speculate** on the cause of the accident/incident/emergency.
+
+        3. **Media and press inquiries**
+           - Refer all calls to [Name] or [Name].
+           - Company management will notify FAA and NTSB.
+           - Direct all inquiries to designated managers.
+           - Contact local law enforcement.
+           - Arrange preservation of wreckage.
+
+        4. **Additional immediate steps**
+           - Activate ELT if equipped.
+           - Treat injuries (use first aid kit); stay with aircraft if safe.
+           - Call 911 or local authorities (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555).
         """.strip())
+
     st.markdown("**Local Emergency Contacts**")
     st.markdown("""
     - **Emergency**: **911**
     - **Poison Control** (chemical exposure): **1-800-222-1222**
     - **Nearest Trauma Center**: Central Washington Hospital (Wenatchee) or Yakima Valley Memorial
     """)
+
     st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
-    st.info("This is a quick-reference checklist only. Follow your company Emergency Response Plan and official guidance at all times.")
+
+    st.info("This is a quick-reference checklist only. Always follow your company Emergency Response Plan and official guidance at all times.")
 st.markdown("---")
 
 # Calculate Performance (button and results)
