@@ -826,8 +826,7 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
              help="Tap only in real emergency – shows immediate action checklist"):
     
     with st.expander("**Immediate Actions Checklist**", expanded=True):
-        st.markdown("""
-     1. **Declare emergency / Call 911 / First aid**
+1. **Declare emergency / Call 911 / First aid**
    ────────────────────────────────────────────────
    - Turn fuel shut-off off, battery switch off.
    - Evacuate upwind if fire or chemical risk.
@@ -836,14 +835,15 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
    - Follow Spill Response Procedure.
    - Preserve wreckage and documents.
 
-      2. **Witnesses & Scene Control**
+2. **Witnesses & Scene Control**
    - Secure scene with spill response team.
    - Do NOT speak to media or officials.
    - Say only: "Company has contacted 
      appropriate authorities for full 
      investigation to determine root 
      cause and prevent recurrence."
-   - Do NOT speculate on cause.
+   - Do NOT speculate on cause.        st.markdown("""
+
 
         3. **Media & Press Inquiries**
            - Refer all calls to informed management.
