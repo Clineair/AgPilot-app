@@ -827,13 +827,14 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     
     with st.expander("**Immediate Actions Checklist**", expanded=True):
         st.markdown("""
-        1. **Declare emergency / Call 911 / First aid**
-           - Turn fuel shut-off, battery switch off.
-           - Evacuate upwind if fire or chemical risk.
-           - Check for spray/fuel contamination; give 
-             SDS to responders.
-           - Follow Spill Response Procedure.
-           - Preserve wreckage and documents.
+     1. **Declare emergency / Call 911 / First aid**
+   ────────────────────────────────────────────────
+   - Turn fuel shut-off off, battery switch off.
+   - Evacuate upwind if fire or chemical risk.
+   - Check for spray/fuel contamination; give 
+     SDS to responders.
+   - Follow Spill Response Procedure.
+   - Preserve wreckage and documents.
 
         2. **Witnesses & Scene Control**
            - Secure scene with spill response team.
