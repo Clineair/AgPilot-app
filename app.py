@@ -824,7 +824,7 @@ st.markdown(
 
 if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
              help="Tap only in real emergency – shows immediate action checklist"):
-    st.markdown("**Full Priority Sequence: Aviate → Navigate → Communicate**")
+    
     with st.expander("**Immediate Actions Checklist**", expanded=True):
         st.markdown("""
         1. **Declare an emergency / Call 911 / Render first aid**
