@@ -811,8 +811,6 @@ st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviat
 st.markdown("---")
 st.markdown("### Emergency Response")
 st.caption("Quick access – use only in real emergencies")
-
-
 st.markdown(
     """
     <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
