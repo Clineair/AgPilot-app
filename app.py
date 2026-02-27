@@ -830,7 +830,8 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
         1. **Declare an emergency / Call 911 / Render first aid**
            - Ensure fuel shut-off is off and battery switch is turned off.
            - Evacuate upwind if there is fire or chemical risk.
-           - Look for possible contamination from spray mixture or fuel; advise medical responders and provide SDS sheets.
+           - Look for possible contamination from spray mixture or fuel;
+             advise medical responders and provide SDS sheets.
            - Follow Spill Response Procedure if applicable.
            - Preserve wreckage and documents.
 
