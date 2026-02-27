@@ -806,11 +806,13 @@ st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
 
 # ────────────────────────────────────────────────
-# Emergency Response – Always visible, below Calculate Performance
+# Emergency Response – Always visible, below inputs/DA
 # ────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("### Emergency Response")
 st.caption("Quick access – use only in real emergencies")
+
+# 12 pt bold header
 st.markdown(
     """
     <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
@@ -825,44 +827,50 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     
     with st.expander("**Immediate Actions Checklist**", expanded=True):
         st.markdown("""
-       
-        1. **Declare an emergency / Call 911 / Render first aid**
-           - Ensure fuel shut-off is off and battery switch is turned off.
-           - Evacuate upwind if there is fire or chemical risk.
-           - Look for possible contamination from spray mixture or fuel;
-             advise medical responders and provide SDS sheets.
-           - Follow Spill Response Procedure if applicable.
+        1. **Declare emergency / Call 911 / First aid**
+           - Turn fuel shut-off off, battery switch off.
+           - Evacuate upwind if fire or chemical risk.
+           - Check for spray/fuel contamination; give 
+             SDS to responders.
+           - Follow Spill Response Procedure.
            - Preserve wreckage and documents.
 
-        2. **Observe and note witnesses**
-           - Secure the scene with spill response coordination.
-           - Do **not** speak to media or make statements to government officials.
-           - Use this response: "Company has contacted the appropriate authorities for a full investigation to ensure understanding of events and to prevent further harm."
-           - **Do not speculate** on the cause of the accident/incident/emergency.
+        2. **Witnesses & Scene Control**
+           - Secure scene with spill response team.
+           - Do NOT speak to media or officials.
+           - Say only: "Company has contacted 
+             authorities for full investigation to 
+             prevent further harm."
+           - Do NOT speculate on cause.
 
-        3. **Media and press inquiries**
+        3. **Media & Press Inquiries**
            - Refer all calls to [Name] or [Name].
-           - Company management will notify FAA and NTSB.
-           - Direct all inquiries to designated managers.
+           - Management will notify FAA and NTSB.
+           - Direct inquiries to designated managers.
            - Contact local law enforcement.
-           - Arrange preservation of wreckage.
+           - Arrange wreckage preservation.
 
-        4. **Additional immediate steps**
+        4. **Additional Immediate Steps**
            - Activate ELT if equipped.
-           - Treat injuries (use first aid kit); stay with aircraft if safe.
-           - Call 911 or local authorities (Kittitas County Sheriff: 509-962-1234; KVFR: 509-925-5555).
+           - Treat injuries (first aid kit); stay with 
+             aircraft if safe.
+           - Call 911 or local:
+             Kittitas County Sheriff: 509-962-1234
+             KVFR: 509-925-5555
         """.strip())
 
     st.markdown("**Local Emergency Contacts**")
     st.markdown("""
     - **Emergency**: **911**
-    - **Poison Control** (chemical exposure): **1-800-222-1222**
-    - **Nearest Trauma Center**: Central Washington Hospital (Wenatchee) or Yakima Valley Memorial
+    - **Poison Control** (chemical exposure): 
+      **1-800-222-1222**
+    - **Nearest Trauma Center**: Central Washington 
+      Hospital (Wenatchee) or Yakima Valley Memorial
     """)
 
     st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
 
-    st.info("This is a quick-reference checklist only. Always follow your company Emergency Response Plan and official guidance at all times.")
+    st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
 st.markdown("---")
 
 # Calculate Performance (button and results)
