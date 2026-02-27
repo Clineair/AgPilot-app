@@ -828,7 +828,7 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     with st.expander("**Immediate Actions Checklist**", expanded=True):
         st.markdown("""
         1. **Declare emergency / Call 911 / First aid**
-           - Turn fuel shut-off off, battery switch off.
+           - Turn fuel shut-off, battery switch off.
            - Evacuate upwind if fire or chemical risk.
            - Check for spray/fuel contamination; give 
              SDS to responders.
@@ -838,25 +838,25 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
         2. **Witnesses & Scene Control**
            - Secure scene with spill response team.
            - Do NOT speak to media or officials.
-           - Say only: "Company has contacted 
-             authorities for full investigation to 
-             prevent further harm."
+           - Say only: "Company has contacted the
+             appropriate authorities for full investigation 
+             to make sure root cause is determined to
+             prevent happening again."
            - Do NOT speculate on cause.
 
         3. **Media & Press Inquiries**
-           - Refer all calls to [Name] or [Name].
+           - Refer all calls to informed management.
            - Management will notify FAA and NTSB.
-           - Direct inquiries to designated managers.
+           - Direct inquiries to informed managers.
            - Contact local law enforcement.
            - Arrange wreckage preservation.
 
         4. **Additional Immediate Steps**
-           - Activate ELT if equipped.
-           - Treat injuries (first aid kit); stay with 
-             aircraft if safe.
+           - Is ELT activated?
+           - Treat injuries (first aid kit); 
+             Assure area is protected.
            - Call 911 or local:
-             Kittitas County Sheriff: 509-962-1234
-             KVFR: 509-925-5555
+             County Sheriff: 
         """.strip())
 
     st.markdown("**Local Emergency Contacts**")
@@ -864,9 +864,7 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     - **Emergency**: **911**
     - **Poison Control** (chemical exposure): 
       **1-800-222-1222**
-    - **Nearest Trauma Center**: Central Washington 
-      Hospital (Wenatchee) or Yakima Valley Memorial
-    """)
+       """)
 
     st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
 
