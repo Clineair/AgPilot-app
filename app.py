@@ -42,6 +42,14 @@ if 'show_risk' not in st.session_state:
     st.session_state.show_risk = False
 
 # ────────────────────────────────────────────────
+# Default performance values (PREVENTS NameError before first calculation)
+# ────────────────────────────────────────────────
+ground_roll_to = to_50ft = ground_roll_land = from_50ft = 0
+climb_rate = stall_speed = glide_dist = total_weight = 0
+ige_ceiling = oge_ceiling = 0
+cg_status = "Not calculated yet"
+
+# ────────────────────────────────────────────────
 # Aircraft Database
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
@@ -372,7 +380,7 @@ AIRCRAFT_DATA = {
 }
 
 # ────────────────────────────────────────────────
-# Density Altitude Calculation (Enstrom 480 POH method)
+# Density Altitude Calculation
 # ────────────────────────────────────────────────
 def calculate_density_altitude(pressure_alt_ft, oat_c):
     isa_temp_c = 15 - (2 * (pressure_alt_ft / 1000))
@@ -806,13 +814,11 @@ st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
 
 # ────────────────────────────────────────────────
-# Emergency Response – Always visible, below inputs/DA
+# Emergency Response – Always visible
 # ────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("### Emergency Response")
 st.caption("Quick access – use only in real emergencies")
-
-# 12 pt bold header
 st.markdown(
     """
     <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
@@ -824,21 +830,55 @@ st.markdown(
 
 if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
              help="Tap only in real emergency – shows immediate action checklist"):
-    
-  
+    with st.expander("**Immediate Actions Checklist**", expanded=True):
+        st.markdown("""
+        1. **Declare emergency / Call 911 / First aid**
+           ────────────────────────────────────────────────
+           - Turn fuel shut-off off, battery switch off.
+           - Evacuate upwind if fire or chemical risk.
+           - Check for spray/fuel contamination; give 
+             SDS to responders.
+           - Follow Spill Response Procedure.
+           - Preserve wreckage and documents.
+
+        2. **Witnesses & Scene Control**
+           - Secure scene with spill response team.
+           - Do NOT speak to media or officials.
+           - Say only: "Company has contacted 
+             appropriate authorities for a full 
+             investigation to determine root 
+             cause and prevent recurrence."
+           - Do NOT speculate on cause.
+
+        3. **Media & Press Inquiries**
+           - Refer all calls to informed management.
+           - Management will notify FAA and NTSB.
+           - Direct inquiries to informed managers.
+           - Contact local law enforcement.
+           - Arrange wreckage preservation.
+
+        4. **Additional Immediate Steps**
+           - Is ELT activated?
+           - Treat injuries (first aid kit); assure 
+             area is protected.
+           - Call 911 or local:
+             Kittitas County Sheriff: 509-962-1234
+             KVFR: 509-925-5555
+        """.strip())
+
     st.markdown("**Local Emergency Contacts**")
     st.markdown("""
     - **Emergency**: **911**
     - **Poison Control** (chemical exposure): 
       **1-800-222-1222**
-       """)
-
+    """)
     st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
-
     st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
 st.markdown("---")
 
-# Calculate Performance (button and results)
+# ────────────────────────────────────────────────
+# Calculate Performance
+# ────────────────────────────────────────────────
 if st.button("Calculate Performance", type="primary"):
     ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
@@ -846,41 +886,7 @@ if st.button("Calculate Performance", type="primary"):
     stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
     glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
     total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
-with st.expander("**Immediate Actions Checklist**", expanded=True):
-    st.markdown("""
-    1. **Declare emergency / Call 911 / First aid**
-       ────────────────────────────────────────────────
-       - Turn fuel shut-off off, battery switch off.
-       - Evacuate upwind if fire or chemical risk.
-       - Check for spray/fuel contamination; give 
-         SDS to responders.
-       - Follow Spill Response Procedure.
-       - Preserve wreckage and documents.
 
-    2. **Witnesses & Scene Control**
-       - Secure scene with spill response team.
-       - Do NOT speak to media or officials.
-       - Say only: "Company has contacted 
-         appropriate authorities for a full 
-         investigation to determine root 
-         cause and prevent recurrence."
-       - Do NOT speculate on cause.
-
-    3. **Media & Press Inquiries**
-       - Refer all calls to informed management.
-       - Management will notify FAA and NTSB.
-       - Direct inquiries to informed managers.
-       - Contact local law enforcement.
-       - Arrange wreckage preservation.
-
-    4. **Additional Immediate Steps**
-       - Is ELT activated?
-       - Treat injuries (first aid kit); assure 
-         area is protected.
-       - Call 911 or local:
-         Kittitas County Sheriff: 509-962-1234
-         KVFR: 509-925-5555
-    """.strip())
     st.subheader("Results")
     col_a, col_b = st.columns(2)
     with col_a:
@@ -905,9 +911,7 @@ with st.expander("**Immediate Actions Checklist**", expanded=True):
                        "and conditions. Always refer to your aircraft POH.")
         else:
             st.caption("Fixed-wing glide estimate (best glide speed config). Adjust for actual conditions.")
-
     st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
-
     if is_helicopter:
         ige_ceiling, oge_ceiling = compute_hover_ceiling(da_ft, total_weight, selected_aircraft)
         st.subheader("Hover Performance")
@@ -917,7 +921,6 @@ with st.expander("**Immediate Actions Checklist**", expanded=True):
             st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
-
     st.subheader("Rate of Climb vs Pressure Altitude")
     altitudes = np.linspace(0, 12000, 60)
     climb_rates = [compute_climb_rate(alt, oat_c, weight_lbs, selected_aircraft) for alt in altitudes]
