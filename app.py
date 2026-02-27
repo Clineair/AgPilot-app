@@ -825,41 +825,7 @@ st.markdown(
 if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
              help="Tap only in real emergency – shows immediate action checklist"):
     
-    with st.expander("**Immediate Actions Checklist**", expanded=True):
-1. **Declare emergency / Call 911 / First aid**
-   ────────────────────────────────────────────────
-   - Turn fuel shut-off off, battery switch off.
-   - Evacuate upwind if fire or chemical risk.
-   - Check for spray/fuel contamination; give 
-     SDS to responders.
-   - Follow Spill Response Procedure.
-   - Preserve wreckage and documents.
-
-2. **Witnesses & Scene Control**
-   - Secure scene with spill response team.
-   - Do NOT speak to media or officials.
-   - Say only: "Company has contacted 
-     appropriate authorities for full 
-     investigation to determine root 
-     cause and prevent recurrence."
-   - Do NOT speculate on cause.        st.markdown("""
-
-
-        3. **Media & Press Inquiries**
-           - Refer all calls to informed management.
-           - Management will notify FAA and NTSB.
-           - Direct inquiries to informed managers.
-           - Contact local law enforcement.
-           - Arrange wreckage preservation.
-
-        4. **Additional Immediate Steps**
-           - Is ELT activated?
-           - Treat injuries (first aid kit); 
-             Assure area is protected.
-           - Call 911 or local:
-             County Sheriff: 
-        """.strip())
-
+  
     st.markdown("**Local Emergency Contacts**")
     st.markdown("""
     - **Emergency**: **911**
@@ -880,7 +846,41 @@ if st.button("Calculate Performance", type="primary"):
     stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
     glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
     total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
+with st.expander("**Immediate Actions Checklist**", expanded=True):
+    st.markdown("""
+    1. **Declare emergency / Call 911 / First aid**
+       ────────────────────────────────────────────────
+       - Turn fuel shut-off off, battery switch off.
+       - Evacuate upwind if fire or chemical risk.
+       - Check for spray/fuel contamination; give 
+         SDS to responders.
+       - Follow Spill Response Procedure.
+       - Preserve wreckage and documents.
 
+    2. **Witnesses & Scene Control**
+       - Secure scene with spill response team.
+       - Do NOT speak to media or officials.
+       - Say only: "Company has contacted 
+         appropriate authorities for a full 
+         investigation to determine root 
+         cause and prevent recurrence."
+       - Do NOT speculate on cause.
+
+    3. **Media & Press Inquiries**
+       - Refer all calls to informed management.
+       - Management will notify FAA and NTSB.
+       - Direct inquiries to informed managers.
+       - Contact local law enforcement.
+       - Arrange wreckage preservation.
+
+    4. **Additional Immediate Steps**
+       - Is ELT activated?
+       - Treat injuries (first aid kit); assure 
+         area is protected.
+       - Call 911 or local:
+         Kittitas County Sheriff: 509-962-1234
+         KVFR: 509-925-5555
+    """.strip())
     st.subheader("Results")
     col_a, col_b = st.columns(2)
     with col_a:
