@@ -836,14 +836,14 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
    - Follow Spill Response Procedure.
    - Preserve wreckage and documents.
 
-       2. **Witnesses & Scene Control**
-       - Secure scene with spill response team.
-       - Do NOT speak to media or officials.
-       - Say only: "Company has contacted 
-         appropriate authorities for full 
-         investigation to determine root 
-         cause and prevent recurrence."
-       - Do NOT speculate on cause.
+      2. **Witnesses & Scene Control**
+   - Secure scene with spill response team.
+   - Do NOT speak to media or officials.
+   - Say only: "Company has contacted 
+     appropriate authorities for full 
+     investigation to determine root 
+     cause and prevent recurrence."
+   - Do NOT speculate on cause.
 
         3. **Media & Press Inquiries**
            - Refer all calls to informed management.
