@@ -816,7 +816,7 @@ st.caption("Quick access – use only in real emergencies")
 st.markdown(
     """
     <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
-        Priority: Aviate
+        Priority (PILOT): Aviate → Navigate → Communicate
     </div>
     """,
     unsafe_allow_html=True
