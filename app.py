@@ -825,6 +825,7 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     
     with st.expander("**Immediate Actions Checklist**", expanded=True):
         st.markdown("""
+       
         1. **Declare an emergency / Call 911 / Render first aid**
            - Ensure fuel shut-off is off and battery switch is turned off.
            - Evacuate upwind if there is fire or chemical risk.
