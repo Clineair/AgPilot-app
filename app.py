@@ -812,7 +812,7 @@ st.markdown("---")
 st.markdown("### Emergency Response")
 st.caption("Quick access – use only in real emergencies")
 
-# Styled 12 pt bold header for "Priority: Aviate → Navigate → Communicate**")
+
 st.markdown(
     """
     <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
