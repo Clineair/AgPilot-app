@@ -861,8 +861,7 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
            - Treat injuries (first aid kit); assure 
              area is protected.
            - Call 911 or local:
-             Kittitas County Sheriff: 509-962-1234
-             KVFR: 509-925-5555
+             County Sheriff: 509-962-1234
         """.strip())
 
     st.markdown("**Local Emergency Contacts**")
