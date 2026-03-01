@@ -209,9 +209,6 @@ AIRCRAFT_DATA = {
         "glide_ratio": 8.5,
         "description": "Cessna 188 AgHusky variant – rugged piston ag sprayer with good short-field performance"
     },
-    
-    # ... next aircraft entry ...
-}
     "Piper PA-36 Pawnee Brave": {
         "name": "Piper PA-36 Pawnee Brave",
         "base_takeoff_ground_roll_ft": 1200,
