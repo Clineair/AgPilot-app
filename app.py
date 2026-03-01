@@ -190,6 +190,28 @@ AIRCRAFT_DATA = {
         "glide_ratio": 8.0,
         "description": "Classic single-engine piston ag sprayer"
     },
+      "Cessna AgHusky": {
+        "name": "Cessna AgHusky",
+        "base_takeoff_ground_roll_ft": 750,
+        "base_takeoff_to_50ft_ft": 1350,
+        "base_landing_ground_roll_ft": 450,
+        "base_landing_to_50ft_ft": 1200,
+        "base_climb_rate_fpm": 750,
+        "base_stall_flaps_down_mph": 52,
+        "best_climb_speed_mph": 85,
+        "base_empty_weight_lbs": 2400,
+        "base_fuel_capacity_gal": 60,
+        "fuel_weight_per_gal": 6.0,
+        "hopper_capacity_gal": 300,
+        "hopper_weight_per_gal": 8.3,
+        "max_takeoff_weight_lbs": 4800,
+        "max_landing_weight_lbs": 4800,
+        "glide_ratio": 8.5,
+        "description": "Cessna 188 AgHusky variant – rugged piston ag sprayer with good short-field performance"
+    },
+    
+    # ... next aircraft entry ...
+}
     "Piper PA-36 Pawnee Brave": {
         "name": "Piper PA-36 Pawnee Brave",
         "base_takeoff_ground_roll_ft": 1200,
