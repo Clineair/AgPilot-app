@@ -21,13 +21,18 @@ st.markdown("""
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
 
-# Try to load custom logo from GitHub raw URL
-LOGO_URL = "https://raw.githubusercontent.com/captn357417/agpilot-app/main/AgPilotApp.png"
+# ────────────────────────────────────────────────
+# Custom Logo (your provided logo – using raw GitHub URL)
+# ────────────────────────────────────────────────
+LOGO_URL = "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png"
+
 try:
-    st.logo(LOGO_URL, size="medium")
+    st.image(LOGO_URL, use_column_width=True)  # Displays as full-width header logo
+    st.logo(LOGO_URL, size="medium")  # Sidebar logo
 except Exception:
     try:
-        st.logo("AgPilotApp.png", size="medium")  # fallback to local
+        st.image("AgPilotApp.png", use_column_width=True)  # Fallback to local file if URL fails
+        st.logo("AgPilotApp.png", size="medium")
     except Exception:
         st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
 
@@ -190,22 +195,22 @@ AIRCRAFT_DATA = {
         "glide_ratio": 8.0,
         "description": "Classic single-engine piston ag sprayer"
     },
-      "Cessna AgHusky": {
+    "Cessna AgHusky": {
         "name": "Cessna AgHusky",
-        "base_takeoff_ground_roll_ft": 800,
+        "base_takeoff_ground_roll_ft": 750,
         "base_takeoff_to_50ft_ft": 1350,
         "base_landing_ground_roll_ft": 450,
-        "base_landing_to_50ft_ft": 1350,
+        "base_landing_to_50ft_ft": 1200,
         "base_climb_rate_fpm": 750,
         "base_stall_flaps_down_mph": 52,
         "best_climb_speed_mph": 85,
-        "base_empty_weight_lbs": 2322,
-        "base_fuel_capacity_gal": 56,
+        "base_empty_weight_lbs": 2400,
+        "base_fuel_capacity_gal": 60,
         "fuel_weight_per_gal": 6.0,
         "hopper_capacity_gal": 280,
         "hopper_weight_per_gal": 8.3,
-        "max_takeoff_weight_lbs": 4400,
-        "max_landing_weight_lbs": 4400,
+        "max_takeoff_weight_lbs": 4200,
+        "max_landing_weight_lbs": 4200,
         "glide_ratio": 8.0,
         "description": "Cessna 188 AgHusky variant – rugged piston ag sprayer with good short-field performance"
     },
@@ -770,189 +775,3 @@ if icao_upper and icao_upper != "None":
         st.info("No TAF available (common for small fields).")
     st.markdown("**NOTAMs (Notices to Airmen)**")
     st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
-    st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
-    st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot.")
-st.markdown("---")
-
-# TFR Map
-st.subheader("Temporary Flight Restrictions (TFR) Map")
-st.caption("Live interactive FAA TFR map – shows current restrictions. Zoom to your area/state.")
-st.components.v1.iframe(
-    src="https://tfr.faa.gov/tfr3/?page=map",
-    height=600,
-    scrolling=True
-)
-st.markdown("[Open full-screen FAA TFR Map](https://tfr.faa.gov/tfr3/?page=map) – recommended for detailed view.")
-
-# Inputs
-col1, col2 = st.columns(2)
-with col1:
-    pressure_alt_ft = st.number_input("Pressure Altitude (ft)", min_value=0, max_value=20000, value=0, step=100)
-    oat_c = st.number_input("OAT (°C)", min_value=-30, max_value=50, value=15, step=1)
-    min_weight = 1000 if is_helicopter else 4000
-    weight_lbs = st.number_input(
-        "Gross Weight (lbs)",
-        min_value=min_weight,
-        max_value=aircraft_data["max_takeoff_weight_lbs"],
-        value=aircraft_data["max_takeoff_weight_lbs"],
-        step=50,
-        help="Adjust based on actual loadout. Helicopter min lowered for realistic empty weights."
-    )
-    wind_kts = st.number_input("Headwind (+) / Tailwind (-) (kts)", min_value=-20, max_value=20, value=0, step=1)
-    runway_condition = st.selectbox(
-        "Runway Condition",
-        options=[
-            "Paved / Dry Hard Surface",
-            "Dry Grass / Firm Turf",
-            "Wet Grass / Damp Turf",
-            "Soft / Muddy / Rough"
-        ],
-        index=0,
-        help="Adjusts takeoff/landing distances. Baseline = paved/dry."
-    )
-with col2:
-    fuel_gal = st.number_input("Fuel (gal)", min_value=0, max_value=aircraft_data["base_fuel_capacity_gal"], value=aircraft_data["base_fuel_capacity_gal"], step=10)
-    max_hopper = aircraft_data["hopper_capacity_gal"]
-    hopper_gal = st.number_input(
-        "Hopper / Spray Load (gal)",
-        min_value=0,
-        max_value=max_hopper,
-        value=0,
-        step=10,
-        help=f"Max spray/chemical load: {max_hopper} gal"
-    )
-    pilot_weight_lbs = st.number_input("Pilot Weight (lbs)", min_value=100, max_value=300, value=200, step=10)
-    glide_height_ft = st.number_input("Glide Height AGL (ft)", min_value=0, max_value=15000, value=1000, step=100)
-
-# Density Altitude
-da_ft = calculate_density_altitude(pressure_alt_ft, oat_c)
-isa_temp_c = 15 - (2 * (pressure_alt_ft / 1000))
-isa_deviation = oat_c - isa_temp_c
-st.subheader("Density Altitude")
-st.metric("Density Altitude", f"{da_ft} ft")
-st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
-
-# ────────────────────────────────────────────────
-# Emergency Response – Always visible
-# ────────────────────────────────────────────────
-st.markdown("---")
-st.markdown("### Emergency Response")
-st.caption("Quick access – use only in real emergencies")
-st.markdown(
-    """
-    <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
-        Priority (PILOT): Aviate → Navigate → Communicate
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
-             help="Tap only in real emergency – shows immediate action checklist"):
-    with st.expander("**Immediate Actions Checklist**", expanded=True):
-        st.markdown("""
-        1. **Declare emergency / Call 911 / First aid**
-           - Turn fuel shut-off off, battery switch off.
-           - Evacuate upwind if fire or chemical risk.
-           - Check for spray/fuel contamination; give 
-             SDS to responders.
-           - Follow Spill Response Procedure.
-           - Preserve wreckage and documents.
-
-        2. **Witnesses & Scene Control**
-           - Secure scene with spill response team.
-           - Do NOT speak to media or officials.
-           - Say only: "Company has contacted 
-             appropriate authorities for a full 
-             investigation to determine root 
-             cause and prevent recurrence."
-           - Do NOT speculate on cause.
-
-        3. **Media & Press Inquiries**
-           - Refer all calls to informed management.
-           - Management will notify FAA and NTSB.
-           - Direct inquiries to informed managers.
-           - Contact local law enforcement.
-           - Arrange wreckage preservation.
-
-        4. **Additional Immediate Steps**
-           - Is ELT activated?
-           - Treat injuries (first aid kit); assure 
-             area is protected.
-           - Call 911 or local:
-             County Sheriff: 509-962-1234
-        """.strip())
-
-    st.markdown("**Local Emergency Contacts**")
-    st.markdown("""
-    - **Emergency**: **911**
-    - **Poison Control** (chemical exposure): 
-      **1-800-222-1222**
-    """)
-    st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
-    st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
-st.markdown("---")
-
-# ────────────────────────────────────────────────
-# Calculate Performance
-# ────────────────────────────────────────────────
-if st.button("Calculate Performance", type="primary"):
-    ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
-    ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
-    climb_rate = compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, selected_aircraft)
-    stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
-    glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
-    total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
-
-    st.subheader("Results")
-    col_a, col_b = st.columns(2)
-    with col_a:
-        if is_helicopter:
-            st.metric("Takeoff Ground Roll", "Vertical (hover)")
-            st.metric("Takeoff to 50 ft", "Vertical performance")
-            st.metric("Landing Ground Roll", "Vertical landing")
-            st.metric("Landing from 50 ft", "Vertical performance")
-        else:
-            st.metric("Takeoff Ground Roll", f"{ground_roll_to:.0f} ft")
-            st.metric("Takeoff to 50 ft", f"{to_50ft:.0f} ft")
-            st.metric("Landing Ground Roll", f"{ground_roll_land:.0f} ft")
-            st.metric("Landing from 50 ft", f"{from_50ft:.0f} ft")
-    with col_b:
-        st.metric("Climb Rate", f"{climb_rate:.0f} fpm")
-        st.metric("Best Rate Climb", f"{aircraft_data['best_climb_speed_mph']} mph IAS")
-        st.metric("Stall Speed (flaps down)", f"{stall_speed:.1f} mph" if stall_speed > 0 else "N/A (helicopter)")
-        st.metric("Glide Distance", f"{glide_dist:.1f} nm")
-        if is_helicopter:
-            st.caption("Helicopter value = approximate autorotation distance (best range config). "
-                       "Actual performance depends on entry airspeed, rotor RPM, flare technique, "
-                       "and conditions. Always refer to your aircraft POH.")
-        else:
-            st.caption("Fixed-wing glide estimate (best glide speed config). Adjust for actual conditions.")
-    st.markdown(f"**Total Weight:** {total_weight:.0f} lbs – **{cg_status}**")
-    if is_helicopter:
-        ige_ceiling, oge_ceiling = compute_hover_ceiling(da_ft, total_weight, selected_aircraft)
-        st.subheader("Hover Performance")
-        st.metric("Estimated IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
-        st.metric("Estimated OGE Hover Ceiling", f"{oge_ceiling:.0f} ft")
-        if total_weight > 2300:
-            st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
-        if da_ft > 8000:
-            st.warning("High density altitude — hover performance reduced. Consult POH.")
-  
-
-# Feedback
-st.subheader("Your Feedback – Help Improve AgPilot")
-rating = st.feedback("stars")
-comment = st.text_area(
-    "Any suggestions send screenshot to cvh@centralvalleyheli.com",
-    height=120,
-    placeholder="To keep AgPilot free send comments to email above"
-)
-if st.button("Safe flying & have a Blessed day ⌯✈︎"):
-    if rating is not None:
-        stars = rating + 1
-        st.success(f"Thank you! You rated **{stars} stars**.")
-        if comment.strip():
-            st.caption(f"Comment: {comment}")
-    else:
-        st.warning("Please select a star rating.")
