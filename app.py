@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 from datetime import datetime
-
 # ────────────────────────────────────────────────
 # Page Config & Safe Logo
 # ────────────────────────────────────────────────
@@ -14,28 +13,24 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="auto"
 )
-
 # Green preview theme
 st.markdown("""
     <meta name="theme-color" content="#4CAF50">
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
-
 # ────────────────────────────────────────────────
 # Custom Logo (your provided logo – using raw GitHub URL)
 # ────────────────────────────────────────────────
 LOGO_URL = "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png"
-
 try:
-    st.image(LOGO_URL, use_column_width=True)  # Displays as full-width header logo
-    st.logo(LOGO_URL, size="medium")  # Sidebar logo
+    st.image(LOGO_URL, use_column_width=True) # Displays as full-width header logo
+    st.logo(LOGO_URL, size="medium") # Sidebar logo
 except Exception:
     try:
-        st.image("AgPilotApp.png", use_column_width=True)  # Fallback to local file if URL fails
+        st.image("AgPilotApp.png", use_column_width=True) # Fallback to local file if URL fails
         st.logo("AgPilotApp.png", size="medium")
     except Exception:
         st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
-
 # ────────────────────────────────────────────────
 # Legal Button (under logo)
 # ────────────────────────────────────────────────
@@ -43,10 +38,8 @@ if st.button("Legal", type="secondary"):
     with st.expander("Legal and Terms", expanded=True):
         st.markdown("""
         ### Legal and Terms of Use
-        
-
+       
         List of Abbreviations
-
         Abbreviation | Definition
         ABS | Absolute
         AGL | Above Ground Level
@@ -98,7 +91,6 @@ if st.button("Legal", type="secondary"):
         Vy | Best rate of climb airspeed
         WT | Weight
         XMSN | Transmission
-
             By using this app, you agree to these terms. This app is for educational purposes only and not a substitute for official POH or professional advice.
         """)
 # ────────────────────────────────────────────────
@@ -110,7 +102,6 @@ if 'custom_empty_weight' not in st.session_state:
     st.session_state.custom_empty_weight = None
 if 'show_risk' not in st.session_state:
     st.session_state.show_risk = False
-
 # ────────────────────────────────────────────────
 # Default performance values (PREVENTS NameError before first calculation)
 # ────────────────────────────────────────────────
@@ -118,7 +109,6 @@ ground_roll_to = to_50ft = ground_roll_land = from_50ft = 0
 climb_rate = stall_speed = glide_dist = total_weight = 0
 ige_ceiling = oge_ceiling = 0
 cg_status = "Not calculated yet"
-
 # ────────────────────────────────────────────────
 # Aircraft Database
 # ────────────────────────────────────────────────
@@ -467,7 +457,6 @@ AIRCRAFT_DATA = {
         "hover_ceiling_oge_max_gw": 8000
     },
 }
-
 # ────────────────────────────────────────────────
 # Density Altitude Calculation
 # ────────────────────────────────────────────────
@@ -476,13 +465,11 @@ def calculate_density_altitude(pressure_alt_ft, oat_c):
     deviation = oat_c - isa_temp_c
     da_ft = pressure_alt_ft + (120 * deviation)
     return round(da_ft)
-
 # ────────────────────────────────────────────────
 # Helper Functions
 # ────────────────────────────────────────────────
 def adjust_for_weight(value, current_weight, base_weight, exponent=1.5):
     return value * (current_weight / base_weight) ** exponent
-
 def adjust_for_runway_condition(value, condition):
     multipliers = {
         "Paved / Dry Hard Surface": 1.00,
@@ -492,15 +479,12 @@ def adjust_for_runway_condition(value, condition):
     }
     factor = multipliers.get(condition, 1.00)
     return value * factor
-
 def adjust_for_wind(value, wind_kts):
     factor = 1 - (0.1 * wind_kts / 9)
     return value * max(factor, 0.5)
-
 def adjust_for_da(value, da_ft):
     factor = 1 + (0.07 * da_ft / 1000)
     return value * factor
-
 @st.cache_data
 def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
     data = AIRCRAFT_DATA[aircraft]
@@ -514,7 +498,6 @@ def compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_conditi
     to_50ft = adjust_for_wind(to_50ft, wind_kts)
     to_50ft = adjust_for_runway_condition(to_50ft, runway_condition) * 1.10
     return ground_roll, to_50ft
-
 @st.cache_data
 def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, aircraft):
     data = AIRCRAFT_DATA[aircraft]
@@ -529,7 +512,6 @@ def compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_conditi
     from_50ft = adjust_for_wind(from_50ft, wind_kts)
     from_50ft = adjust_for_runway_condition(from_50ft, runway_condition) * 1.15
     return ground_roll, from_50ft
-
 @st.cache_data
 def compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
@@ -537,12 +519,10 @@ def compute_climb_rate(pressure_alt_ft, oat_c, weight_lbs, aircraft):
     climb = adjust_for_weight(data["base_climb_rate_fpm"], weight_lbs, data["max_takeoff_weight_lbs"], exponent=-1)
     climb *= (1 - (0.05 * da_ft / 1000))
     return max(climb, 0)
-
 @st.cache_data
 def compute_stall_speed(weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     return data["base_stall_flaps_down_mph"] * np.sqrt(weight_lbs / data["max_landing_weight_lbs"])
-
 @st.cache_data
 def compute_glide_distance(height_ft, wind_kts, aircraft):
     data = AIRCRAFT_DATA[aircraft]
@@ -554,7 +534,6 @@ def compute_glide_distance(height_ft, wind_kts, aircraft):
     else:
         ground_speed_mph = 100 + wind_kts
         return (height_ft / 6076) * data["glide_ratio"] * (ground_speed_mph / 60)
-
 @st.cache_data
 def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
@@ -570,7 +549,6 @@ def compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, aircraft):
     if total_weight > data["max_landing_weight_lbs"]:
         status += " (Exceeds max landing weight)"
     return total_weight, status
-
 def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     data = AIRCRAFT_DATA[aircraft]
     base_ceiling_ige = data.get("hover_ceiling_ige_max_gw", 0)
@@ -584,7 +562,6 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     ige_ceiling = max(0, ige_ceiling)
     oge_ceiling = max(0, oge_ceiling)
     return ige_ceiling, oge_ceiling
-
 # ────────────────────────────────────────────────
 # Risk Assessment
 # ────────────────────────────────────────────────
@@ -643,7 +620,7 @@ def show_risk_assessment():
     <div style="text-align:center; margin: 30px 0;">
         <div style="
             width: 220px;
-            height: 220px;
+            height: 220px,
             border-radius: 50%;
             background: conic-gradient(
                 {color} {risk_percent}%,
@@ -658,7 +635,7 @@ def show_risk_assessment():
         ">
             <div style="
                 width: 170px;
-                height: 170px;
+                height: 170px,
                 background: white;
                 border-radius: 50%;
                 display: flex;
@@ -684,14 +661,12 @@ def show_risk_assessment():
         st.markdown("- Consult for second opinion")
         st.markdown("- Screenshot and re-assess high risk")
     st.caption("Not a substitute for official preflight briefing or company policy.")
-
 # ────────────────────────────────────────────────
 # Main App
 # ────────────────────────────────────────────────
 st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
-
 # Fleet Management
 st.subheader("My Fleet")
 if st.session_state.fleet:
@@ -705,7 +680,6 @@ if st.session_state.fleet:
         st.success(f"Loaded **{selected_nickname}** ({entry['aircraft']}) – Empty: {custom or 'base'} lb")
 else:
     st.info("No aircraft saved to fleet yet.")
-
 # Aircraft selection
 selected_aircraft = st.selectbox(
     "Select Aircraft",
@@ -714,13 +688,11 @@ selected_aircraft = st.selectbox(
     format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
 )
 aircraft_data = AIRCRAFT_DATA[selected_aircraft]
-
 # Helicopter detection
 is_helicopter = any(heli in selected_aircraft for heli in [
     "R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66",
     "Airbus AS350", "Enstrom F28F", "Bell 47"
 ])
-
 # Custom Empty Weight Input
 st.subheader("Custom Empty Weight (optional)")
 col_empty1, col_empty2 = st.columns([3, 1])
@@ -752,91 +724,8 @@ with col_empty2:
             st.success(f"Saved **{nickname}** to fleet!")
         else:
             st.warning("Please enter a nickname to save.")
-
 effective_empty = custom_empty if custom_empty != aircraft_data["base_empty_weight_lbs"] else aircraft_data["base_empty_weight_lbs"]
 st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if custom_empty != aircraft_data['base_empty_weight_lbs'] else '(base)'}")
-
 # Risk Assessment button
 if st.button("Risk Assessment", type="secondary"):
     st.session_state.show_risk = not st.session_state.get("show_risk", False)
-
-st.info(f"Performance data loaded for **{aircraft_data['name']}**")
-
-if st.session_state.get("show_risk", False):
-    show_risk_assessment()
-
-# Airport Weather & Notices
-st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
-common_airports = {
-    "KELN": "Ellensburg Bowers Field (KELN) – Home base",
-    "KYKM": "Yakima Air Terminal (KYKM)",
-    "KEAT": "Pangborn Memorial (KEAT) – Wenatchee",
-    "KPUW": "Pullman/Moscow Regional (KPUW)",
-    "KSEA": "Seattle-Tacoma Intl (KSEA)",
-    "None": "—— No airport selected ——"
-}
-selected_icao = st.selectbox(
-    "Select Nearby Airport",
-    options=list(common_airports.keys()),
-    format_func=lambda x: common_airports.get(x, x),
-    index=0
-)
-custom_icao = st.text_input(
-    "Or enter any ICAO code (4 letters)",
-    value="",
-    max_chars=4,
-    help="For any airport worldwide (e.g. KLAX for Los Angeles, KMIA for Miami)"
-).strip().upper()
-icao_upper = custom_icao if custom_icao and len(custom_icao) == 4 and custom_icao.isalnum() else selected_icao
-metar_text = None
-metar_timestamp = None
-taf_text = None
-taf_issued = None
-if icao_upper and icao_upper != "None":
-    try:
-        url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{icao_upper}.TXT"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            lines = response.text.strip().splitlines()
-            if len(lines) >= 2:
-                metar_timestamp = lines[0].strip()
-                metar_text = lines[1].strip()
-            elif lines:
-                metar_text = lines[0].strip()
-    except Exception as e:
-        st.warning(f"METAR fetch error for {icao_upper}: {e}")
-    try:
-        url = f"https://aviationweather.gov/api/data/taf?ids={icao_upper}&format=raw"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200 and response.text.strip():
-            taf_text = response.text.strip()
-            lines = taf_text.splitlines()
-            if lines and "Z" in lines[0]:
-                taf_issued = lines[0].split()[1] if len(lines[0].split()) > 1 else None
-    except Exception as e:
-        st.warning(f"TAF fetch error for {icao_upper}: {e}")
-if icao_upper and icao_upper != "None":
-    st.markdown(f"**Latest Weather for {icao_upper}**")
-    st.markdown("**METAR (Current)**")
-    if metar_text:
-        st.markdown(f"({metar_timestamp or 'fetched ' + datetime.now().strftime('%Y-%m-%d %H:%M UTC')})")
-        st.code(metar_text, language="text")
-        parts = metar_text.split()
-        wind_part = next((p for p in parts if "KT" in p and len(p) >= 6), "—")
-        temp_dew_part = next((p for p in parts if "/" in p and len(p.split("/")) == 2), "—")
-        altimeter_part = next((p for p in parts if (p.startswith("A") and len(p) == 5) or p.startswith("Q")), "—")
-        cols = st.columns(3)
-        cols[0].metric("Wind", wind_part)
-        cols[1].metric("Temp / Dew", temp_dew_part)
-        cols[2].metric("Altimeter", altimeter_part)
-    else:
-        st.info("No METAR available – check ICAO code or try later.")
-    st.markdown("**TAF (Forecast)**")
-    if taf_text:
-        issued_str = f"Issued ~ {taf_issued}" if taf_issued else f"Fetched {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}"
-        st.markdown(f"({issued_str})")
-        st.code(taf_text, language="text")
-    else:
-        st.info("No TAF available (common for small fields).")
-    st.markdown("**NOTAMs (Notices to Airmen)**")
-    st.caption("**Always check current NOTAMs via official FAA sources before flight.**")
