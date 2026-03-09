@@ -34,11 +34,12 @@ except Exception:
 # ────────────────────────────────────────────────
 # Legal Button (under logo)
 # ────────────────────────────────────────────────
-if st.button("Legal", type="secondary"):
+if st.button("Legal+Abbreviations    ", type="secondary"):
     with st.expander("Legal and Terms", expanded=True):
         st.markdown("""
         ### Legal and Terms of Use
-       
+       By downloading, installing, or otherwise
+       accessing or using
         List of Abbreviations
         Abbreviation | Definition
         ABS | Absolute
