@@ -1000,17 +1000,7 @@ if st.button("Calculate Performance", type="primary"):
             st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
-    st.subheader("Rate of Climb vs Pressure Altitude")
-    altitudes = np.linspace(0, 12000, 60)
-    climb_rates = [compute_climb_rate(alt, oat_c, weight_lbs, selected_aircraft) for alt in altitudes]
-    fig, ax = plt.subplots(figsize=(10, 5.5))
-    ax.plot(altitudes, climb_rates, color='darkgreen', linewidth=2.2)
-    ax.set_xlabel("Pressure Altitude (ft)")
-    ax.set_ylabel("Rate of Climb (fpm)")
-    ax.set_title(f"Climb Performance – {aircraft_data['name']} – OAT {oat_c}°C, Weight {weight_lbs} lbs")
-    ax.grid(True, linestyle='--', alpha=0.7)
-    st.pyplot(fig)
-
+  
 # Feedback
 st.subheader("Your Feedback – Help Improve AgPilot")
 rating = st.feedback("stars")
