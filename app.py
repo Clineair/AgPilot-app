@@ -39,7 +39,7 @@ if st.button("Legal+Abbreviations    ", type="secondary"):
         st.markdown("""
         ### Legal and Terms of Use
        By downloading, installing, or otherwise
-       accessing or using
+       accessing or using etc:
         List of Abbreviations
         Abbreviation | Definition
         ABS | Absolute
