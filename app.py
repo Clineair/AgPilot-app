@@ -19,15 +19,15 @@ st.markdown("""
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
 # ────────────────────────────────────────────────
-# Custom Logo (your provided logo – using raw GitHub URL)
+# Custom Logo (smaller size)
 # ────────────────────────────────────────────────
 LOGO_URL = "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png"
 try:
-    st.image(LOGO_URL, use_column_width=True) # Displays as full-width header logo
-    st.logo(LOGO_URL, size="medium") # Sidebar logo
+    st.image(LOGO_URL, width=300)  # Smaller logo (width=300 pixels)
+    st.logo(LOGO_URL, size="medium")
 except Exception:
     try:
-        st.image("AgPilotApp.png", use_column_width=True) # Fallback to local file if URL fails
+        st.image("AgPilotApp.png", width=300)
         st.logo("AgPilotApp.png", size="medium")
     except Exception:
         st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
