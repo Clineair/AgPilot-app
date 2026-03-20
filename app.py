@@ -591,7 +591,7 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
 # ────────────────────────────────────────────────
 # Risk Assessment – FRAT button + expanders stay open
 # ────────────────────────────────────────────────
-def show_FRAT_Tool():
+def show_risk_assessment():
     st.subheader("Flight Risk Assessment Tool (FRAT)")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
