@@ -592,7 +592,7 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
 # Risk Assessment – FRAT button + expanders stay open
 # ────────────────────────────────────────────────
 def show_risk_assessment():
-    st.subheader("Flight Risk Assessment Tool (FRAT)")
+    st.subheader("FRAT")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
     st.markdown("**Daily Pilot Factors**")
@@ -764,7 +764,7 @@ effective_empty = custom_empty if custom_empty != aircraft_data["base_empty_weig
 st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if custom_empty != aircraft_data['base_empty_weight_lbs'] else '(base)'}")
 
 # Risk Assessment button
-if st.button("Risk Assessment", type="secondary"):
+if st.button("Flight Risk Assessement Tool (FRAT)", type="secondary"):
     st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
