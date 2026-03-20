@@ -554,13 +554,14 @@ def show_risk_assessment():
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
-                st.markdown("**Answer these every month and log your responses:**")
-                q1 = st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True)
-                q2 = st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True)
-                q3 = st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True)
-                q4 = st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True)
+                st.markdown("""
+                **Answer these every month and log your responses:**
+                - Is your total ag time sufficient for workload and supervision?
+                - Is your total time in type sufficient for workload and supervision?
+                - Are you familiar with and used to flying with all your medications?
+                - Are you familiar with your aircraft and aircraft systems?
+                """)
                 st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
-
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             with st.expander("Annual Safety & Maintenance Questions", expanded=True):
@@ -596,8 +597,83 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
-# Fleet Management, Aircraft selection, Custom Empty Weight, Risk Assessment button,
-# Airport Weather & Notices, Inputs, Calculate Performance, Feedback, Emergency Response at bottom
+# Fleet Management
+st.subheader("My Fleet")
+if st.session_state.fleet:
+    fleet_nicknames = ["— Select a saved aircraft —"] + [entry["nickname"] for entry in st.session_state.fleet]
+    selected_nickname = st.selectbox("Load from Fleet", fleet_nicknames)
+    if selected_nickname != "— Select a saved aircraft —":
+        entry = next(e for e in st.session_state.fleet if e["nickname"] == selected_nickname)
+        st.session_state.selected_aircraft = entry["aircraft"]
+        custom = entry.get("custom_empty")
+        st.session_state.custom_empty_weight = int(custom) if custom is not None else None
+        st.success(f"Loaded **{selected_nickname}** ({entry['aircraft']}) – Empty: {custom or 'base'} lb")
+else:
+    st.info("No aircraft saved to fleet yet.")
+
+# Aircraft selection
+selected_aircraft = st.selectbox(
+    "Select Aircraft",
+    options=list(AIRCRAFT_DATA.keys()),
+    index=0 if 'selected_aircraft' not in st.session_state else list(AIRCRAFT_DATA.keys()).index(st.session_state.get("selected_aircraft", list(AIRCRAFT_DATA.keys())[0])),
+    format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+)
+aircraft_data = AIRCRAFT_DATA[selected_aircraft]
+
+# Helicopter detection
+is_helicopter = any(heli in selected_aircraft for heli in [
+    "R44", "Bell 206", "Enstrom 480", "Enstrom 480B", "Robinson R66",
+    "Airbus AS350", "Enstrom F28F", "Bell 47"
+])
+
+# Custom Empty Weight Input
+st.subheader("Custom Empty Weight (optional)")
+col_empty1, col_empty2 = st.columns([3, 1])
+with col_empty1:
+    current_empty = st.session_state.get('custom_empty_weight')
+    if current_empty is None:
+        current_empty = aircraft_data["base_empty_weight_lbs"]
+    else:
+        current_empty = int(current_empty)
+    custom_empty = st.number_input(
+        f"Custom Empty Weight for {aircraft_data['name']} (lb)",
+        min_value=500,
+        max_value=int(aircraft_data["max_takeoff_weight_lbs"] * 0.9),
+        value=current_empty,
+        step=10,
+        help="Override base empty weight if your aircraft has modifications, avionics, etc."
+    )
+with col_empty2:
+    st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("Save to Fleet"):
+        nickname = st.text_input("Give this configuration a nickname (e.g. 'N123AB R66')", key="fleet_nickname")
+        if nickname.strip():
+            st.session_state.fleet = [e for e in st.session_state.fleet if e["nickname"] != nickname.strip()]
+            st.session_state.fleet.append({
+                "nickname": nickname.strip(),
+                "aircraft": selected_aircraft,
+                "custom_empty": custom_empty
+            })
+            st.success(f"Saved **{nickname}** to fleet!")
+        else:
+            st.warning("Please enter a nickname to save.")
+
+effective_empty = custom_empty if custom_empty != aircraft_data["base_empty_weight_lbs"] else aircraft_data["base_empty_weight_lbs"]
+st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if custom_empty != aircraft_data['base_empty_weight_lbs'] else '(base)'}")
+
+# Risk Assessment button
+if st.button("Risk Assessment", type="secondary"):
+    st.session_state.show_risk = not st.session_state.get("show_risk", False)
+
+st.info(f"Performance data loaded for **{aircraft_data['name']}**")
+if st.session_state.get("show_risk", False):
+    show_risk_assessment()
+
+# Airport Weather & Notices (unchanged)
+st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
+# ... (your full weather section unchanged)
+
+# Inputs, Density Altitude, Calculate Performance, Feedback, Emergency Response at bottom
 # (all exactly as you provided)
 
 st.caption("**Safe flying & have a Blessed day** ⌯✈︎")
