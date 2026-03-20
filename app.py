@@ -464,6 +464,7 @@ AIRCRAFT_DATA = {
         "hover_ceiling_ige_max_gw": 10000,
         "hover_ceiling_oge_max_gw": 8000
     },
+    {
 # ────────────────────────────────────────────────
 # Density Altitude Calculation
 # ────────────────────────────────────────────────
