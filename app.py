@@ -589,10 +589,10 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     return ige_ceiling, oge_ceiling
 
 # ────────────────────────────────────────────────
-# Risk Assessment – Monthly + Annual (expanders stay open, all boxes unchecked)
+# Risk Assessment – FRAT button + expanders stay open
 # ────────────────────────────────────────────────
 def show_risk_assessment():
-    st.subheader("Pre-Flight Risk Assessment")
+    st.subheader("Flight Risk Assessment Tool (FRAT)")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
     st.markdown("**Pilot Factors**")
