@@ -655,21 +655,22 @@ def show_risk_assessment():
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
 
-    # MONTHLY & ANNUAL – FIXED TO STAY OPEN
+  # Monthly & Annual Questions
     col_m, col_a = st.columns(2)
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
+        with st.expander("Monthly Safety & Maintenance Questions", expanded=st.session_state.get("monthly_open", False)):
             st.markdown("**Answer these every month and log your responses:**")
             st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True, index=None)
             st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
-
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
+        with st.expander("Annual Safety & Maintenance Questions", expanded=st.session_state.get("annual_open", False)):
             st.markdown("**Answer these once per year:**")
             st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
