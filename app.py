@@ -707,7 +707,7 @@ def show_risk_assessment():
                 - Have you attended PAASS in the last year?
                 - Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?
                 """)
-      if total_risk > 30:
+     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure or mitigate")
         st.markdown("- Increase fuel or choose closer field")
