@@ -561,9 +561,7 @@ def show_risk_assessment():
                 - Are you familiar with and used to flying with all your medications?
                 - Are you familiar with your aircraft and aircraft systems?
                 """)
-                st.caption("If you answered No to an of the questions, STOP.
-                Reconsider making the flight or consider mitigation options")
-
+                st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             with st.expander("Annual Safety & Maintenance Questions", expanded=True):
@@ -582,8 +580,7 @@ def show_risk_assessment():
                 - Have you attended PAASS in the last year?
                 - Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?
                 """)
-                st.caption("If you answered No to an of the questions, STOP.
-                Reconsider making the flight or consider mitigation options")
+                st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
 
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
