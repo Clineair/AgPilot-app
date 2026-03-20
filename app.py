@@ -561,7 +561,7 @@ def show_risk_assessment():
                 - Are you familiar with and used to flying with all your medications?
                 - Are you familiar with your aircraft and aircraft systems?
                 """)
-                st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
+                st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             with st.expander("Annual Safety & Maintenance Questions", expanded=True):
