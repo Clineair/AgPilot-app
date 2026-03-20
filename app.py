@@ -660,7 +660,6 @@ def show_risk_assessment():
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
-        with st.expander("Monthly Safety & Maintenance Questions", expanded=st.session_state.get("monthly_open", False)):
             st.markdown("**Answer these every month and log your responses:**")
             st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
