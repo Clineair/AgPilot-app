@@ -680,13 +680,11 @@ def show_risk_assessment():
         with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
             st.markdown("""
             **Answer these every month and log your responses:**
-            - Did you complete the monthly aircraft inspection checklist?
-            - Are all emergency equipment items (fire extinguisher, first aid kit, ELT) current?
-            - Have you reviewed the latest FAA NOTAMs and TFRs for your operating area?
-            - Is your personal flight currency (night, IFR, spray runs) up to date?
-            - Any new maintenance squawks or upcoming ADs to address?
-            - Have you updated your personal minimums and risk assessment habits?
-            """)
+            - Is your total ag time sufficient for workload and supervision?
+            - Is your total time in type sufficient for workload and supervision?
+            - Are you familiar with and used to flying with all your medications?
+            - Are you familiar with your aircraft and aircraft systems?
+         """)
             st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
 
     if total_risk > 30:
