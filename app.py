@@ -675,19 +675,39 @@ def show_risk_assessment():
     </div>
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
-   # NEW BUTTON – placed exactly where you asked (right above Mitigation Recommendations)
-    if st.button("Monthly Questions", type="secondary"):
-        with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
-            st.markdown("""
-            **Answer these every month and log your responses:**
-            - Is your total ag time sufficient for workload and supervision?
-            - Is your total time in type sufficient for workload and supervision?
-            - Are you familiar with and used to flying with all your medications?
-            - Are you familiar with your aircraft and aircraft systems?
-         """)
-            st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
+  # Monthly and Annual Questions buttons side-by-side
+    col_m, col_a = st.columns(2)
+    with col_m:
+        if st.button("Monthly Questions", type="secondary", use_container_width=True):
+            with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
+                st.markdown("""
+                **Answer these every month and log your responses:**
+                - Is your total ag time sufficient for workload and supervision?
+                - Is your total time in type sufficient for workload and supervision?
+                - Are you familiar with and used to flying with all your medications?
+                - Are you familiar with your aircraft and aircraft systems?
+                """)
+                st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
 
-    if total_risk > 30:
+    with col_a:
+        if st.button("Annual Questions", type="secondary", use_container_width=True):
+            with st.expander("Annual Safety & Maintenance Questions", expanded=True):
+                st.markdown("""
+                **Answer these once per year:**
+                - Do you have a current Biennial Flight Review?
+                - Is your medical certificate current and valid?
+                - Do you have current State and Federal licenses/certificate?
+                - Do you wear Personal Protective Equipment (PPE)?
+                - Do you wear a helmet
+                - Do you wear a fire-resistant flight suit?
+                - Are you free of chronic illness?
+                - Do you have a clear driving record with no DUI?
+                - Do you wear a lap belt?
+                - Do you wear a shoulder harness?
+                - Have you attended PAASS in the last year?
+                - Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?
+                """)
+      if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure or mitigate")
         st.markdown("- Increase fuel or choose closer field")
