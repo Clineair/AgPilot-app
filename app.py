@@ -1,4 +1,3 @@
-
 from PIL import Image
 import streamlit as st
 import numpy as np
@@ -101,7 +100,7 @@ if st.button("Legal+Abbreviations ", type="secondary"):
         """)
 
 # ────────────────────────────────────────────────
-# Session State Initialization
+# Session State (keeps expanders open after Yes/No selection)
 # ────────────────────────────────────────────────
 if 'fleet' not in st.session_state:
     st.session_state.fleet = []
@@ -109,6 +108,10 @@ if 'custom_empty_weight' not in st.session_state:
     st.session_state.custom_empty_weight = None
 if 'show_risk' not in st.session_state:
     st.session_state.show_risk = False
+if 'monthly_open' not in st.session_state:
+    st.session_state.monthly_open = False
+if 'annual_open' not in st.session_state:
+    st.session_state.annual_open = False
 if 'selected_role' not in st.session_state:
     st.session_state.selected_role = None
 if 'selected_option' not in st.session_state:
@@ -123,7 +126,7 @@ ige_ceiling = oge_ceiling = 0
 cg_status = "Not calculated yet"
 
 # ────────────────────────────────────────────────
-# Aircraft Database (fixed – stray { removed)
+# Aircraft Database
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
@@ -586,13 +589,13 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     return ige_ceiling, oge_ceiling
 
 # ────────────────────────────────────────────────
-# Risk Assessment – Monthly + Annual buttons side-by-side + Yes/No radios (all unchecked by default)
+# Risk Assessment – FRAT button + expanders stay open
 # ────────────────────────────────────────────────
 def show_risk_assessment():
-    st.subheader("Pre-Flight Risk Assessment")
+    st.subheader("FRAT")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
-    st.markdown("**Pilot Factors**")
+    st.markdown("**Daily Pilot Factors**")
     pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", min_value=0, max_value=10, value=5, step=1)
     total_risk += pilot_exp
     pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", min_value=0, max_value=10, value=5, step=1)
@@ -656,30 +659,30 @@ def show_risk_assessment():
     col_m, col_a = st.columns(2)
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
-            with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
-                st.markdown("**Answer these every month and log your responses:**")
-                q1 = st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
-                q2 = st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
-                q3 = st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True, index=None)
-                q4 = st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True, index=None)
-                st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
+            st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
+            st.markdown("**Answer these every month and log your responses:**")
+            q1 = st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
+            q2 = st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
+            q3 = st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True, index=None)
+            q4 = st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True, index=None)
+            st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
-            with st.expander("Annual Safety & Maintenance Questions", expanded=True):
-                st.markdown("**Answer these once per year:**")
-                q5 = st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
-                q6 = st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
-                q7 = st.radio("Do you have current State and Federal licenses/certificate?", ["Yes", "No"], horizontal=True, index=None)
-                q8 = st.radio("Do you wear Personal Protective Equipment (PPE)?", ["Yes", "No"], horizontal=True, index=None)
-                q9 = st.radio("Do you wear a helmet?", ["Yes", "No"], horizontal=True, index=None)
-                q10 = st.radio("Do you wear a fire-resistant flight suit?", ["Yes", "No"], horizontal=True, index=None)
-                q11 = st.radio("Are you free of chronic illness?", ["Yes", "No"], horizontal=True, index=None)
-                q12 = st.radio("Do you have a clear driving record with no DUI?", ["Yes", "No"], horizontal=True, index=None)
-                q13 = st.radio("Do you wear a lap belt?", ["Yes", "No"], horizontal=True, index=None)
-                q14 = st.radio("Do you wear a shoulder harness?", ["Yes", "No"], horizontal=True, index=None)
-                q15 = st.radio("Have you attended PAASS in the last year?", ["Yes", "No"], horizontal=True, index=None)
-                q16 = st.radio("Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?", ["Yes", "No"], horizontal=True, index=None)
-                st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
+            st.session_state.annual_open = not st.session_state.get("annual_open", False)
+            st.markdown("**Answer these once per year:**")
+            q5 = st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
+            q6 = st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
+            q7 = st.radio("Do you have current State and Federal licenses/certificate?", ["Yes", "No"], horizontal=True, index=None)
+            q8 = st.radio("Do you wear Personal Protective Equipment (PPE)?", ["Yes", "No"], horizontal=True, index=None)
+            q9 = st.radio("Do you wear a helmet?", ["Yes", "No"], horizontal=True, index=None)
+            q10 = st.radio("Do you wear a fire-resistant flight suit?", ["Yes", "No"], horizontal=True, index=None)
+            q11 = st.radio("Are you free of chronic illness?", ["Yes", "No"], horizontal=True, index=None)
+            q12 = st.radio("Do you have a clear driving record with no DUI?", ["Yes", "No"], horizontal=True, index=None)
+            q13 = st.radio("Do you wear a lap belt?", ["Yes", "No"], horizontal=True, index=None)
+            q14 = st.radio("Do you wear a shoulder harness?", ["Yes", "No"], horizontal=True, index=None)
+            q15 = st.radio("Have you attended PAASS in the last year?", ["Yes", "No"], horizontal=True, index=None)
+            q16 = st.radio("Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?", ["Yes", "No"], horizontal=True, index=None)
+            st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
 
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
@@ -761,7 +764,7 @@ effective_empty = custom_empty if custom_empty != aircraft_data["base_empty_weig
 st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if custom_empty != aircraft_data['base_empty_weight_lbs'] else '(base)'}")
 
 # Risk Assessment button
-if st.button("Risk Assessment", type="secondary"):
+if st.button("Flight Risk Assessement Tool (FRAT)", type="secondary"):
     st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
