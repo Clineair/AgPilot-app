@@ -660,7 +660,7 @@ def show_risk_assessment():
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
-        with st.expander("Monthly Safety & Maintenance Questions", expanded=st.session_state.get("monthly_open", False)):
+        with st.expander("Q", expanded=st.session_state.get("monthly_open", False)):
             st.markdown("**Answer these every month and log your responses:**")
             st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
@@ -671,7 +671,7 @@ def show_risk_assessment():
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
-        with st.expander("Annual Safety & Maintenance Questions", expanded=st.session_state.get("annual_open", False)):
+        with st.expander("A", expanded=st.session_state.get("annual_open", False)):
             st.markdown("**Answer these once per year:**")
             st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
