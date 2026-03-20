@@ -587,7 +587,7 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
 # Risk Assessment
 # ────────────────────────────────────────────────
 def show_risk_assessment():
-    st.subheader("Risk Assessment")
+    st.subheader("Pre-Flight Risk Assessment")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
     st.markdown("**Pilot Factors**")
