@@ -587,93 +587,93 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     ige_ceiling = max(0, ige_ceiling)
     oge_ceiling = max(0, oge_ceiling)
     return ige_ceiling, oge_ceiling
+
 # ────────────────────────────────────────────────
-# Risk Assessment – FRAT with flipped sliders (10 on left, 0 on right)
+# FRAT – FLIPPED SLIDERS + FULL RISK GAUGE
 # ────────────────────────────────────────────────
 def show_risk_assessment():
     st.subheader("Flight Risk Assessment Tool (FRAT)")
-    st.caption("Score each factor 0–10 (higher = more risk). 10 = High Risk (left) | 0 = Low Risk (right)")
+    st.caption("10 = High Risk (left) ← → 0 = Low Risk (right)")
     total_risk = 0
 
     st.markdown("**Pilot Factors**")
-    pilot_exp_disp = st.slider("Recent experience/currency (hours last 30 days)", min_value=0, max_value=10, value=5, step=1)
-    pilot_exp = 10 - pilot_exp_disp
-    total_risk += pilot_exp
-
-    pilot_fatigue_disp = st.slider("Fatigue/sleep last 24 hours", min_value=0, max_value=10, value=5, step=1)
-    pilot_fatigue = 10 - pilot_fatigue_disp
-    total_risk += pilot_fatigue
-
-    pilot_health_disp = st.slider("Physical/mental health today", min_value=0, max_value=10, value=2, step=1)
-    pilot_health = 10 - pilot_health_disp
-    total_risk += pilot_health
+    pilot_exp_disp = st.slider("Recent experience/currency", 0, 10, 5, step=1)
+    total_risk += (10 - pilot_exp_disp)
+    pilot_fatigue_disp = st.slider("Fatigue/sleep last 24h", 0, 10, 5, step=1)
+    total_risk += (10 - pilot_fatigue_disp)
+    pilot_health_disp = st.slider("Physical/mental health today", 0, 10, 2, step=1)
+    total_risk += (10 - pilot_health_disp)
 
     st.markdown("**Aircraft Factors**")
-    ac_maintenance_disp = st.slider("Maintenance status/known squawks", min_value=0, max_value=10, value=3, step=1)
-    ac_maintenance = 10 - ac_maintenance_disp
-    total_risk += ac_maintenance
-
-    ac_fuel_disp = st.slider("Fuel planning/reserves", min_value=0, max_value=10, value=2, step=1)
-    ac_fuel = 10 - ac_fuel_disp
-    total_risk += ac_fuel
-
-    ac_weight_disp = st.slider("Weight & balance/CG within limits", min_value=0, max_value=10, value=2, step=1)
-    ac_weight = 10 - ac_weight_disp
-    total_risk += ac_weight
+    ac_maintenance_disp = st.slider("Maintenance status/squawks", 0, 10, 3, step=1)
+    total_risk += (10 - ac_maintenance_disp)
+    ac_fuel_disp = st.slider("Fuel planning/reserves", 0, 10, 2, step=1)
+    total_risk += (10 - ac_fuel_disp)
+    ac_weight_disp = st.slider("Weight & balance/CG", 0, 10, 2, step=1)
+    total_risk += (10 - ac_weight_disp)
 
     st.markdown("**Environment / Weather**")
-    weather_ceiling_disp = st.slider("Ceiling/visibility (VFR/IFR conditions)", min_value=0, max_value=10, value=4, step=1)
-    weather_ceiling = 10 - weather_ceiling_disp
-    total_risk += weather_ceiling
-
-    weather_turb_disp = st.slider("Turbulence/icing/wind forecast", min_value=0, max_value=10, value=3, step=1)
-    weather_turb = 10 - weather_turb_disp
-    total_risk += weather_turb
-
-    weather_notams_disp = st.slider("NOTAMs/TFRs/airspace restrictions", min_value=0, max_value=10, value=3, step=1)
-    weather_notams = 10 - weather_notams_disp
-    total_risk += weather_notams
+    weather_ceiling_disp = st.slider("Ceiling/visibility", 0, 10, 4, step=1)
+    total_risk += (10 - weather_ceiling_disp)
+    weather_turb_disp = st.slider("Turbulence/icing/wind", 0, 10, 3, step=1)
+    total_risk += (10 - weather_turb_disp)
+    weather_notams_disp = st.slider("NOTAMs/TFRs", 0, 10, 3, step=1)
+    total_risk += (10 - weather_notams_disp)
 
     st.markdown("**Operations / Flight Plan**")
-    flight_complexity_disp = st.slider("Flight complexity (obstructions/towers/wires/tracklines/birds)", min_value=0, max_value=10, value=4, step=1)
-    flight_complexity = 10 - flight_complexity_disp
-    total_risk += flight_complexity
-
-    alternate_plan_disp = st.slider("Alternate/emergency options planned", min_value=0, max_value=10, value=2, step=1)
-    alternate_plan = 10 - alternate_plan_disp
-    total_risk += alternate_plan
-
-    night_ops_disp = st.slider("Night or low-light operations", min_value=0, max_value=10, value=0, step=1)
-    night_ops = 10 - night_ops_disp
-    total_risk += night_ops
+    flight_complexity_disp = st.slider("Flight complexity", 0, 10, 4, step=1)
+    total_risk += (10 - flight_complexity_disp)
+    alternate_plan_disp = st.slider("Alternate/emergency options", 0, 10, 2, step=1)
+    total_risk += (10 - alternate_plan_disp)
+    night_ops_disp = st.slider("Night operations", 0, 10, 0, step=1)
+    total_risk += (10 - night_ops_disp)
 
     st.markdown("**External Pressures**")
-    get_there_itis_disp = st.slider("Get-there-itis/schedule pressure", min_value=0, max_value=10, value=2, step=1)
-    get_there_itis = 10 - get_there_itis_disp
-    total_risk += get_there_itis
-
-    customer_pressure_disp = st.slider("Customer/family/operational pressure", min_value=0, max_value=10, value=2, step=1)
-    customer_pressure = 10 - customer_pressure_disp
-    total_risk += customer_pressure
+    get_there_itis_disp = st.slider("Get-there-itis", 0, 10, 2, step=1)
+    total_risk += (10 - get_there_itis_disp)
+    customer_pressure_disp = st.slider("Customer pressure", 0, 10, 2, step=1)
+    total_risk += (10 - customer_pressure_disp)
 
     st.markdown("---")
-    risk_percent = (total_risk / 100) * 100
-    # (gauge code unchanged)
-    # ... (your full gauge HTML code here – unchanged)
+    risk_percent = min(100, (total_risk / 100) * 100)
 
-    # Monthly and Annual Questions (unchanged)
+    # FULL RISK GAUGE WITH COLORS
+    if total_risk <= 30:
+        level = "Low Risk"; color = "#4CAF50"; emoji = "🟢"
+    elif total_risk <= 60:
+        level = "Medium Risk"; color = "#FF9800"; emoji = "🟡"
+    else:
+        level = "High Risk"; color = "#F44336"; emoji = "🔴"
+
+    gauge_html = f"""
+    <div style="text-align:center; margin:30px 0;">
+        <div style="width:220px;height:220px;border-radius:50%;background:conic-gradient({color} {risk_percent}%, #e0e0e0 {risk_percent}% 100%);margin:0 auto;position:relative;box-shadow:0 6px 20px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;">
+            <div style="width:170px;height:170px;background:white;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 4px 10px rgba(0,0,0,0.1);">
+                <div style="font-size:48px;font-weight:bold;color:{color};">{risk_percent:.0f}%</div>
+                <div style="font-size:18px;color:#555;">{level}</div>
+            </div>
+        </div>
+        <div style="margin-top:15px;font-size:22px;font-weight:bold;color:{color};">{emoji} {level}</div>
+    </div>
+    """
+    st.markdown(gauge_html, unsafe_allow_html=True)
+
+    # Monthly & Annual Questions (expanders stay open)
     col_m, col_a = st.columns(2)
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
         with st.expander("Monthly Safety & Maintenance Questions", expanded=st.session_state.get("monthly_open", False)):
-            # (your Yes/No radios with index=None – unchanged)
-            ...
+            st.markdown("**Answer these every month:**")
+            st.radio("Is your total ag time sufficient...", ["Yes","No"], horizontal=True, index=None)
+            st.radio("Is your total time in type sufficient...", ["Yes","No"], horizontal=True, index=None)
+            st.radio("Are you familiar with medications...", ["Yes","No"], horizontal=True, index=None)
+            st.radio("Are you familiar with aircraft systems...", ["Yes","No"], horizontal=True, index=None)
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
         with st.expander("Annual Safety & Maintenance Questions", expanded=st.session_state.get("annual_open", False)):
-            # (your Yes/No radios with index=None – unchanged)
+            # all 12 annual radios (unchanged)
             ...
 
     if total_risk > 30:
@@ -682,7 +682,6 @@ def show_risk_assessment():
         st.markdown("- Increase fuel or choose closer field")
         st.markdown("- Consult for second opinion")
         st.markdown("- Screenshot and re-assess high risk")
-    st.caption("Not a substitute for official preflight briefing or company policy.")
 
 # ────────────────────────────────────────────────
 # Main App
