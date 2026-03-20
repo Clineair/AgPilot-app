@@ -585,7 +585,7 @@ def compute_hover_ceiling(da_ft, weight_lbs, aircraft):
     return ige_ceiling, oge_ceiling
 
 # ────────────────────────────────────────────────
-# Risk Assessment – Monthly + Annual buttons side-by-side + Yes/No radios
+# Risk Assessment – Monthly + Annual buttons side-by-side + Yes/No radios (all unchecked by default)
 # ────────────────────────────────────────────────
 def show_risk_assessment():
     st.subheader("Pre-Flight Risk Assessment")
@@ -657,29 +657,27 @@ def show_risk_assessment():
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
                 st.markdown("**Answer these every month and log your responses:**")
-                q1 = st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True)
-                q2 = st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True)
-                q3 = st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True)
-                q4 = st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True)
+                q1 = st.radio("Is your total ag time sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
+                q2 = st.radio("Is your total time in type sufficient for workload and supervision?", ["Yes", "No"], horizontal=True, index=None)
+                q3 = st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True, index=None)
+                q4 = st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True, index=None)
                 st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             with st.expander("Annual Safety & Maintenance Questions", expanded=True):
-                st.markdown("""
-                **Answer these once per year:**
-                - Do you have a current Biennial Flight Review?
-                - Is your medical certificate current and valid?
-                - Do you have current State and Federal licenses/certificate?
-                - Do you wear Personal Protective Equipment (PPE)?
-                - Do you wear a helmet
-                - Do you wear a fire-resistant flight suit?
-                - Are you free of chronic illness?
-                - Do you have a clear driving record with no DUI?
-                - Do you wear a lap belt?
-                - Do you wear a shoulder harness?
-                - Have you attended PAASS in the last year?
-                - Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?
-                """)
+                st.markdown("**Answer these once per year:**")
+                q5 = st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
+                q6 = st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
+                q7 = st.radio("Do you have current State and Federal licenses/certificate?", ["Yes", "No"], horizontal=True, index=None)
+                q8 = st.radio("Do you wear Personal Protective Equipment (PPE)?", ["Yes", "No"], horizontal=True, index=None)
+                q9 = st.radio("Do you wear a helmet?", ["Yes", "No"], horizontal=True, index=None)
+                q10 = st.radio("Do you wear a fire-resistant flight suit?", ["Yes", "No"], horizontal=True, index=None)
+                q11 = st.radio("Are you free of chronic illness?", ["Yes", "No"], horizontal=True, index=None)
+                q12 = st.radio("Do you have a clear driving record with no DUI?", ["Yes", "No"], horizontal=True, index=None)
+                q13 = st.radio("Do you wear a lap belt?", ["Yes", "No"], horizontal=True, index=None)
+                q14 = st.radio("Do you wear a shoulder harness?", ["Yes", "No"], horizontal=True, index=None)
+                q15 = st.radio("Have you attended PAASS in the last year?", ["Yes", "No"], horizontal=True, index=None)
+                q16 = st.radio("Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?", ["Yes", "No"], horizontal=True, index=None)
                 st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
 
     if total_risk > 30:
@@ -908,9 +906,7 @@ st.subheader("Density Altitude")
 st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
 
-# ────────────────────────────────────────────────
 # Calculate Performance
-# ────────────────────────────────────────────────
 if st.button("Calculate Performance", type="primary"):
     ground_roll_to, to_50ft = compute_takeoff(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
     ground_roll_land, from_50ft = compute_landing(pressure_alt_ft, oat_c, weight_lbs, wind_kts, runway_condition, selected_aircraft)
