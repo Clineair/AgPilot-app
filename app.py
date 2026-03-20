@@ -675,6 +675,20 @@ def show_risk_assessment():
     </div>
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
+   # NEW BUTTON – placed exactly where you asked (right above Mitigation Recommendations)
+    if st.button("Monthly Questions", type="secondary"):
+        with st.expander("Monthly Safety & Maintenance Questions", expanded=True):
+            st.markdown("""
+            **Answer these every month and log your responses:**
+            - Did you complete the monthly aircraft inspection checklist?
+            - Are all emergency equipment items (fire extinguisher, first aid kit, ELT) current?
+            - Have you reviewed the latest FAA NOTAMs and TFRs for your operating area?
+            - Is your personal flight currency (night, IFR, spray runs) up to date?
+            - Any new maintenance squawks or upcoming ADs to address?
+            - Have you updated your personal minimums and risk assessment habits?
+            """)
+            st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
+
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure or mitigate")
