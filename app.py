@@ -580,7 +580,7 @@ def show_risk_assessment():
                 - Have you attended PAASS in the last year?
                 - Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?
                 """)
-                st.caption("Log your answers in a notebook or send to cvh@centralvalleyheli.com for review.")
+                st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
 
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
