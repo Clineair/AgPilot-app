@@ -595,7 +595,7 @@ def show_risk_assessment():
     st.subheader("Flight Risk Assessment Tool (FRAT)")
     st.caption("Score each factor 0–10 (higher = more risk).")
     total_risk = 0
-    st.markdown("**Pilot Factors**")
+    st.markdown("**Daily Pilot Factors**")
     pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", min_value=0, max_value=10, value=5, step=1)
     total_risk += pilot_exp
     pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", min_value=0, max_value=10, value=5, step=1)
