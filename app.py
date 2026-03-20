@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 from datetime import datetime
+
 # ────────────────────────────────────────────────
 # Page Config & Safe Logo
 # ────────────────────────────────────────────────
@@ -13,17 +14,19 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="auto"
 )
+
 # Green preview theme
 st.markdown("""
     <meta name="theme-color" content="#4CAF50">
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
+
 # ────────────────────────────────────────────────
-# Custom Logo (smaller size)
+# Custom Logo (smaller size) – unchanged as requested
 # ────────────────────────────────────────────────
 LOGO_URL = "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png"
 try:
-    st.image(LOGO_URL, width=300)  # Smaller logo (width=300 pixels)
+    st.image(LOGO_URL, width=300) # Smaller logo (width=300 pixels)
     st.logo(LOGO_URL, size="medium")
 except Exception:
     try:
@@ -31,10 +34,11 @@ except Exception:
         st.logo("AgPilotApp.png", size="medium")
     except Exception:
         st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
+
 # ────────────────────────────────────────────────
 # Legal Button (under logo)
 # ────────────────────────────────────────────────
-if st.button("Legal+Abbreviations    ", type="secondary"):
+if st.button("Legal+Abbreviations ", type="secondary"):
     with st.expander("Legal and Terms", expanded=True):
         st.markdown("""
         ### Legal and Terms of Use
@@ -94,6 +98,7 @@ if st.button("Legal+Abbreviations    ", type="secondary"):
         XMSN | Transmission
             By using this app, you agree to these terms. This app is for educational purposes only and not a substitute for official POH or professional advice.
         """)
+
 # ────────────────────────────────────────────────
 # Session State Initialization
 # ────────────────────────────────────────────────
@@ -754,7 +759,6 @@ if st.button("Risk Assessment", type="secondary"):
     st.session_state.show_risk = not st.session_state.get("show_risk", False)
 
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
-
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
 
@@ -836,7 +840,6 @@ if icao_upper and icao_upper != "None":
     st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
     st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot.")
 st.markdown("---")
-
 # TFR Map
 st.subheader("Temporary Flight Restrictions (TFR) Map")
 st.caption("Live interactive FAA TFR map – shows current restrictions. Zoom to your area/state.")
@@ -896,67 +899,6 @@ st.metric("Density Altitude", f"{da_ft} ft")
 st.caption(f"ISA temp at {pressure_alt_ft} ft: **{isa_temp_c:.1f} °C** | Deviation: **{isa_deviation:.1f} °C**")
 
 # ────────────────────────────────────────────────
-# Emergency Response – Always visible
-# ────────────────────────────────────────────────
-st.markdown("---")
-st.markdown("### Emergency Response")
-st.caption("Quick access – use only in real emergencies")
-st.markdown(
-    """
-    <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
-        Priority (PILOT): Aviate → Navigate → Communicate
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
-             help="Tap only in real emergency – shows immediate action checklist"):
-    with st.expander("**Immediate Actions Checklist**", expanded=True):
-        st.markdown("""
-        1. **Declare emergency / Call 911 / First aid**
-           - Turn fuel shut-off off, battery switch off.
-           - Evacuate upwind if fire or chemical risk.
-           - Check for spray/fuel contamination; give 
-             SDS to responders.
-           - Follow Spill Response Procedure.
-           - Preserve wreckage and documents.
-
-        2. **Witnesses & Scene Control**
-           - Secure scene with spill response team.
-           - Do NOT speak to media or officials.
-           - Say only: "Company has contacted 
-             appropriate authorities for a full 
-             investigation to determine root 
-             cause and prevent recurrence."
-           - Do NOT speculate on cause.
-
-        3. **Media & Press Inquiries**
-           - Refer all calls to informed management.
-           - Management will notify FAA and NTSB.
-           - Direct inquiries to informed managers.
-           - Contact local law enforcement.
-           - Arrange wreckage preservation.
-
-        4. **Additional Immediate Steps**
-           - Is ELT activated?
-           - Treat injuries (first aid kit); assure 
-             area is protected.
-           - Call 911 or local:
-             County Sheriff: 509-962-1234
-        """.strip())
-
-    st.markdown("**Local Emergency Contacts**")
-    st.markdown("""
-    - **Emergency**: **911**
-    - **Poison Control** (chemical exposure): 
-      **1-800-222-1222**
-    """)
-    st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
-    st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
-st.markdown("---")
-
-# ────────────────────────────────────────────────
 # Calculate Performance
 # ────────────────────────────────────────────────
 if st.button("Calculate Performance", type="primary"):
@@ -966,7 +908,6 @@ if st.button("Calculate Performance", type="primary"):
     stall_speed = compute_stall_speed(weight_lbs, selected_aircraft)
     glide_dist = compute_glide_distance(glide_height_ft, wind_kts, selected_aircraft)
     total_weight, cg_status = compute_weight_balance(fuel_gal, hopper_gal, pilot_weight_lbs, selected_aircraft)
-
     st.subheader("Results")
     col_a, col_b = st.columns(2)
     with col_a:
@@ -1001,7 +942,7 @@ if st.button("Calculate Performance", type="primary"):
             st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
-  
+
 # Feedback
 st.subheader("Your Feedback – Help Improve AgPilot")
 rating = st.feedback("stars")
@@ -1018,3 +959,58 @@ if st.button("Safe flying & have a Blessed day ⌯✈︎"):
             st.caption(f"Comment: {comment}")
     else:
         st.warning("Please select a star rating.")
+
+# ────────────────────────────────────────────────
+# Emergency Response Checklist – MOVED TO THE VERY BOTTOM
+# ────────────────────────────────────────────────
+st.markdown("---")
+st.markdown("### Emergency Response")
+st.caption("Quick access – use only in real emergencies")
+st.markdown(
+    """
+    <div style="font-size: 12pt; font-weight: bold; color: #d32f2f; margin: 10px 0;">
+        Priority (PILOT): Aviate → Navigate → Communicate
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+if st.button("Emergency Response Checklist", type="primary", use_container_width=True,
+             help="Tap only in real emergency – shows immediate action checklist"):
+    with st.expander("**Immediate Actions Checklist**", expanded=True):
+        st.markdown("""
+        1. **Declare emergency / Call 911 / First aid**
+           - Turn fuel shut-off off, battery switch off.
+           - Evacuate upwind if fire or chemical risk.
+           - Check for spray/fuel contamination; give
+             SDS to responders.
+           - Follow Spill Response Procedure.
+           - Preserve wreckage and documents.
+        2. **Witnesses & Scene Control**
+           - Secure scene with spill response team.
+           - Do NOT speak to media or officials.
+           - Say only: "Company has contacted
+             appropriate authorities for a full
+             investigation to determine root
+             cause and prevent recurrence."
+           - Do NOT speculate on cause.
+        3. **Media & Press Inquiries**
+           - Refer all calls to informed management.
+           - Management will notify FAA and NTSB.
+           - Direct inquiries to informed managers.
+           - Contact local law enforcement.
+           - Arrange wreckage preservation.
+        4. **Additional Immediate Steps**
+           - Is ELT activated?
+           - Treat injuries (first aid kit); assure
+             area is protected.
+           - Call 911 or local:
+             County Sheriff: 509-962-1234
+        """.strip())
+    st.markdown("**Local Emergency Contacts**")
+    st.markdown("""
+    - **Emergency**: **911**
+    - **Poison Control** (chemical exposure):
+      **1-800-222-1222**
+    """)
+    st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
+    st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
