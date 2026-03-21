@@ -1003,7 +1003,8 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
              appropriate authorities for a full
              investigation to determine root
              cause and prevent recurrence."
-           - Do NOT speculate on cause.
+           - Do NOT speculate on cause.  
+           - Do NOT say NO COMMENT
         3. **Media & Press Inquiries**
            - Refer all calls to informed management.
            - Management will notify FAA and NTSB.
