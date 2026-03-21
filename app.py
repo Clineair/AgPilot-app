@@ -671,7 +671,7 @@ def show_risk_assessment():
     with col_a:
         if st.button("Annual Questions", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
-        with st.expander("Annual Questions", expanded=st.session_state.get("annual_open", False)):
+        
             st.markdown("**Answer these once per year:**")
             st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
