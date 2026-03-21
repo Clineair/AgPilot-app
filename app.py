@@ -684,7 +684,7 @@ def show_risk_assessment():
             st.radio("Do you wear a shoulder harness?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Have you attended PAASS in the last year?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?", ["Yes", "No"], horizontal=True, index=None)
-            st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
+            st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")  
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure or mitigate")
