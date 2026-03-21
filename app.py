@@ -970,7 +970,7 @@ comment = st.text_area(
             st.caption(f"Comment: {comment}")
     else:
         st.warning("Please select a star rating.")
-
+if st.button("Safe flying & have a Blessed day ⌯✈︎"):
 # ────────────────────────────────────────────────
 # Emergency Response Checklist – MOVED TO THE VERY BOTTOM
 # ────────────────────────────────────────────────
