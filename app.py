@@ -962,7 +962,7 @@ comment = st.text_area(
     height=120,
     placeholder="To keep AgPilot free send comments to email above"
 )
-if st.button("Safe flying & have a Blessed day ⌯✈︎"):
+
     if rating is not None:
         stars = rating + 1
         st.success(f"Thank you! You rated **{stars} stars**.")
