@@ -668,9 +668,9 @@ def show_risk_assessment():
             st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
 
     with col_a:
-        if st.button("", type="secondary", use_container_width=True):
+        if st.button("Annual Questions", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
-        with st.expander("Annual Questions", expanded=st.session_state.get("annual_open", False)):
+        with st.expander("", expanded=st.session_state.get("annual_open", False)):
             st.markdown("**Answer these once per year:**")
             st.radio("Do you have a current Biennial Flight Review?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Is your medical certificate current and valid?", ["Yes", "No"], horizontal=True, index=None)
