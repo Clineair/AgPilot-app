@@ -654,7 +654,7 @@ def show_risk_assessment():
     </div>
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
-  with col_m:
+   with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
         with st.expander("Monthly Questions", expanded=st.session_state.get("monthly_open", False)):
