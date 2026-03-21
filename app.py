@@ -9,6 +9,15 @@ from datetime import datetime
 # Page Config & Safe Logo
 # ────────────────────────────────────────────────
 st.set_page_config(
+# PWA Support
+st.markdown("""
+<link rel="manifest" href="/manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+""", unsafe_allow_html=True)
     page_title="AgPilotApp – Aerial Application Performance Tool",
     page_icon="⌯✈︎",
     layout="wide",
