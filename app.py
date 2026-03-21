@@ -657,7 +657,7 @@ def show_risk_assessment():
     col_m, col_a = st.columns(2)
 
     with col_m:
-        if st.button("Monthly Questions", type="secondary", use_container_width=True):
+        if st.button("", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
         with st.expander("Monthly Questions", expanded=st.session_state.get("monthly_open", False)):
             st.markdown("**Answer these every month and log your responses:**")
@@ -668,7 +668,7 @@ def show_risk_assessment():
             st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
 
     with col_a:
-        if st.button("Annual Questions", type="secondary", use_container_width=True):
+        if st.button("", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
         with st.expander("Annual Questions", expanded=st.session_state.get("annual_open", False)):
             st.markdown("**Answer these once per year:**")
