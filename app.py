@@ -668,7 +668,7 @@ def show_risk_assessment():
             st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
 
     with col_a:
-        if st.button("A", type="secondary", use_container_width=True):
+        if st.button("", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
         with st.expander("Annual Questions", expanded=st.session_state.get("annual_open", False)):
             st.markdown("**Answer these once per year:**")
