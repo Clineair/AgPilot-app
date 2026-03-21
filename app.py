@@ -962,7 +962,7 @@ comment = st.text_area(
     height=120,
     placeholder="To keep AgPilot free send comments to email above"
 )
-
+if st.button("Safe flying & have a Blessed day ⌯✈︎"):
     if rating is not None:
         stars = rating + 1
         st.success(f"Thank you! You rated **{stars} stars**.")
@@ -970,7 +970,7 @@ comment = st.text_area(
             st.caption(f"Comment: {comment}")
     else:
         st.warning("Please select a star rating.")
-if st.button("Safe flying & have a Blessed day ⌯✈︎"):
+
 # ────────────────────────────────────────────────
 # Emergency Response Checklist – MOVED TO THE VERY BOTTOM
 # ────────────────────────────────────────────────
@@ -1026,4 +1026,3 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
     st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
 
-st.caption("**Safe flying & have a Blessed day** ⌯✈︎")
