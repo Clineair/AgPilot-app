@@ -658,7 +658,7 @@ def show_risk_assessment():
  # MONTHLY & ANNUAL – FIXED TO STAY OPEN
     col_m, col_a = st.columns(2)
     with col_m:
-        if st.button("Monthly Questions", type="secondary", use_container_width=True):
+        if st.button("Monthly Questions", type="secondary", use_container_width=False):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
         with st.expander("", expanded=st.session_state.get("monthly_open", False)):
             st.markdown("**Answer these every month and log your responses:**")
