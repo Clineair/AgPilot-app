@@ -654,7 +654,7 @@ def show_risk_assessment():
     </div>
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
-  col_m, col_a = st.columns(2)
+    col_m, col_a = st.columns(2)
 
     with col_m:
         if st.button("Monthly Questions", type="secondary", use_container_width=True):
