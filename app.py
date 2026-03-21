@@ -6,10 +6,16 @@ import requests
 from datetime import datetime
 
 # ────────────────────────────────────────────────
-# Page Config & Safe Logo
+# Page Config + PWA Support (MUST BE FIRST)
 # ────────────────────────────────────────────────
 st.set_page_config(
-# PWA Support
+    page_title="AgPilotApp – Aerial Application Performance Tool",
+    page_icon="⌯✈︎",
+    layout="wide",
+    initial_sidebar_state="auto"
+)
+
+# PWA Support (manifest + service worker)
 st.markdown("""
 <link rel="manifest" href="/manifest.json">
 <script>
@@ -18,18 +24,12 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 """, unsafe_allow_html=True)
-    page_title="AgPilotApp – Aerial Application Performance Tool",
-    page_icon="⌯✈︎",
-    layout="wide",
-    initial_sidebar_state="auto"
-)
 
 # Green preview theme
 st.markdown("""
     <meta name="theme-color" content="#4CAF50">
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
-
 # ────────────────────────────────────────────────
 # Custom Logo (smaller size) – unchanged as requested
 # ────────────────────────────────────────────────
