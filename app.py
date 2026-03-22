@@ -15,9 +15,13 @@ st.set_page_config(
     initial_sidebar_state="auto"
 )
 
-# PWA Support (manifest + service worker)
+# PWA Support – new icon ONLY for phone home screen
 st.markdown("""
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/captn357417/agpilot-app/main/Appicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="AgPilotApp">
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
