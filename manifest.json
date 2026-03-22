@@ -1,5 +1,5 @@
 {
-  "name": "AgPilot",
+  "name": "AgPilotApp",
   "short_name": "AgPilot",
   "start_url": "/",
   "display": "standalone",
@@ -9,6 +9,11 @@
     {
       "src": "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
