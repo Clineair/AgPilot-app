@@ -1,15 +1,14 @@
-# AgPilotApp
+# AgPilotApp – Aerial Application Performance Tool
 
-**Install on your phone in 5 seconds** (works on iPhone and Android)
+**Install on your phone in seconds** (iPhone & Android)
 
-[➜ Open AgPilotApp]([https://agpilot-app-captn357417.streamlit.app])
+[➜ Open AgPilotApp](https://agpilot-app-hynpvpmpbbtzjyfxtf4vi8.streamlit.app/)
 
-**How to install:**
+**How to add to home screen:**
 1. Open the link above on your phone
-2. Tap the **share button** (or 3 dots)
-3. Choose **“Add to Home Screen”**
-4. Tap **Add**
+2. Tap **Share** / **3 dots** → **Add to Home Screen**
+3. Tap **Add** → icon appears on your home screen
 
-The app will now appear on your home screen like any other app and works offline!
+Works offline, looks like a real app, remembers your fleet & settings.
 
-(You can also share this GitHub page with anyone.)
+(Share this GitHub page with pilots!)
