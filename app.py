@@ -966,7 +966,7 @@ if st.button("Calculate Performance", type="primary"):
             st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
-)
+
 if st.button("Safe flying & have a Blessed day ⌯✈︎"):
   
 # ────────────────────────────────────────────────
