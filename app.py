@@ -967,8 +967,7 @@ if st.button("Calculate Performance", type="primary"):
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
 
-if st.button("Safe flying & have a Blessed day ⌯✈︎"):
-  
+ 
 # ────────────────────────────────────────────────
 # Emergency Response Checklist – MOVED TO THE VERY BOTTOM
 # ────────────────────────────────────────────────
