@@ -966,24 +966,9 @@ if st.button("Calculate Performance", type="primary"):
             st.warning("Note: OGE hover at high gross weight may be limited — check POH chart.")
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
-
-# Feedback
-st.subheader("Your Feedback – Help Improve AgPilot")
-rating = st.feedback("stars")
-comment = st.text_area(
-    "Any suggestions send screenshot to cvh@centralvalleyheli.com",
-    height=120,
-    placeholder="To keep AgPilot free send comments to email above"
 )
 if st.button("Safe flying & have a Blessed day ⌯✈︎"):
-    if rating is not None:
-        stars = rating + 1
-        st.success(f"Thank you! You rated **{stars} stars**.")
-        if comment.strip():
-            st.caption(f"Comment: {comment}")
-    else:
-        st.warning("Please select a star rating.")
-
+  
 # ────────────────────────────────────────────────
 # Emergency Response Checklist – MOVED TO THE VERY BOTTOM
 # ────────────────────────────────────────────────
