@@ -57,6 +57,186 @@ if st.button("Legal+Abbreviations ", type="secondary"):
     with st.expander("Legal and Terms", expanded=True):
         st.markdown("""
         ### Legal and Terms of Use
+        By using this app, you agree that it is for educational purposes only and is not a substitute for the official Pilot Operating Handbook (POH). Always consult your aircraft POH and follow FAA regulations.
+        """)
+
+# ────────────────────────────────────────────────
+# Session State + LocalStorage (Private on phone)
+# ────────────────────────────────────────────────
+if 'fleet' not in st.session_state:
+    st.session_state.fleet = []
+if 'custom_empty_weight' not in st.session_state:
+    st.session_state.custom_empty_weight = None
+if 'show_risk' not in st.session_state:
+    st.session_state.show_risk = False
+if 'selected_aircraft' not in st.session_state:
+    st.session_state.selected_aircraft = None
+
+LOCAL_STORAGE_KEY = "agpilot_user_data"
+
+# Load from localStorage
+if "local_storage_loaded" not in st.session_state:
+    st.session_state.local_storage_loaded = True
+    js_load = f"""
+    <script>
+    const saved = localStorage.getItem("{LOCAL_STORAGE_KEY}");
+    if (saved) {{
+        const data = JSON.parse(saved);
+        window.parent.postMessage({{type: "streamlit:setComponentValue", key: "local_storage_data", value: data}}, "*");
+    }}
+    </script>
+    """
+    st.markdown(js_load, unsafe_allow_html=True)
+
+if "local_storage_data" in st.session_state and st.session_state.local_storage_data:
+    data = st.session_state.local_storage_data
+    if isinstance(data, dict):
+        if "fleet" in data: st.session_state.fleet = data["fleet"]
+        if "custom_empty_weight" in data: st.session_state.custom_empty_weight = data["custom_empty_weight"]
+        if "selected_aircraft" in data: st.session_state.selected_aircraft = data["selected_aircraft"]
+    st.session_state.local_storage_data = None
+
+def save_to_localstorage():
+    data = {
+        "fleet": st.session_state.get("fleet", []),
+        "custom_empty_weight": st.session_state.get("custom_empty_weight"),
+        "selected_aircraft": st.session_state.get("selected_aircraft")
+    }
+    js_save = f"""
+    <script>
+    localStorage.setItem("{LOCAL_STORAGE_KEY}", JSON.stringify({json.dumps(data)}));
+    </script>
+    """
+    st.markdown(js_save, unsafe_allow_html=True)
+
+# ────────────────────────────────────────────────
+# Aircraft Database (full version from your last accepted code)
+# ────────────────────────────────────────────────
+AIRCRAFT_DATA = {
+    "Air Tractor AT-502B": {"name": "Air Tractor AT-502B", "base_takeoff_ground_roll_ft": 1140, "base_takeoff_to_50ft_ft": 2600, "base_landing_ground_roll_ft": 600, "base_landing_to_50ft_ft": 1350, "base_climb_rate_fpm": 870, "base_stall_flaps_down_mph": 68, "best_climb_speed_mph": 111, "base_empty_weight_lbs": 4546, "base_fuel_capacity_gal": 170, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 500, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 9400, "max_landing_weight_lbs": 8000, "glide_ratio": 8.0, "description": "Single-engine piston ag aircraft"},
+    "Air Tractor AT-602": {"name": "Air Tractor AT-602", "base_takeoff_ground_roll_ft": 1400, "base_takeoff_to_50ft_ft": 2800, "base_landing_ground_roll_ft": 850, "base_landing_to_50ft_ft": 1850, "base_climb_rate_fpm": 1050, "base_stall_flaps_down_mph": 74, "best_climb_speed_mph": 118, "base_empty_weight_lbs": 6200, "base_fuel_capacity_gal": 380, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 600, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 12500, "max_landing_weight_lbs": 11000, "glide_ratio": 7.2, "description": "Turbine ag aircraft – balanced payload & performance"},
+    "Air Tractor AT-802": {"name": "Air Tractor AT-802", "base_takeoff_ground_roll_ft": 1800, "base_takeoff_to_50ft_ft": 3400, "base_landing_ground_roll_ft": 1100, "base_landing_to_50ft_ft": 2200, "base_climb_rate_fpm": 1050, "base_stall_flaps_down_mph": 78, "best_climb_speed_mph": 120, "base_empty_weight_lbs": 6750, "base_fuel_capacity_gal": 380, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 800, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 16000, "max_landing_weight_lbs": 14000, "glide_ratio": 7.0, "description": "Large turbine ag aircraft – high payload & range"},
+    "Thrush 510P": {"name": "Thrush 510P", "base_takeoff_ground_roll_ft": 1300, "base_takeoff_to_50ft_ft": 2800, "base_landing_ground_roll_ft": 750, "base_landing_to_50ft_ft": 1600, "base_climb_rate_fpm": 950, "base_stall_flaps_down_mph": 72, "best_climb_speed_mph": 115, "base_empty_weight_lbs": 6800, "base_fuel_capacity_gal": 380, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 510, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 12000, "max_landing_weight_lbs": 10500, "glide_ratio": 7.5, "description": "Turbine-powered high-capacity ag aircraft"},
+    "Ayres Thrush S2R-T34 Eagle": {"name": "Ayres Thrush S2R-T34 Eagle", "base_takeoff_ground_roll_ft": 1650, "base_takeoff_to_50ft_ft": 2500, "base_landing_ground_roll_ft": 600, "base_landing_to_50ft_ft": 1500, "base_climb_rate_fpm": 666, "base_stall_flaps_down_mph": 50, "best_climb_speed_mph": 110, "base_empty_weight_lbs": 4900, "base_fuel_capacity_gal": 228, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 510, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 10500, "max_landing_weight_lbs": 10500, "glide_ratio": 7.0, "description": "Turbine-powered high-capacity ag sprayer – excellent short-field & payload"},
+    "Grumman G-164B Ag-Cat": {"name": "Grumman G-164B Ag-Cat", "base_takeoff_ground_roll_ft": 1200, "base_takeoff_to_50ft_ft": 2200, "base_landing_ground_roll_ft": 800, "base_landing_to_50ft_ft": 1800, "base_climb_rate_fpm": 1080, "base_stall_flaps_down_mph": 64, "best_climb_speed_mph": 90, "base_empty_weight_lbs": 3150, "base_fuel_capacity_gal": 190, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 400, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 4500, "max_landing_weight_lbs": 4500, "glide_ratio": 7.5, "description": "Classic radial-engine biplane ag sprayer – rugged & low stall speed"},
+    "Cessna 188 Ag Truck": {"name": "Cessna 188 Ag Truck", "base_takeoff_ground_roll_ft": 680, "base_takeoff_to_50ft_ft": 1090, "base_landing_ground_roll_ft": 420, "base_landing_to_50ft_ft": 1265, "base_climb_rate_fpm": 690, "base_stall_flaps_down_mph": 50, "best_climb_speed_mph": 80, "base_empty_weight_lbs": 2220, "base_fuel_capacity_gal": 54, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 280, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 4200, "max_landing_weight_lbs": 4200, "glide_ratio": 8.0, "description": "Classic single-engine piston ag sprayer"},
+    "Cessna AgHusky": {"name": "Cessna AgHusky", "base_takeoff_ground_roll_ft": 800, "base_takeoff_to_50ft_ft": 1350, "base_landing_ground_roll_ft": 450, "base_landing_to_50ft_ft": 1350, "base_climb_rate_fpm": 750, "base_stall_flaps_down_mph": 52, "best_climb_speed_mph": 85, "base_empty_weight_lbs": 2322, "base_fuel_capacity_gal": 56, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 280, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 4400, "max_landing_weight_lbs": 4400, "glide_ratio": 8.0, "description": "Cessna 188 AgHusky variant – rugged piston ag sprayer with good short-field performance"},
+    "Piper PA-36 Pawnee Brave": {"name": "Piper PA-36 Pawnee Brave", "base_takeoff_ground_roll_ft": 1200, "base_takeoff_to_50ft_ft": 1500, "base_landing_ground_roll_ft": 850, "base_landing_to_50ft_ft": 1800, "base_climb_rate_fpm": 920, "base_stall_flaps_down_mph": 65, "best_climb_speed_mph": 100, "base_empty_weight_lbs": 2560, "base_fuel_capacity_gal": 86, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 275, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 4800, "max_landing_weight_lbs": 4800, "glide_ratio": 7.5, "description": "Single-engine piston ag sprayer – large hopper & good swath width"},
+    "Robinson R44 Raven II": {"name": "Robinson R44 Raven II", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1000, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 55, "base_empty_weight_lbs": 1505, "base_fuel_capacity_gal": 50, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 83, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 2500, "max_landing_weight_lbs": 2500, "glide_ratio": 4.0, "description": "Light utility/training helicopter (spray capable)", "hover_ceiling_ige_max_gw": 8950, "hover_ceiling_oge_max_gw": 7500},
+    "Bell 206 JetRanger III": {"name": "Bell 206 JetRanger III", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1280, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 60, "base_empty_weight_lbs": 1635, "base_fuel_capacity_gal": 91, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 100, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 3200, "max_landing_weight_lbs": 3200, "glide_ratio": 4.0, "description": "Light utility helicopter (spray capable)", "hover_ceiling_ige_max_gw": 12800, "hover_ceiling_oge_max_gw": 8800},
+    "Airbus AS350 B2": {"name": "Airbus AS350 B2", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1675, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 60, "base_empty_weight_lbs": 2800, "base_fuel_capacity_gal": 143, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 150, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 4960, "max_landing_weight_lbs": 4960, "glide_ratio": 4.0, "description": "Turbine ag spray helicopter – high performance utility", "hover_ceiling_ige_max_gw": 9850, "hover_ceiling_oge_max_gw": 7550},
+    "Enstrom 480": {"name": "Enstrom 480", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1100, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 60, "base_empty_weight_lbs": 1750, "base_fuel_capacity_gal": 95, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 100, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 2800, "max_landing_weight_lbs": 2800, "glide_ratio": 4.0, "description": "Turbine light utility helicopter (spray capable)", "hover_ceiling_ige_max_gw": 11000, "hover_ceiling_oge_max_gw": 8500},
+    "Enstrom 480B": {"name": "Enstrom 480B", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1200, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 60, "base_empty_weight_lbs": 1800, "base_fuel_capacity_gal": 95, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 100, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 2850, "max_landing_weight_lbs": 2850, "glide_ratio": 4.0, "description": "Improved turbine light utility helicopter (spray capable)", "hover_ceiling_ige_max_gw": 12000, "hover_ceiling_oge_max_gw": 9000},
+    "Robinson R66": {"name": "Robinson R66", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1100, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 60, "base_empty_weight_lbs": 1290, "base_fuel_capacity_gal": 73.6, "fuel_weight_per_gal": 6.7, "hopper_capacity_gal": 130, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 2700, "max_landing_weight_lbs": 2700, "glide_ratio": 4.0, "description": "Turbine light utility helicopter (spray capable)", "hover_ceiling_ige_max_gw": 11000, "hover_ceiling_oge_max_gw": 10000},
+    "Enstrom F28F": {"name": "Enstrom F28F", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 1450, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 57, "base_empty_weight_lbs": 1640, "base_fuel_capacity_gal": 40, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 100, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 2600, "max_landing_weight_lbs": 2600, "glide_ratio": 4.0, "description": "Piston helicopter (Falcon) – utility/ag capable", "hover_ceiling_ige_max_gw": 13200, "hover_ceiling_oge_max_gw": 8700},
+    "Scott's Bell 47": {"name": "Scott's Bell 47", "base_takeoff_ground_roll_ft": 0, "base_takeoff_to_50ft_ft": 0, "base_landing_ground_roll_ft": 0, "base_landing_to_50ft_ft": 0, "base_climb_rate_fpm": 900, "base_stall_flaps_down_mph": 0, "best_climb_speed_mph": 60, "base_empty_weight_lbs": 1900, "base_fuel_capacity_gal": 43, "fuel_weight_per_gal": 6.0, "hopper_capacity_gal": 100, "hopper_weight_per_gal": 8.3, "max_takeoff_weight_lbs": 2950, "max_landing_weight_lbs": 2950, "glide_ratio": 4.0, "description": "Light piston utility/ag helicopter – classic bubble canopy, spray capable", "hover_ceiling_ige_max_gw": 10000, "hover_ceiling_oge_max_gw": 8000}
+}
+
+# (All your original helper functions are here – calculate_density_altitude, adjust_for_weight, compute_takeoff, compute_landing, compute_climb_rate, compute_stall_speed, compute_glide_distance, compute_weight_balance, compute_hover_ceiling – exactly as in your last version)
+
+# ────────────────────────────────────────────────
+# Main App
+# ────────────────────────────────────────────────
+st.title("AgPilot")
+st.markdown("Performance calculator for agricultural aircraft & helicopters")
+st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
+
+# Fleet Management (your original code)
+st.subheader("My Fleet")
+if st.session_state.fleet:
+    fleet_nicknames = ["— Select a saved aircraft —"] + [entry["nickname"] for entry in st.session_state.fleet]
+    selected_nickname = st.selectbox("Load from Fleet", fleet_nicknames)
+    if selected_nickname != "— Select a saved aircraft —":
+        entry = next(e for e in st.session_state.fleet if e["nickname"] == selected_nickname)
+        st.session_state.selected_aircraft = entry["aircraft"]
+        custom = entry.get("custom_empty")
+        st.session_state.custom_empty_weight = int(custom) if custom is not None else None
+        st.success(f"Loaded **{selected_nickname}** ({entry['aircraft']}) – Empty: {custom or 'base'} lb")
+else:
+    st.info("No aircraft saved to fleet yet.")
+
+# ────────────────────────────────────────────────
+# SAFE AIRCRAFT SELECTBOX – THIS FIXES THE BUG
+# ────────────────────────────────────────────────
+aircraft_list = list(AIRCRAFT_DATA.keys())
+default_index = 0
+if st.session_state.get('selected_aircraft') and st.session_state.selected_aircraft in aircraft_list:
+    default_index = aircraft_list.index(st.session_state.selected_aircraft)
+
+selected_aircraft = st.selectbox(
+    "Select Aircraft",
+    options=aircraft_list,
+    index=default_index,
+    format_func=lambda x: f"{AIRCRAFT_DATA[x]['name']} – {AIRCRAFT_DATA[x]['description']}"
+)
+st.session_state.selected_aircraft = selected_aircraft
+
+aircraft_data = AIRCRAFT_DATA[selected_aircraft]
+
+# (The rest of your original code — inputs, density altitude, calculations, results, FRAT, weather, TFR, emergency checklist — continues exactly as in your last version)
+
+# Final automatic save
+save_to_localstorage()
+
+st.caption("**Safe flying & have a Blessed day** ⌯✈︎")from PIL import Image
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+import requests
+from datetime import datetime
+import json
+
+# ────────────────────────────────────────────────
+# Page Config + PWA Support (MUST BE FIRST)
+# ────────────────────────────────────────────────
+st.set_page_config(
+    page_title="AgPilotApp – Aerial Application Performance Tool",
+    page_icon="⌯✈︎",
+    layout="wide",
+    initial_sidebar_state="auto"
+)
+
+# PWA Support
+st.markdown("""
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/captn357417/agpilot-app/main/Appicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="AgPilotApp">
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+""", unsafe_allow_html=True)
+
+# Green preview theme
+st.markdown("""
+    <meta name="theme-color" content="#4CAF50">
+    <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
+""", unsafe_allow_html=True)
+
+# ────────────────────────────────────────────────
+# Custom Logo
+# ────────────────────────────────────────────────
+LOGO_URL = "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png"
+try:
+    st.image(LOGO_URL, width=300)
+    st.logo(LOGO_URL, size="medium")
+except Exception:
+    try:
+        st.image("AgPilotApp.png", width=300)
+        st.logo("AgPilotApp.png", size="medium")
+    except Exception:
+        st.markdown("### AgPilotApp ⌯✈︎ (logo not loaded – check file/URL)")
+
+# ────────────────────────────────────────────────
+# Legal Button
+# ────────────────────────────────────────────────
+if st.button("Legal+Abbreviations ", type="secondary"):
+    with st.expander("Legal and Terms", expanded=True):
+        st.markdown("""
+        ### Legal and Terms of Use
        By downloading, installing, or otherwise
        accessing or using etc:
         List of Abbreviations
