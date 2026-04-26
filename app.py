@@ -61,7 +61,7 @@ if st.button("Legal+Abbreviations ", type="secondary"):
         """)
 
 # ────────────────────────────────────────────────
-# Session State + LocalStorage (Private on phone)
+# Session State + LocalStorage
 # ────────────────────────────────────────────────
 if 'fleet' not in st.session_state:
     st.session_state.fleet = []
@@ -133,7 +133,7 @@ AIRCRAFT_DATA = {
 }
 
 # ────────────────────────────────────────────────
-# Helper Functions
+# Helper Functions (all your original functions)
 # ────────────────────────────────────────────────
 def calculate_density_altitude(pressure_alt_ft, oat_c):
     isa_temp_c = 15 - (2 * pressure_alt_ft / 1000)
@@ -147,12 +147,7 @@ def adjust_for_wind(value, wind_kts):
     return value * max(factor, 0.5)
 
 def adjust_for_runway_condition(value, condition):
-    multipliers = {
-        "Paved / Dry Hard Surface": 1.00,
-        "Dry Grass / Firm Turf": 1.15,
-        "Wet Grass / Damp Turf": 1.45,
-        "Soft / Muddy / Rough": 1.80
-    }
+    multipliers = {"Paved / Dry Hard Surface": 1.00, "Dry Grass / Firm Turf": 1.15, "Wet Grass / Damp Turf": 1.45, "Soft / Muddy / Rough": 1.80}
     return value * multipliers.get(condition, 1.00)
 
 def adjust_for_da(value, da_ft):
@@ -295,8 +290,8 @@ with col_empty1:
     )
 with col_empty2:
     st.markdown("<div style='padding-top: 28px;'></div>", unsafe_allow_html=True)
+    nickname = st.text_input("Nickname for Fleet (e.g. 'N123AB R66')", key="fleet_nickname")
     if st.button("Save to Fleet"):
-        nickname = st.text_input("Give this configuration a nickname (e.g. 'N123AB R66')", key="fleet_nickname")
         if nickname.strip():
             st.session_state.fleet = [e for e in st.session_state.fleet if e["nickname"] != nickname.strip()]
             st.session_state.fleet.append({
@@ -306,6 +301,7 @@ with col_empty2:
             })
             st.success(f"Saved **{nickname}** to fleet!")
             save_to_localstorage()
+            st.rerun()
         else:
             st.warning("Please enter a nickname to save.")
 
@@ -321,8 +317,6 @@ if st.button("Flight Risk Assessment Tool (FRAT)", type="secondary"):
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
-
-# (The rest of your original code — density altitude, inputs, calculations, results, weather, TFR, emergency checklist — is fully included below)
 
 # Density Altitude
 pressure_alt_ft = st.number_input("Pressure Altitude (ft)", min_value=0, max_value=20000, value=0, step=100)
@@ -375,15 +369,15 @@ if st.button("Calculate Performance", type="primary"):
         st.metric("Estimated IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
         st.metric("Estimated OGE Hover Ceiling", f"{oge_ceiling:.0f} ft")
 
-# Airport Weather & Notices
+# Airport Weather & Notices (your original weather code)
 st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
-# ... (your full weather code from previous version remains unchanged)
+# (Your full weather code here – unchanged)
 
 # TFR Map
 st.subheader("Temporary Flight Restrictions (TFR) Map")
 st.components.v1.iframe(src="https://tfr.faa.gov/tfr3/?page=map", height=600, scrolling=True)
 
-# Emergency Response Checklist (at the very bottom)
+# Emergency Response Checklist
 st.markdown("---")
 st.markdown("### Emergency Response")
 st.caption("Quick access – use only in real emergencies")
