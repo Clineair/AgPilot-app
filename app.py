@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 from datetime import datetime
+import json
 
 # ────────────────────────────────────────────────
 # Page Config + PWA Support (MUST BE FIRST)
@@ -15,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="auto"
 )
 
-# PWA Support – new icon ONLY for phone home screen
+# PWA Support
 st.markdown("""
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/captn357417/agpilot-app/main/Appicon.png">
@@ -34,8 +35,9 @@ st.markdown("""
     <meta name="theme-color" content="#4CAF50">
     <link rel="icon" href="https://img.icons8.com/color/48/000000/helicopter.png" type="image/png">
 """, unsafe_allow_html=True)
+
 # ────────────────────────────────────────────────
-# Custom Logo (smaller size) – unchanged as requested
+# Custom Logo
 # ────────────────────────────────────────────────
 LOGO_URL = "https://raw.githubusercontent.com/Clineair/AgPilot-app/main/AgPilotApp.png"
 try:
@@ -113,7 +115,7 @@ if st.button("Legal+Abbreviations ", type="secondary"):
         """)
 
 # ────────────────────────────────────────────────
-# Session State (keeps expanders open after Yes/No selection)
+# Session State
 # ────────────────────────────────────────────────
 if 'fleet' not in st.session_state:
     st.session_state.fleet = []
@@ -129,6 +131,56 @@ if 'selected_role' not in st.session_state:
     st.session_state.selected_role = None
 if 'selected_option' not in st.session_state:
     st.session_state.selected_option = None
+if 'selected_aircraft' not in st.session_state:
+    st.session_state.selected_aircraft = None
+
+# ────────────────────────────────────────────────
+# LocalStorage – Automatic Save & Load (Private on user's phone)
+# ────────────────────────────────────────────────
+LOCAL_STORAGE_KEY = "agpilot_user_data"
+
+# Load from localStorage on app start
+if "local_storage_loaded" not in st.session_state:
+    st.session_state.local_storage_loaded = True
+    js_load = f"""
+    <script>
+    const saved = localStorage.getItem("{LOCAL_STORAGE_KEY}");
+    if (saved) {{
+        const data = JSON.parse(saved);
+        window.parent.postMessage({{
+            type: "streamlit:setComponentValue",
+            key: "local_storage_data",
+            value: data
+        }}, "*");
+    }}
+    </script>
+    """
+    st.markdown(js_load, unsafe_allow_html=True)
+
+# Handle loaded data
+if "local_storage_data" in st.session_state and st.session_state.local_storage_data:
+    data = st.session_state.local_storage_data
+    if isinstance(data, dict):
+        if "fleet" in data:
+            st.session_state.fleet = data["fleet"]
+        if "custom_empty_weight" in data:
+            st.session_state.custom_empty_weight = data["custom_empty_weight"]
+        if "selected_aircraft" in data:
+            st.session_state.selected_aircraft = data["selected_aircraft"]
+    st.session_state.local_storage_data = None
+
+def save_to_localstorage():
+    data = {
+        "fleet": st.session_state.get("fleet", []),
+        "custom_empty_weight": st.session_state.get("custom_empty_weight"),
+        "selected_aircraft": st.session_state.get("selected_aircraft")
+    }
+    js_save = f"""
+    <script>
+    localStorage.setItem("{LOCAL_STORAGE_KEY}", JSON.stringify({json.dumps(data)}));
+    </script>
+    """
+    st.markdown(js_save, unsafe_allow_html=True)
 
 # ────────────────────────────────────────────────
 # Default performance values
@@ -139,7 +191,7 @@ ige_ceiling = oge_ceiling = 0
 cg_status = "Not calculated yet"
 
 # ────────────────────────────────────────────────
-# Aircraft Database
+# Aircraft Database (exactly as you provided)
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
     "Air Tractor AT-502B": {
@@ -668,7 +720,6 @@ def show_risk_assessment():
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
     col_m, col_a = st.columns(2)
-
     with col_m:
         if st.button("Same or Familiar Aircraft", type="secondary", use_container_width=True):
             st.session_state.monthly_open = not st.session_state.get("monthly_open", False)
@@ -679,7 +730,6 @@ def show_risk_assessment():
             st.radio("Are you familiar with and used to flying with all your medications?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Are you familiar with your aircraft and aircraft systems?", ["Yes", "No"], horizontal=True, index=None)
             st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
-
     with col_a:
         if st.button("Not Aircraft Specific", type="secondary", use_container_width=True):
             st.session_state.annual_open = not st.session_state.get("annual_open", False)
@@ -697,7 +747,7 @@ def show_risk_assessment():
             st.radio("Do you wear a shoulder harness?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Have you attended PAASS in the last year?", ["Yes", "No"], horizontal=True, index=None)
             st.radio("Have you attended an Operation S.A.F.F. Fly In clinic in the past two years?", ["Yes", "No"], horizontal=True, index=None)
-            st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")  
+            st.caption("If you answered No to any questions, STOP. Reconsider making the flight or consider mitigation options.")
     if total_risk > 30:
         st.info("**Mitigation Recommendations**")
         st.markdown("- Delay departure or mitigate")
@@ -771,16 +821,20 @@ with col_empty2:
                 "custom_empty": custom_empty
             })
             st.success(f"Saved **{nickname}** to fleet!")
+            save_to_localstorage()
         else:
             st.warning("Please enter a nickname to save.")
 
 effective_empty = custom_empty if custom_empty != aircraft_data["base_empty_weight_lbs"] else aircraft_data["base_empty_weight_lbs"]
 st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if custom_empty != aircraft_data['base_empty_weight_lbs'] else '(base)'}")
 
+# Save whenever custom empty weight changes
+if custom_empty != aircraft_data["base_empty_weight_lbs"]:
+    save_to_localstorage()
+
 # Risk Assessment button
 if st.button("Flight Risk Assessement Tool (FRAT)", type="secondary"):
     st.session_state.show_risk = not st.session_state.get("show_risk", False)
-
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
@@ -865,7 +919,6 @@ if icao_upper and icao_upper != "None":
     st.markdown(f"[Open FAA NOTAM Search for {icao_upper}](https://notams.aim.faa.gov/notamSearch/search?search=location&loc={icao_upper}) – view active NOTAMs, TFRs, and details.")
     st.caption("Recommended: Use 1800-WX-BRIEF phone briefing or apps like ForeFlight / Garmin Pilot.")
 st.markdown("---")
-
 # TFR Map
 st.subheader("Temporary Flight Restrictions (TFR) Map")
 st.caption("Live interactive FAA TFR map – shows current restrictions. Zoom to your area/state.")
@@ -967,7 +1020,6 @@ if st.button("Calculate Performance", type="primary"):
         if da_ft > 8000:
             st.warning("High density altitude — hover performance reduced. Consult POH.")
 
- 
 # ────────────────────────────────────────────────
 # Emergency Response Checklist – MOVED TO THE VERY BOTTOM
 # ────────────────────────────────────────────────
@@ -1000,9 +1052,9 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
              appropriate authorities for a full
              investigation to determine root
              cause and prevent recurrence."
-           - Do NOT speculate on cause.  
+           - Do NOT speculate on cause.
            - Do NOT say NO COMMENT
-       
+      
         3. **Media & Press Inquiries**
            - Refer all calls to informed management.
            - Management will notify FAA and NTSB.
@@ -1025,3 +1077,7 @@ if st.button("Emergency Response Checklist", type="primary", use_container_width
     st.markdown("[Call 911 (Emergency)](tel:911)", unsafe_allow_html=True)
     st.info("Quick-reference only. Follow your company Emergency Response Plan and official guidance at all times.")
 
+# Final automatic save at the end of the app
+save_to_localstorage()
+
+st.caption("**Safe flying & have a Blessed day** ⌯✈︎")
