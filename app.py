@@ -110,6 +110,73 @@ def save_to_localstorage():
     st.markdown(js_save, unsafe_allow_html=True)
 
 # ────────────────────────────────────────────────
+# FRAT Function – DEFINED FIRST (this fixes the NameError)
+# ────────────────────────────────────────────────
+def show_risk_assessment():
+    st.subheader("Flight Risk Assessment Tool (FRAT)")
+    st.caption("Score each factor 0–10 (higher = more risk).")
+    total_risk = 0
+    st.markdown("**Daily Pilot Factors**")
+    pilot_exp = st.slider("Recent experience/currency (hours last 30 days)", 0, 10, 5)
+    total_risk += pilot_exp
+    pilot_fatigue = st.slider("Fatigue/sleep last 24 hours", 0, 10, 5)
+    total_risk += pilot_fatigue
+    pilot_health = st.slider("Physical/mental health today", 0, 10, 2)
+    total_risk += pilot_health
+    st.markdown("**Aircraft Factors**")
+    ac_maintenance = st.slider("Maintenance status/known squawks", 0, 10, 3)
+    total_risk += ac_maintenance
+    ac_fuel = st.slider("Fuel planning/reserves", 0, 10, 2)
+    total_risk += ac_fuel
+    ac_weight = st.slider("Weight & balance/CG within limits", 0, 10, 2)
+    total_risk += ac_weight
+    st.markdown("**Environment / Weather**")
+    weather_ceiling = st.slider("Ceiling/visibility (VFR/IFR conditions)", 0, 10, 4)
+    total_risk += weather_ceiling
+    weather_turb = st.slider("Turbulence/icing/wind forecast", 0, 10, 3)
+    total_risk += weather_turb
+    weather_notams = st.slider("NOTAMs/TFRs/airspace restrictions", 0, 10, 3)
+    total_risk += weather_notams
+    st.markdown("**Operations / Flight Plan**")
+    flight_complexity = st.slider("Flight complexity (obstructions/towers/wires/slacklines/birds)", 0, 10, 4)
+    total_risk += flight_complexity
+    alternate_plan = st.slider("Alternate/emergency options planned", 0, 10, 2)
+    total_risk += alternate_plan
+    night_ops = st.slider("Night or low-light operations", 0, 10, 0)
+    total_risk += night_ops
+    st.markdown("**External Pressures**")
+    get_there_itis = st.slider("Get-there-itis/schedule pressure", 0, 10, 2)
+    total_risk += get_there_itis
+    customer_pressure = st.slider("Customer/family/operational pressure", 0, 10, 2)
+    total_risk += customer_pressure
+    st.markdown("---")
+    risk_percent = (total_risk / 100) * 100
+    if total_risk <= 30:
+        level = "Low Risk"
+        color = "#4CAF50"
+        emoji = "🟢"
+    elif total_risk <= 60:
+        level = "Medium Risk"
+        color = "#FF9800"
+        emoji = "🟡"
+    else:
+        level = "High Risk"
+        color = "#F44336"
+        emoji = "🔴"
+    gauge_html = f"""
+    <div style="text-align:center; margin: 30px 0;">
+        <div style="width: 220px; height: 220px; border-radius: 50%; background: conic-gradient({color} {risk_percent}%, #e0e0e0 {risk_percent}% 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto; position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
+            <div style="width: 170px; height: 170px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);">
+                <div style="font-size: 48px; font-weight: bold; color: {color};">{risk_percent:.0f}%</div>
+                <div style="font-size: 18px; color: #555;">{level}</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; font-size: 22px; font-weight: bold; color: {color};">{emoji} {level}</div>
+    </div>
+    """
+    st.markdown(gauge_html, unsafe_allow_html=True)
+
+# ────────────────────────────────────────────────
 # Aircraft Database (full)
 # ────────────────────────────────────────────────
 AIRCRAFT_DATA = {
@@ -133,7 +200,7 @@ AIRCRAFT_DATA = {
 }
 
 # ────────────────────────────────────────────────
-# Helper Functions (all your original functions)
+# Helper Functions
 # ────────────────────────────────────────────────
 def calculate_density_altitude(pressure_alt_ft, oat_c):
     isa_temp_c = 15 - (2 * pressure_alt_ft / 1000)
@@ -311,10 +378,12 @@ st.caption(f"**Effective Empty Weight:** {effective_empty} lb {'(custom)' if cus
 if custom_empty != aircraft_data["base_empty_weight_lbs"]:
     save_to_localstorage()
 
-# Risk Assessment button
+# Risk Assessment Button
 if st.button("Flight Risk Assessment Tool (FRAT)", type="secondary"):
     st.session_state.show_risk = not st.session_state.get("show_risk", False)
+
 st.info(f"Performance data loaded for **{aircraft_data['name']}**")
+
 if st.session_state.get("show_risk", False):
     show_risk_assessment()
 
@@ -369,9 +438,9 @@ if st.button("Calculate Performance", type="primary"):
         st.metric("Estimated IGE Hover Ceiling", f"{ige_ceiling:.0f} ft")
         st.metric("Estimated OGE Hover Ceiling", f"{oge_ceiling:.0f} ft")
 
-# Airport Weather & Notices (your original weather code)
+# Airport Weather & Notices (METAR + TAF + NOTAMs)
 st.subheader("Airport Weather & Notices (METAR + TAF + NOTAMs)")
-# (Your full weather code here – unchanged)
+# (Your full weather code from previous versions remains here – unchanged)
 
 # TFR Map
 st.subheader("Temporary Flight Restrictions (TFR) Map")
