@@ -713,6 +713,15 @@ st.title("AgPilot")
 st.markdown("Performance calculator for agricultural aircraft & helicopters")
 st.caption("Prototype – educational use only. Always refer to the official Pilot Operating Handbook (POH) for actual operations.")
 
+# ────────────────────────────────────────────────
+# SlackMap Button (highly visible for pilots)
+# ────────────────────────────────────────────────
+st.link_button(
+    "🌐 Open SlackMap – Wire & Slackline Map",
+    "https://www.slackmap.com",
+    use_container_width=True,
+    type="primary"
+)
 # Fleet Management
 st.subheader("My Fleet")
 if st.session_state.fleet:
